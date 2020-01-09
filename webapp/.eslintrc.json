@@ -1,0 +1,83 @@
+{
+  "env": {
+    "browser": true,
+    "es6": true
+  },
+  "extends": [
+    "./node_modules/eslint-config-mattermost/.eslintrc.json",
+    "./node_modules/eslint-config-mattermost/.eslintrc-react.json"
+  ],
+  "globals": {
+    "Atomics": "readonly",
+    "document": true,
+    "SharedArrayBuffer": "readonly",
+    "window": true
+  },
+  "parserOptions": {
+    "ecmaFeatures": {
+      "jsx": true
+    },
+    "ecmaVersion": 2018,
+    "sourceType": "module"
+  },
+  "plugins": [
+    "header",
+    "import",
+    "react"
+  ],
+  "settings": {
+    "import/resolver": "webpack",
+    "react": {
+      "pragma": "React",
+      "version": "16.8.6"
+    }
+  },
+  "rules": {
+    "header/header": 0,
+    "import/order": [
+      2,
+      {
+        "newlines-between": "always-and-inside-groups",
+        "groups": [
+          "builtin",
+          "external",
+          [
+            "internal",
+            "parent"
+          ],
+          "sibling",
+          "index"
+        ]
+      }
+    ],
+    "indent": [
+      "error",
+      4
+    ],
+    "linebreak-style": [
+      "error",
+      "unix"
+    ],
+    "no-magic-numbers": [
+      1,
+      {
+        "ignore": [
+          -1,
+          0,
+          1,
+          2
+        ],
+        "enforceConst": true,
+        "ignoreArrayIndexes": true
+      }
+    ],
+    "quotes": [
+      "error",
+      "single"
+    ],
+    "semi": [
+      "error",
+      "always"
+    ]
+  }
+}
