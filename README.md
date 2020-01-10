@@ -1,0 +1,1 @@
+# Mattermost Plugin Confluence [![CircleCI branch](https://img.shields.io/circleci/project/github/Brightscout/mattermost-plugin-confluence/master.svg)](https://circleci.com/gh/Brightscout/mattermost-plugin-confluence)
