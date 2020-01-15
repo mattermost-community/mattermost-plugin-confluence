@@ -3,10 +3,19 @@ package main
 import (
 	"net/http"
 
+	"github.com/pkg/errors"
+
+	"github.com/mattermost/mattermost-server/model"
 	"github.com/mattermost/mattermost-server/plugin"
 
 	"github.com/Brightscout/mattermost-plugin-confluence/server/config"
 	"github.com/Brightscout/mattermost-plugin-confluence/server/controller"
+)
+
+const (
+	botUserName    = "confluence"
+	botDisplayName = "Confluence"
+	botDescription = "Bot for confluence plugin."
 )
 
 type Plugin struct {
@@ -17,6 +26,16 @@ type Plugin struct {
 
 func (p *Plugin) OnActivate() error {
 	config.Mattermost = p.API
+	botUserID, err := p.Helpers.EnsureBot(&model.Bot{
+		Username:    botUserName,
+		DisplayName: botDisplayName,
+		Description: botDescription,
+	})
+	if err != nil {
+		config.Mattermost.LogError("Error in setting up bot user: " + err.Error())
+		return errors.Wrap(err, "Error in setting up bot user")
+	}
+	config.BotUserID = botUserID
 
 	if err := p.OnConfigurationChange(); err != nil {
 		return err
