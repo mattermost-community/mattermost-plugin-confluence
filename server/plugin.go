@@ -1,9 +1,8 @@
 package main
 
 import (
-	"net/http"
-
 	"github.com/pkg/errors"
+	"net/http"
 
 	"github.com/mattermost/mattermost-server/model"
 	"github.com/mattermost/mattermost-server/plugin"
@@ -41,6 +40,9 @@ func (p *Plugin) OnActivate() error {
 		return err
 	}
 
+	if err:= p.API.RegisterCommand(getCommand()); err != nil {
+		return err
+	}
 	return nil
 }
 
