@@ -1,13 +1,19 @@
 import Constants from './constants';
+import Hooks from './hooks';
+import reducer from './reducers';
+
+import ConfigModal from './components/config_modal';
 
 //
 // Define the plugin class that will register
 // our plugin components.
 //
-export default class PluginClass {
-    // eslint-disable-next-line no-unused-vars
+class PluginClass {
     initialize(registry, store) {
-        // @see https://developers.mattermost.com/extend/plugins/webapp/reference/
+        registry.registerReducer(reducer);
+        registry.registerRootComponent(ConfigModal);
+        const hooks = new Hooks(store);
+        registry.registerSlashCommandWillBePostedHook(hooks.slashCommandWillBePostedHook);
     }
 }
 
