@@ -3,8 +3,6 @@ package main
 import (
 	"net/http"
 
-	"github.com/pkg/errors"
-
 	"github.com/mattermost/mattermost-server/model"
 	"github.com/mattermost/mattermost-server/plugin"
 
@@ -32,8 +30,8 @@ func (p *Plugin) OnActivate() error {
 		Description: botDescription,
 	})
 	if err != nil {
-		config.Mattermost.LogError("Error in setting up bot user: " + err.Error())
-		return errors.Wrap(err, "Error in setting up bot user")
+		config.Mattermost.LogError("Error in setting up bot user", "Error", err.Error())
+		return err
 	}
 	config.BotUserID = botUserID
 
