@@ -10,8 +10,14 @@ const CONFLUENCE_EVENTS = [
     {value: 'page_delete', label: 'Page Delete'},
 ];
 
+const CONFLUENCE_TYPE = [
+    {value: 'cloud', label: 'Cloud'},
+    {value: 'server', label: 'Server'},
+];
+
 export default {
     ACTION_TYPES,
+    CONFLUENCE_TYPE,
     CONFLUENCE_EVENTS,
     PLUGIN_NAME,
 };

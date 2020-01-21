@@ -1,17 +1,14 @@
 import React from 'react';
 import {
-    FormGroup,
-    FormControl,
     Modal,
-    ControlLabel,
     Button,
 } from 'react-bootstrap';
 
 import PropTypes from 'prop-types';
-import Select from 'react-select';
 
 import Constants from '../../constants';
-import {getStyleForReactSelect} from '../react_select_settings';
+import ConfluenceField from '../confluence_field';
+import Validator from '../validator';
 
 export default class ConfigModal extends React.PureComponent {
     static propTypes = {
@@ -20,8 +17,52 @@ export default class ConfigModal extends React.PureComponent {
         theme: PropTypes.object.isRequired,
     };
 
+    constructor(props) {
+        super(props);
+        this.state = {
+            type: Constants.CONFLUENCE_TYPE[0],
+            baseURL: '',
+            spaceKey: '',
+            events: null,
+        };
+        this.validator = new Validator();
+    }
+
     handleClose = () => {
         this.props.close();
+    };
+
+    handleType = (type) => {
+        this.setState({
+            type,
+        });
+    };
+
+    handleBaseURLChange = (e) => {
+        this.setState({
+            baseURL: e.target.value,
+        });
+    };
+
+    handleSpaceKey = (e) => {
+        this.setState({
+            spaceKey: e.target.value,
+        });
+    };
+
+    handleEvents = (events) => {
+        this.setState({
+            events,
+        });
+    };
+
+    handleSubmit = () => {
+        if (!this.validator.validate()) {
+            return;
+        }
+
+        // TODO: SAVE CONFIG
+        this.handleClose();
     };
 
     render() {
@@ -40,31 +81,53 @@ export default class ConfigModal extends React.PureComponent {
                 </Modal.Header>
                 <Modal.Body>
                     <div>
-                        <FormGroup>
-                            <ControlLabel>{'CONFLUENCE BASE URL'}</ControlLabel>
-                            <FormControl
-                                type={'text'}
-                                placeholder={'Enter confluence base url'}
-                            />
-                        </FormGroup>
-                        <FormGroup>
-                            <ControlLabel>{'SPACE KEY'}</ControlLabel>
-                            <FormControl
-                                type={'text'}
-                                placeholder={'Enter space key'}
-                            />
-                        </FormGroup>
-                        <FormGroup>
-                            <ControlLabel>{'EVENTS'}</ControlLabel>
-                            <Select
-                                isMulti={'true'}
-                                name={'events'}
-                                options={Constants.CONFLUENCE_EVENTS}
-                                menuPortalTarget={document.body}
-                                menuPlacement='auto'
-                                styles={getStyleForReactSelect(this.props.theme)}
-                            />
-                        </FormGroup>
+                        <ConfluenceField
+                            label={'TYPE'}
+                            name={'type'}
+                            fieldType={'dropDown'}
+                            required={true}
+                            theme={this.props.theme}
+                            options={Constants.CONFLUENCE_TYPE}
+                            value={this.state.type}
+                            addValidation={this.validator.addValidation}
+                            removeValidation={this.validator.removeValidation}
+                            onChange={this.handleType}
+                        />
+                        <ConfluenceField
+                            label={'CONFLUENCE BASE URL'}
+                            type={'text'}
+                            fieldType={'input'}
+                            required={true}
+                            placeholder={'Enter confluence base url'}
+                            value={this.state.baseURL}
+                            addValidation={this.validator.addValidation}
+                            removeValidation={this.validator.removeValidation}
+                            onChange={this.handleBaseURLChange}
+                        />
+                        <ConfluenceField
+                            label={'SPACE KEY'}
+                            type={'text'}
+                            fieldType={'input'}
+                            required={true}
+                            placeholder={'Enter space key'}
+                            value={this.state.spaceKey}
+                            addValidation={this.validator.addValidation}
+                            removeValidation={this.validator.removeValidation}
+                            onChange={this.handleSpaceKey}
+                        />
+                        <ConfluenceField
+                            isMulti={true}
+                            label={'EVENTS'}
+                            name={'events'}
+                            fieldType={'dropDown'}
+                            required={true}
+                            theme={this.props.theme}
+                            options={Constants.CONFLUENCE_EVENTS}
+                            value={this.state.events}
+                            addValidation={this.validator.addValidation}
+                            removeValidation={this.validator.removeValidation}
+                            onChange={this.handleEvents}
+                        />
                     </div>
                 </Modal.Body>
                 <Modal.Footer>
@@ -78,6 +141,7 @@ export default class ConfigModal extends React.PureComponent {
                     <Button
                         type='submit'
                         bsStyle='primary'
+                        onClick={this.handleSubmit}
                     >
                         {'Submit'}
                     </Button>
