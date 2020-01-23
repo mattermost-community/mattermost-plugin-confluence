@@ -19,6 +19,7 @@ const (
 var (
 	config     atomic.Value
 	Mattermost plugin.API
+	BotUserID  string
 )
 
 type Configuration struct {

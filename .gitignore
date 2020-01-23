@@ -70,6 +70,6 @@ dist
 plugin.exe
 .npminstall
 *.tar.gz
-server/vendor/
+vendor/
 .history/
 coverage.txt

@@ -10,6 +10,7 @@ require (
 	github.com/oklog/run v1.0.1-0.20180308005104-6934b124db28 // indirect
 	github.com/onsi/ginkgo v1.10.3 // indirect
 	github.com/onsi/gomega v1.7.1 // indirect
+	github.com/pkg/errors v0.8.1
 	github.com/poy/onpar v0.0.0-20190519213022-ee068f8ea4d1 // indirect
 	go.uber.org/atomic v1.5.1
 	go.uber.org/multierr v1.4.0 // indirect
