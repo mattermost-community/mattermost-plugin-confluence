@@ -39,7 +39,7 @@ func (p *Plugin) OnActivate() error {
 		return err
 	}
 
-	if err:= p.API.RegisterCommand(getCommand()); err != nil {
+	if err := p.API.RegisterCommand(getCommand()); err != nil {
 		return err
 	}
 

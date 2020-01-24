@@ -2,9 +2,10 @@ package controller
 
 import (
 	"encoding/json"
-	"github.com/Brightscout/mattermost-plugin-confluence/server/util"
 	"net/http"
 	url2 "net/url"
+
+	"github.com/Brightscout/mattermost-plugin-confluence/server/util"
 
 	"github.com/Brightscout/mattermost-plugin-confluence/server/config"
 	"github.com/Brightscout/mattermost-plugin-confluence/server/platform"

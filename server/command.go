@@ -2,12 +2,13 @@ package main
 
 import (
 	"fmt"
+	"strings"
+
 	"github.com/Brightscout/mattermost-plugin-confluence/server/config"
 	"github.com/Brightscout/mattermost-plugin-confluence/server/serializer"
 	"github.com/Brightscout/mattermost-plugin-confluence/server/util"
 	"github.com/mattermost/mattermost-server/model"
 	"github.com/mattermost/mattermost-server/plugin"
-	"strings"
 )
 
 type CommandHandlerFunc func(context *model.CommandArgs, args ...string) *model.CommandResponse
@@ -17,23 +18,22 @@ type CommandHandler struct {
 	defaultHandler CommandHandlerFunc
 }
 
-
-var(
+var (
 	confluenceCommandHandler = CommandHandler{
 		handlers: map[string]CommandHandlerFunc{
-			"list": listChannelSubscriptions,
+			"list":        listChannelSubscriptions,
 			"unsubscribe": deleteSubscription,
 		},
 		defaultHandler: executeConflunceDefault,
 	}
 
-	eventTypes = map[string]string {
+	eventTypes = map[string]string{
 		"comment_create": "Comment Create",
-    	"comment_update":"Comment Update",
-    	"comment_delete": "Comment Delete",
-    	"page_create": "Page Create",
-    	"page_update" : "Page Update",
-    	"page_delete": "Page Delete",
+		"comment_update": "Comment Update",
+		"comment_delete": "Comment Delete",
+		"page_create":    "Page Create",
+		"page_update":    "Page Update",
+		"page_delete":    "Page Delete",
 	}
 )
 
@@ -85,17 +85,17 @@ func listChannelSubscriptions(context *model.CommandArgs, args ...string) *model
 		postCommandResponse(context, "Encountered an error getting channel subscriptions.")
 		return &model.CommandResponse{}
 	}
-	if len(channelSubscriptions) ==0 {
+	if len(channelSubscriptions) == 0 {
 		postCommandResponse(context, "No subscription found for this channel.")
 		return &model.CommandResponse{}
 	}
 	text := fmt.Sprintf("| Alias | Base Url | Space Key | Events|\n| :----: |:--------:| :--------:| :-----:|")
-	for _,subscription := range channelSubscriptions {
+	for _, subscription := range channelSubscriptions {
 		var events []string
 		for _, event := range subscription.Events {
 			events = append(events, eventTypes[event])
 		}
-		text +=  fmt.Sprintf("\n|%s|%s|%s|%s|", subscription.Alias, subscription.BaseURL, subscription.SpaceKey, strings.Join(events, ", "))
+		text += fmt.Sprintf("\n|%s|%s|%s|%s|", subscription.Alias, subscription.BaseURL, subscription.SpaceKey, strings.Join(events, ", "))
 	}
 	postCommandResponse(context, text)
 	return &model.CommandResponse{}
@@ -112,7 +112,7 @@ func deleteSubscription(context *model.CommandArgs, args ...string) *model.Comma
 			postCommandResponse(context, fmt.Sprintf("Error occured while deleting subscription with alias **%s**.", args[0]))
 			return &model.CommandResponse{}
 		}
-   		postCommandResponse(context, fmt.Sprintf("Subscription with alias **%s** deleted successfully.", args[0]))
+		postCommandResponse(context, fmt.Sprintf("Subscription with alias **%s** deleted successfully.", args[0]))
 		return &model.CommandResponse{}
 	} else {
 		postCommandResponse(context, fmt.Sprintf("Subscription with alias **%s** not found.", args[0]))
