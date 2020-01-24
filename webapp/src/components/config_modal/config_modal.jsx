@@ -81,7 +81,7 @@ export default class ConfigModal extends React.PureComponent {
         const {error} = await this.props.saveChannelSubscription(channelSubscription);
         if (error) {
             this.setState({
-                error: 'error occurred',
+                error: error.response.text,
                 saving: false,
             });
             return;
@@ -94,7 +94,15 @@ export default class ConfigModal extends React.PureComponent {
         const {error, saving} = this.state;
         let createError = null;
         if (error) {
-            createError = <span className='error'>{error}</span>;
+            createError = (
+                <p className='alert alert-danger'>
+                    <i
+                        className='fa fa-warning'
+                        title='Warning Icon'
+                    />
+                    <span> {error}</span>
+                </p>
+            );
         }
 
         return (

@@ -12,3 +12,4 @@ func GetKey(url , spaceKey string) (string, error) {
 	}
 	return fmt.Sprintf("%s/%s", u.Hostname(), spaceKey), nil
 }
+

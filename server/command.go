@@ -18,13 +18,24 @@ type CommandHandler struct {
 }
 
 
-var confluenceCommandHandler = CommandHandler{
-	handlers: map[string]CommandHandlerFunc{
-		"list": listChannelSubscriptions,
-		"delete": deleteSubscription,
-	},
-	defaultHandler: executeConflunceDefault,
-}
+var(
+	confluenceCommandHandler = CommandHandler{
+		handlers: map[string]CommandHandlerFunc{
+			"list": listChannelSubscriptions,
+			"unsubscribe": deleteSubscription,
+		},
+		defaultHandler: executeConflunceDefault,
+	}
+
+	eventTypes = map[string]string {
+		"comment_create": "Comment Create",
+    	"comment_update":"Comment Update",
+    	"comment_delete": "Comment Delete",
+    	"page_create": "Page Create",
+    	"page_update" : "Page Update",
+    	"page_delete": "Page Delete",
+	}
+)
 
 func getCommand() *model.Command {
 	return &model.Command{
@@ -32,7 +43,7 @@ func getCommand() *model.Command {
 		DisplayName:      "Confluence",
 		Description:      "Integration with Confluence.",
 		AutoComplete:     true,
-		AutoCompleteDesc: "Available commands: subscribe, list",
+		AutoCompleteDesc: "Available commands: subscribe, list, unsubscribe <alias>",
 		AutoCompleteHint: "[command]",
 	}
 }
@@ -80,7 +91,11 @@ func listChannelSubscriptions(context *model.CommandArgs, args ...string) *model
 	}
 	text := fmt.Sprintf("| Alias | Base Url | Space Key | Events|\n| :----: |:--------:| :--------:| :-----:|")
 	for _,subscription := range channelSubscriptions {
-		text +=  fmt.Sprintf("\n|%s|%s|%s|%s|", subscription.Alias, subscription.BaseURL, subscription.SpaceKey, strings.Join(subscription.Events, ", "))
+		var events []string
+		for _, event := range subscription.Events {
+			events = append(events, eventTypes[event])
+		}
+		text +=  fmt.Sprintf("\n|%s|%s|%s|%s|", subscription.Alias, subscription.BaseURL, subscription.SpaceKey, strings.Join(events, ", "))
 	}
 	postCommandResponse(context, text)
 	return &model.CommandResponse{}
