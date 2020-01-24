@@ -10,31 +10,40 @@ import Constants from '../../constants';
 import ConfluenceField from '../confluence_field';
 import Validator from '../validator';
 
+const initialState = {
+    alias: '',
+    baseURL: '',
+    spaceKey: '',
+    events: [],
+    error: '',
+    saving: false,
+};
+
 export default class ConfigModal extends React.PureComponent {
     static propTypes = {
         visibility: PropTypes.bool.isRequired,
         close: PropTypes.func.isRequired,
         theme: PropTypes.object.isRequired,
+        saveChannelSubscription: PropTypes.func.isRequired,
+        currentChannelID: PropTypes.string.isRequired,
     };
 
     constructor(props) {
         super(props);
-        this.state = {
-            type: Constants.CONFLUENCE_TYPE[0],
-            baseURL: '',
-            spaceKey: '',
-            events: null,
-        };
+        this.state = initialState;
         this.validator = new Validator();
     }
 
-    handleClose = () => {
-        this.props.close();
+    handleClose = (e) => {
+        if (e && e.preventDefault) {
+            e.preventDefault();
+        }
+        this.setState(initialState, this.props.close);
     };
 
-    handleType = (type) => {
+    handleAlias = (e) => {
         this.setState({
-            type,
+            alias: e.target.value,
         });
     };
 
@@ -56,17 +65,37 @@ export default class ConfigModal extends React.PureComponent {
         });
     };
 
-    handleSubmit = () => {
+    handleSubmit = async () => {
         if (!this.validator.validate()) {
             return;
         }
-
-        // TODO: SAVE CONFIG
+        const {alias, baseURL, spaceKey, events} = this.state;
+        const channelSubscription = {
+            alias,
+            baseURL,
+            spaceKey,
+            channelID: this.props.currentChannelID,
+            events: events.map((event) => event.value),
+        };
+        this.setState({saving: true});
+        const {error} = await this.props.saveChannelSubscription(channelSubscription);
+        if (error) {
+            this.setState({
+                error: 'error occurred',
+                saving: false,
+            });
+            return;
+        }
         this.handleClose();
     };
 
     render() {
         const {visibility} = this.props;
+        const {error, saving} = this.state;
+        let createError = null;
+        if (error) {
+            createError = <span className='error'>{error}</span>;
+        }
 
         return (
             <Modal
@@ -82,16 +111,15 @@ export default class ConfigModal extends React.PureComponent {
                 <Modal.Body>
                     <div>
                         <ConfluenceField
-                            label={'TYPE'}
-                            name={'type'}
-                            fieldType={'dropDown'}
+                            label={'Alias'}
+                            type={'text'}
+                            fieldType={'input'}
                             required={true}
-                            theme={this.props.theme}
-                            options={Constants.CONFLUENCE_TYPE}
-                            value={this.state.type}
+                            placeholder={'Enter alias for this subscription'}
+                            value={this.state.alias}
                             addValidation={this.validator.addValidation}
                             removeValidation={this.validator.removeValidation}
-                            onChange={this.handleType}
+                            onChange={this.handleAlias}
                         />
                         <ConfluenceField
                             label={'CONFLUENCE BASE URL'}
@@ -120,7 +148,6 @@ export default class ConfigModal extends React.PureComponent {
                             label={'EVENTS'}
                             name={'events'}
                             fieldType={'dropDown'}
-                            required={true}
                             theme={this.props.theme}
                             options={Constants.CONFLUENCE_EVENTS}
                             value={this.state.events}
@@ -128,6 +155,7 @@ export default class ConfigModal extends React.PureComponent {
                             removeValidation={this.validator.removeValidation}
                             onChange={this.handleEvents}
                         />
+                        {createError}
                     </div>
                 </Modal.Body>
                 <Modal.Footer>
@@ -142,8 +170,10 @@ export default class ConfigModal extends React.PureComponent {
                         type='submit'
                         bsStyle='primary'
                         onClick={this.handleSubmit}
+                        disabled={saving}
                     >
-                        {'Submit'}
+                        {saving && <span className='fa fa-spinner fa-fw fa-pulse spinner'/>}
+                        {'Save Subscription'}
                     </Button>
                 </Modal.Footer>
             </Modal>

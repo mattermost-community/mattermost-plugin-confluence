@@ -3,8 +3,6 @@ import PropTypes from 'prop-types';
 import {ControlLabel, FormControl, FormGroup} from 'react-bootstrap';
 import Select from 'react-select';
 
-import Constants from '../constants';
-
 import {getReactSelectTheme, reactSelectStyles} from '../utils/react_select_styles';
 
 export default class ConfluenceField extends React.PureComponent {
@@ -77,7 +75,6 @@ export default class ConfluenceField extends React.PureComponent {
             field = (
                 <Select
                     {...this.props}
-                    options={Constants.CONFLUENCE_EVENTS}
                     menuPortalTarget={document.body}
                     menuPlacement='auto'
                     styles={reactSelectStyles}

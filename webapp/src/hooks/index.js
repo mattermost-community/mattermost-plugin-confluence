@@ -5,16 +5,16 @@ export default class Hooks {
         this.store = store;
     }
 
-    slashCommandWillBePostedHook = (command, contextArgs) => {
+    slashCommandWillBePostedHook = (message, contextArgs) => {
         let commandTrimmed;
-        if (command) {
-            commandTrimmed = command.trim();
+        if (message) {
+            commandTrimmed = message.trim();
         }
 
-        if (commandTrimmed && commandTrimmed === '/confluence config') {
+        if (commandTrimmed && commandTrimmed === '/confluence subscribe') {
             this.store.dispatch(openConfigModal());
             return Promise.resolve({});
         }
-        return Promise.resolve({command, args: contextArgs});
+        return Promise.resolve({message, args: contextArgs});
     }
 }

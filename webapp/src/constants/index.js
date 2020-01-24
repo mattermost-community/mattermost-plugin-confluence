@@ -15,9 +15,12 @@ const CONFLUENCE_TYPE = [
     {value: 'server', label: 'Server'},
 ];
 
+const MATTERMOST_CSRF_COOKIE = 'MMCSRF';
+
 export default {
     ACTION_TYPES,
     CONFLUENCE_TYPE,
     CONFLUENCE_EVENTS,
     PLUGIN_NAME,
+    MATTERMOST_CSRF_COOKIE,
 };

@@ -14,6 +14,11 @@ export default class Client {
         this.apiUrl = `${this.baseUrl}/api/v4`;
     }
 
+    saveChannelSubscription = (channelSubscription) => {
+        const url = `${this.pluginUrl}/save-channel-subscription`;
+        return this.doPost(url, channelSubscription);
+    };
+
     doGet = async (url, headers = {}) => {
         headers['X-Requested-With'] = 'XMLHttpRequest';
 
