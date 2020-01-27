@@ -69,6 +69,8 @@ func (p *Plugin) OnConfigurationChange() error {
 }
 
 func (p *Plugin) ServeHTTP(c *plugin.Context, w http.ResponseWriter, r *http.Request) {
+	p.API.LogDebug("New request:", "Host", r.Host, "RequestURI", r.RequestURI, "Method", r.Method)
+
 	conf := config.GetConfig()
 	if err := conf.IsValid(); err != nil {
 		p.API.LogError("This plugin is not configured.", "Error", err.Error())
@@ -76,14 +78,7 @@ func (p *Plugin) ServeHTTP(c *plugin.Context, w http.ResponseWriter, r *http.Req
 		return
 	}
 
-	path := r.URL.Path
-	endpoint := controller.Endpoints[path]
-
-	if endpoint == nil {
-		p.handler.ServeHTTP(w, r)
-	} else if !endpoint.RequiresAuth || controller.Authenticated(w, r) {
-		endpoint.Execute(w, r)
-	}
+	controller.InitAPI().ServeHTTP(w, r)
 }
 
 func main() {
