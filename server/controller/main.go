@@ -19,8 +19,7 @@ type Endpoint struct {
 
 // Endpoints is a map of endpoint key to endpoint object
 // Usage: getEndpointKey(GetMetadata): GetMetadata
-var Endpoints = map[string]*Endpoint{
-}
+var Endpoints = map[string]*Endpoint{}
 
 // Uniquely identifies an endpoint using path and method
 func getEndpointKey(endpoint *Endpoint) string {
@@ -59,7 +58,7 @@ func handleStaticFiles(r *mux.Router) {
 func handleAuth(endpoint *Endpoint) func(w http.ResponseWriter, r *http.Request) {
 	return func(w http.ResponseWriter, r *http.Request) {
 		if Authenticated(w, r) {
-			endpoint.Execute(w,r)
+			endpoint.Execute(w, r)
 		}
 	}
 }
