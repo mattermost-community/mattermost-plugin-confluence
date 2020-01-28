@@ -108,7 +108,9 @@ export default class SubscriptionModal extends React.PureComponent {
             channelID: currentChannelID,
             events: events.map((event) => event.value),
         };
-        this.setState({saving: true});
+        this.setState({
+            saving: true,
+        });
         if (subscription && subscription.alias) {
             // TODO : ADD logic to edit subscription
         } else {

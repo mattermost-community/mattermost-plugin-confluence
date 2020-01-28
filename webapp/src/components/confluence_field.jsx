@@ -25,7 +25,9 @@ export default class ConfluenceField extends React.PureComponent {
 
     constructor(props) {
         super(props);
-        this.state = {valid: true};
+        this.state = {
+            valid: true,
+        };
     }
 
     componentDidMount() {
@@ -34,11 +36,14 @@ export default class ConfluenceField extends React.PureComponent {
         }
     }
 
-    componentDidUpdate(prevProps, prevState) {
-        if (!prevState.valid && this.props.value !== prevProps.value) {
-            this.setState({valid: true}); //eslint-disable-line react/no-did-update-set-state
+    handleChange = (e) => {
+        if (!this.state.valid) {
+            this.setState({
+                valid: true,
+            });
         }
-    }
+        this.props.onChange(e);
+    };
 
     componentWillUnmount() {
         if (this.props.removeValidation) {
@@ -48,7 +53,9 @@ export default class ConfluenceField extends React.PureComponent {
 
     isValid = () => {
         if (this.props.required && !this.props.value) {
-            this.setState({valid: false});
+            this.setState({
+                valid: false,
+            });
             return false;
         }
         return true;
@@ -69,7 +76,7 @@ export default class ConfluenceField extends React.PureComponent {
             field = (
                 <FormControl
                     {...this.props}
-                    onChange={this.props.onChange}
+                    onChange={this.handleChange}
                 />
             );
         } else if (this.props.fieldType === 'dropDown') {
@@ -80,7 +87,7 @@ export default class ConfluenceField extends React.PureComponent {
                     menuPlacement='auto'
                     styles={reactSelectStyles}
                     theme={getReactSelectTheme(this.props.theme)}
-                    onChange={this.props.onChange}
+                    onChange={this.handleChange}
                 />
             );
         }

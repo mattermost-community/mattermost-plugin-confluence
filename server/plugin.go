@@ -3,6 +3,9 @@ package main
 import (
 	"net/http"
 
+	"github.com/Brightscout/mattermost-plugin-confluence/server/command"
+	"github.com/Brightscout/mattermost-plugin-confluence/server/util"
+
 	"github.com/mattermost/mattermost-server/model"
 	"github.com/mattermost/mattermost-server/plugin"
 
@@ -39,7 +42,7 @@ func (p *Plugin) OnActivate() error {
 		return err
 	}
 
-	if err := p.API.RegisterCommand(getCommand()); err != nil {
+	if err := p.API.RegisterCommand(command.GetCommand()); err != nil {
 		return err
 	}
 
@@ -70,6 +73,14 @@ func (p *Plugin) OnConfigurationChange() error {
 
 	config.SetConfig(&configuration)
 	return nil
+}
+
+func (p *Plugin) ExecuteCommand(context *plugin.Context, commandArgs *model.CommandArgs) (*model.CommandResponse, *model.AppError) {
+	args, argErr := util.SplitArgs(commandArgs.Command)
+	if argErr != nil {
+		return &model.CommandResponse{}, nil
+	}
+	return command.ConfluenceCommandHandler.Handle(commandArgs, args[1:]...), nil
 }
 
 func (p *Plugin) ServeHTTP(c *plugin.Context, w http.ResponseWriter, r *http.Request) {

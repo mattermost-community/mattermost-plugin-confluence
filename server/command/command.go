@@ -1,22 +1,23 @@
-package main
+package command
 
 import (
 	"encoding/json"
 	"fmt"
 	"strings"
 
+	"github.com/Brightscout/mattermost-plugin-confluence/server/store"
+
 	"github.com/Brightscout/mattermost-plugin-confluence/server/config"
 	"github.com/Brightscout/mattermost-plugin-confluence/server/serializer"
 	"github.com/Brightscout/mattermost-plugin-confluence/server/util"
 	"github.com/mattermost/mattermost-server/model"
-	"github.com/mattermost/mattermost-server/plugin"
 )
 
-type CommandHandlerFunc func(context *model.CommandArgs, args ...string) *model.CommandResponse
+type HandlerFunc func(context *model.CommandArgs, args ...string) *model.CommandResponse
 
-type CommandHandler struct {
-	handlers       map[string]CommandHandlerFunc
-	defaultHandler CommandHandlerFunc
+type Handler struct {
+	handlers       map[string]HandlerFunc
+	defaultHandler HandlerFunc
 }
 
 const (
@@ -24,13 +25,13 @@ const (
 )
 
 var (
-	confluenceCommandHandler = CommandHandler{
-		handlers: map[string]CommandHandlerFunc{
+	ConfluenceCommandHandler = Handler{
+		handlers: map[string]HandlerFunc{
 			"list":        listChannelSubscriptions,
 			"unsubscribe": deleteSubscription,
 			"edit":        editSubscription,
 		},
-		defaultHandler: executeConflunceDefault,
+		defaultHandler: executeConfluenceDefault,
 	}
 
 	eventTypes = map[string]string{
@@ -43,7 +44,7 @@ var (
 	}
 )
 
-func getCommand() *model.Command {
+func GetCommand() *model.Command {
 	return &model.Command{
 		Trigger:          "confluence",
 		DisplayName:      "Confluence",
@@ -54,7 +55,7 @@ func getCommand() *model.Command {
 	}
 }
 
-func executeConflunceDefault(context *model.CommandArgs, args ...string) *model.CommandResponse {
+func executeConfluenceDefault(context *model.CommandArgs, args ...string) *model.CommandResponse {
 	return &model.CommandResponse{
 		ResponseType: model.COMMAND_RESPONSE_TYPE_EPHEMERAL,
 		Text:         "Invalid command",
@@ -70,7 +71,7 @@ func postCommandResponse(context *model.CommandArgs, text string) {
 	_ = config.Mattermost.SendEphemeralPost(context.UserId, post)
 }
 
-func (ch CommandHandler) Handle(context *model.CommandArgs, args ...string) *model.CommandResponse {
+func (ch Handler) Handle(context *model.CommandArgs, args ...string) *model.CommandResponse {
 	for n := len(args); n > 0; n-- {
 		h := ch.handlers[strings.Join(args[:n], "/")]
 		if h != nil {
@@ -80,20 +81,9 @@ func (ch CommandHandler) Handle(context *model.CommandArgs, args ...string) *mod
 	return ch.defaultHandler(context, args...)
 }
 
-func (p *Plugin) ExecuteCommand(context *plugin.Context, commandArgs *model.CommandArgs) (*model.CommandResponse, *model.AppError) {
-	args, argErr := util.SplitArgs(commandArgs.Command)
-	if argErr != nil {
-		return &model.CommandResponse{
-			ResponseType: model.COMMAND_RESPONSE_TYPE_EPHEMERAL,
-			Text:         argErr.Error(),
-		}, nil
-	}
-	return confluenceCommandHandler.Handle(commandArgs, args[1:]...), nil
-}
-
 func listChannelSubscriptions(context *model.CommandArgs, args ...string) *model.CommandResponse {
 	channelSubscriptions := make(map[string]serializer.Subscription)
-	if err := util.Get(context.ChannelId, &channelSubscriptions); err != nil {
+	if err := store.Get(util.GetChannelSubscriptionKey(context.ChannelId), &channelSubscriptions); err != nil {
 		postCommandResponse(context, "Encountered an error getting channel subscriptions.")
 		return &model.CommandResponse{}
 	}
@@ -116,7 +106,7 @@ func listChannelSubscriptions(context *model.CommandArgs, args ...string) *model
 func deleteSubscription(context *model.CommandArgs, args ...string) *model.CommandResponse {
 	channelSubscriptions := make(map[string]serializer.Subscription)
 	alias := args[0]
-	if err := util.Get(context.ChannelId, &channelSubscriptions); err != nil {
+	if err := store.Get(util.GetChannelSubscriptionKey(context.ChannelId), &channelSubscriptions); err != nil {
 		postCommandResponse(context, fmt.Sprintf("Error occured while deleting subscription with alias **%s**.", alias))
 		return &model.CommandResponse{}
 	}
@@ -133,20 +123,20 @@ func deleteSubscription(context *model.CommandArgs, args ...string) *model.Comma
 }
 
 func deleteSubscriptionUtil(subscription serializer.Subscription, channelSubscriptions map[string]serializer.Subscription, alias string) error {
-	key, kErr := util.GetKey(subscription.BaseURL, subscription.SpaceKey)
+	key, kErr := util.GetURLSpaceKeyCombinationKey(subscription.BaseURL, subscription.SpaceKey)
 	if kErr != nil {
 		return kErr
 	}
 	keySubscriptions := make(map[string][]string)
-	if err := util.Get(key, &keySubscriptions); err != nil {
+	if err := store.Get(key, &keySubscriptions); err != nil {
 		return err
 	}
 	delete(keySubscriptions, subscription.ChannelID)
 	delete(channelSubscriptions, alias)
-	if err := util.Set(key, keySubscriptions); err != nil {
+	if err := store.Set(key, keySubscriptions); err != nil {
 		return err
 	}
-	if err := util.Set(subscription.ChannelID, channelSubscriptions); err != nil {
+	if err := store.Set(util.GetChannelSubscriptionKey(subscription.ChannelID), channelSubscriptions); err != nil {
 		return err
 	}
 	return nil
@@ -155,7 +145,7 @@ func deleteSubscriptionUtil(subscription serializer.Subscription, channelSubscri
 func editSubscription(context *model.CommandArgs, args ...string) *model.CommandResponse {
 	channelSubscriptions := make(map[string]serializer.Subscription)
 	alias := args[0]
-	if err := util.Get(context.ChannelId, &channelSubscriptions); err != nil {
+	if err := store.Get(util.GetChannelSubscriptionKey(context.ChannelId), &channelSubscriptions); err != nil {
 		postCommandResponse(context, fmt.Sprintf("Error occured while editing subscription with alias **%s**.", alias))
 		return &model.CommandResponse{}
 	}

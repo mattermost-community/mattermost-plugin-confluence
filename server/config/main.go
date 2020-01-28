@@ -8,6 +8,7 @@ import (
 const (
 	CommandPrefix             = PluginName
 	URLMappingKeyPrefix       = "url_"
+	ConfluenceSubscriptionKeyPrefix = "confluence_subscription"
 	ServerExeToWebappRootPath = "/../webapp"
 
 	URLPluginBase = "/plugins/" + PluginName
