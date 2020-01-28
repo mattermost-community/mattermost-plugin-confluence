@@ -30,24 +30,22 @@ func saveChannelSubscription(w http.ResponseWriter, r *http.Request) {
 	if subscription.Alias == "" {
 		http.Error(w, "Alias can not be empty", http.StatusBadRequest)
 		return
-	} else {
-		if err := util.Get(subscription.ChannelID, &channelSubscriptions); err != nil {
-			http.Error(w, "Failed to save subscription", http.StatusBadRequest)
-			return
-		}
-		if _, ok := channelSubscriptions[subscription.Alias]; ok {
-			http.Error(w, "Subscription already exist in the channel with this alias.", http.StatusBadRequest)
-			return
-		}
+	}
+	if err := util.Get(subscription.ChannelID, &channelSubscriptions); err != nil {
+		http.Error(w, "Failed to save subscription", http.StatusBadRequest)
+		return
+	}
+	if _, ok := channelSubscriptions[subscription.Alias]; ok {
+		http.Error(w, "Subscription already exist in the channel with this alias.", http.StatusBadRequest)
+		return
 	}
 	if subscription.BaseURL == "" {
 		http.Error(w, "Base url can not be empty.", http.StatusBadRequest)
 		return
-	} else {
-		if _, err := url2.Parse(subscription.BaseURL); err != nil {
-			http.Error(w, "Enter a valid url.", http.StatusBadRequest)
-			return
-		}
+	}
+	if _, err := url2.Parse(subscription.BaseURL); err != nil {
+		http.Error(w, "Enter a valid url.", http.StatusBadRequest)
+		return
 	}
 	if subscription.SpaceKey == "" {
 		http.Error(w, "Space key can not be empty.", http.StatusBadRequest)

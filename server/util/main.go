@@ -19,9 +19,8 @@ func GetKey(url, spaceKey string) (string, error) {
 func Min(a, b int) int {
 	if a < b {
 		return a
-	} else {
-		return b
 	}
+	return b
 }
 
 func SplitArgs(s string) ([]string, error) {

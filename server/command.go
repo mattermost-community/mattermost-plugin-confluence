@@ -20,7 +20,7 @@ type CommandHandler struct {
 }
 
 const (
-	OPEN_EDIT_SUBSCRIPTION_MODAL_WEBSOCKET_EVENT = "open_edit_subscription_modal"
+	OpenEditSubscriptionModalWebsocketEvent = "open_edit_subscription_modal"
 )
 
 var (
@@ -127,10 +127,9 @@ func deleteSubscription(context *model.CommandArgs, args ...string) *model.Comma
 		}
 		postCommandResponse(context, fmt.Sprintf("Subscription with alias **%s** deleted successfully.", alias))
 		return &model.CommandResponse{}
-	} else {
-		postCommandResponse(context, fmt.Sprintf("Subscription with alias **%s** not found.", alias))
-		return &model.CommandResponse{}
 	}
+	postCommandResponse(context, fmt.Sprintf("Subscription with alias **%s** not found.", alias))
+	return &model.CommandResponse{}
 }
 
 func deleteSubscriptionUtil(subscription serializer.Subscription, channelSubscriptions map[string]serializer.Subscription, alias string) error {
@@ -167,7 +166,7 @@ func editSubscription(context *model.CommandArgs, args ...string) *model.Command
 			return &model.CommandResponse{}
 		}
 		config.Mattermost.PublishWebSocketEvent(
-			OPEN_EDIT_SUBSCRIPTION_MODAL_WEBSOCKET_EVENT,
+			OpenEditSubscriptionModalWebsocketEvent,
 			map[string]interface{}{
 				"subscription": string(bytes),
 			},
@@ -176,8 +175,8 @@ func editSubscription(context *model.CommandArgs, args ...string) *model.Command
 			},
 		)
 		return &model.CommandResponse{}
-	} else {
-		postCommandResponse(context, fmt.Sprintf("Subscription with alias **%s** not found.", alias))
-		return &model.CommandResponse{}
 	}
+	postCommandResponse(context, fmt.Sprintf("Subscription with alias **%s** not found.", alias))
+	return &model.CommandResponse{}
+
 }
