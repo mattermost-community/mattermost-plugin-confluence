@@ -35,7 +35,7 @@ func InitAPI() *mux.Router {
 	for _, endpoint := range Endpoints {
 		handler := endpoint.Execute
 		if endpoint.RequiresAuth {
-			handler = handleAuth(endpoint)
+			handler = handleAuthRequired(endpoint)
 		}
 		s.HandleFunc(endpoint.Path, handler).Methods(endpoint.Method)
 	}
@@ -55,7 +55,7 @@ func handleStaticFiles(r *mux.Router) {
 	r.PathPrefix("/static/").Handler(http.StripPrefix("/static/", http.FileServer(http.Dir(filepath.Join(bundlePath, "assets")))))
 }
 
-func handleAuth(endpoint *Endpoint) func(w http.ResponseWriter, r *http.Request) {
+func handleAuthRequired(endpoint *Endpoint) func(w http.ResponseWriter, r *http.Request) {
 	return func(w http.ResponseWriter, r *http.Request) {
 		if Authenticated(w, r) {
 			endpoint.Execute(w, r)
