@@ -19,13 +19,25 @@ const initialState = {
     saving: false,
 };
 
-export default class ConfigModal extends React.PureComponent {
+export default class SubscriptionModal extends React.PureComponent {
     static propTypes = {
-        visibility: PropTypes.bool.isRequired,
-        close: PropTypes.func.isRequired,
+        visibility: PropTypes.bool,
+        editSubscription: PropTypes.bool,
+        subscription: PropTypes.object,
+        alias: PropTypes.string,
+        baseURL: PropTypes.string,
+        spaceKey: PropTypes.string,
+        close: PropTypes.func,
+        closeEditSubscription: PropTypes.func,
         theme: PropTypes.object.isRequired,
         saveChannelSubscription: PropTypes.func.isRequired,
         currentChannelID: PropTypes.string.isRequired,
+    };
+
+    static defaultProps = {
+        visibility: false,
+        editSubscription: false,
+        subscription: {},
     };
 
     constructor(props) {
@@ -33,6 +45,24 @@ export default class ConfigModal extends React.PureComponent {
         this.state = initialState;
         this.validator = new Validator();
     }
+
+    componentDidUpdate(prevProps) {
+        if (this.props.subscription !== prevProps.subscription) {
+            this.setData();
+        }
+    }
+
+    setData = () => {
+        const {alias, baseURL, spaceKey, events} = this.props.subscription;
+        if (alias) {
+            this.setState({
+                alias,
+                baseURL,
+                spaceKey,
+                events: Constants.CONFLUENCE_EVENTS.filter((option) => events.includes(option.value)),
+            });
+        }
+    };
 
     handleClose = (e) => {
         if (e && e.preventDefault) {
@@ -70,27 +100,34 @@ export default class ConfigModal extends React.PureComponent {
             return;
         }
         const {alias, baseURL, spaceKey, events} = this.state;
+        const {currentChannelID, subscription} = this.props;
         const channelSubscription = {
             alias,
             baseURL,
             spaceKey,
-            channelID: this.props.currentChannelID,
+            channelID: currentChannelID,
             events: events.map((event) => event.value),
         };
         this.setState({saving: true});
-        const {error} = await this.props.saveChannelSubscription(channelSubscription);
-        if (error) {
-            this.setState({
-                error: error.response.text,
-                saving: false,
-            });
-            return;
+        if (subscription && subscription.alias) {
+            // TODO : ADD logic to edit subscription
+        } else {
+            const {error} = await this.props.saveChannelSubscription(channelSubscription);
+            if (error) {
+                this.setState({
+                    error: error.response.text,
+                    saving: false,
+                });
+                return;
+            }
         }
         this.handleClose();
     };
 
     render() {
-        const {visibility} = this.props;
+        const {visibility, subscription} = this.props;
+        const editSubscription = Boolean(subscription && subscription.alias);
+        const isModalVisible = Boolean(visibility || editSubscription);
         const {error, saving} = this.state;
         let createError = null;
         if (error) {
@@ -107,13 +144,13 @@ export default class ConfigModal extends React.PureComponent {
 
         return (
             <Modal
-                show={visibility}
+                show={isModalVisible}
                 onHide={this.handleClose}
                 backdrop={'static'}
             >
                 <Modal.Header closeButton={true}>
                     <Modal.Title>
-                        {'Channel Settings'}
+                        {'Channel Confluence Settings'}
                     </Modal.Title>
                 </Modal.Header>
                 <Modal.Body>
@@ -123,6 +160,7 @@ export default class ConfigModal extends React.PureComponent {
                             type={'text'}
                             fieldType={'input'}
                             required={true}
+                            readOnly={editSubscription}
                             placeholder={'Enter alias for this subscription'}
                             value={this.state.alias}
                             addValidation={this.validator.addValidation}
@@ -134,6 +172,7 @@ export default class ConfigModal extends React.PureComponent {
                             type={'text'}
                             fieldType={'input'}
                             required={true}
+                            readOnly={editSubscription}
                             placeholder={'Enter confluence base url'}
                             value={this.state.baseURL}
                             addValidation={this.validator.addValidation}
@@ -145,6 +184,7 @@ export default class ConfigModal extends React.PureComponent {
                             type={'text'}
                             fieldType={'input'}
                             required={true}
+                            readOnly={editSubscription}
                             placeholder={'Enter space key'}
                             value={this.state.spaceKey}
                             addValidation={this.validator.addValidation}
@@ -156,6 +196,7 @@ export default class ConfigModal extends React.PureComponent {
                             label={'EVENTS'}
                             name={'events'}
                             fieldType={'dropDown'}
+                            required={false}
                             theme={this.props.theme}
                             options={Constants.CONFLUENCE_EVENTS}
                             value={this.state.events}

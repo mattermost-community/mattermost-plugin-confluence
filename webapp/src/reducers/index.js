@@ -1,7 +1,8 @@
 import {combineReducers} from 'redux';
 
-import {configModal} from './config_modal';
+import {subscriptionModal, subscriptionEditModal} from './subscription_modal';
 
 export default combineReducers({
-    configModal,
+    subscriptionModal,
+    subscriptionEditModal,
 });

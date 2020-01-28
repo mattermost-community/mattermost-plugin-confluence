@@ -2,7 +2,8 @@ import Constants from './constants';
 import Hooks from './hooks';
 import reducer from './reducers';
 
-import ConfigModal from './components/config_modal';
+import {receivedSubscription} from './actions';
+import SubscriptionModal from './components/subscription_modal';
 
 //
 // Define the plugin class that will register
@@ -11,7 +12,13 @@ import ConfigModal from './components/config_modal';
 class PluginClass {
     initialize(registry, store) {
         registry.registerReducer(reducer);
-        registry.registerRootComponent(ConfigModal);
+        registry.registerRootComponent(SubscriptionModal);
+        registry.registerWebSocketEventHandler(
+            `custom_${Constants.PLUGIN_NAME}_open_edit_subscription_modal`,
+            (payload) => {
+                store.dispatch(receivedSubscription(payload.data.subscription));
+            },
+        );
         const hooks = new Hooks(store);
         registry.registerSlashCommandWillBePostedHook(hooks.slashCommandWillBePostedHook);
     }

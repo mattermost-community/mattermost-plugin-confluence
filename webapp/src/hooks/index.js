@@ -1,4 +1,4 @@
-import {openConfigModal} from '../actions';
+import {openSubscriptionModal} from '../actions';
 
 export default class Hooks {
     constructor(store) {
@@ -12,7 +12,7 @@ export default class Hooks {
         }
 
         if (commandTrimmed && commandTrimmed === '/confluence subscribe') {
-            this.store.dispatch(openConfigModal());
+            this.store.dispatch(openSubscriptionModal());
             return Promise.resolve({});
         }
         return Promise.resolve({message, args: contextArgs});
