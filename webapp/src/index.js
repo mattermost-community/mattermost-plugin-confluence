@@ -14,7 +14,7 @@ class PluginClass {
         registry.registerReducer(reducer);
         registry.registerRootComponent(SubscriptionModal);
         registry.registerWebSocketEventHandler(
-            `custom_${Constants.PLUGIN_NAME}_open_edit_subscription_modal`,
+            Constants.OPEN_EDIT_SUBSCRIPTION_MODAL_WEBSOCKET_EVENT,
             (payload) => {
                 store.dispatch(receivedSubscription(payload.data.subscription));
             },
