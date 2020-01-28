@@ -85,7 +85,7 @@ func (p *Plugin) ExecuteCommand(context *plugin.Context, commandArgs *model.Comm
 	if argErr != nil {
 		return &model.CommandResponse{
 			ResponseType: model.COMMAND_RESPONSE_TYPE_EPHEMERAL,
-			Text: argErr.Error(),
+			Text:         argErr.Error(),
 		}, nil
 	}
 	return confluenceCommandHandler.Handle(commandArgs, args[1:]...), nil
