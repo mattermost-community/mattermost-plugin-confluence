@@ -16,6 +16,7 @@ const CONFLUENCE_TYPE = [
 ];
 
 const MATTERMOST_CSRF_COOKIE = 'MMCSRF';
+const OPEN_EDIT_SUBSCRIPTION_MODAL_WEBSOCKET_EVENT = `custom_${PLUGIN_NAME}_open_edit_subscription_modal`;
 
 export default {
     ACTION_TYPES,
@@ -23,4 +24,5 @@ export default {
     CONFLUENCE_EVENTS,
     PLUGIN_NAME,
     MATTERMOST_CSRF_COOKIE,
+    OPEN_EDIT_SUBSCRIPTION_MODAL_WEBSOCKET_EVENT,
 };

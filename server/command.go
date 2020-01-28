@@ -1,6 +1,7 @@
 package main
 
 import (
+	"encoding/json"
 	"fmt"
 	"strings"
 
@@ -18,11 +19,16 @@ type CommandHandler struct {
 	defaultHandler CommandHandlerFunc
 }
 
+const (
+	OpenEditSubscriptionModalWebsocketEvent = "open_edit_subscription_modal"
+)
+
 var (
 	confluenceCommandHandler = CommandHandler{
 		handlers: map[string]CommandHandlerFunc{
 			"list":        listChannelSubscriptions,
 			"unsubscribe": deleteSubscription,
+			"edit":        editSubscription,
 		},
 		defaultHandler: executeConflunceDefault,
 	}
@@ -43,7 +49,7 @@ func getCommand() *model.Command {
 		DisplayName:      "Confluence",
 		Description:      "Integration with Confluence.",
 		AutoComplete:     true,
-		AutoCompleteDesc: "Available commands: subscribe, list, unsubscribe <alias>",
+		AutoCompleteDesc: "Available commands: subscribe, list, unsubscribe \"<alias>\"",
 		AutoCompleteHint: "[command]",
 	}
 }
@@ -75,7 +81,13 @@ func (ch CommandHandler) Handle(context *model.CommandArgs, args ...string) *mod
 }
 
 func (p *Plugin) ExecuteCommand(context *plugin.Context, commandArgs *model.CommandArgs) (*model.CommandResponse, *model.AppError) {
-	args := strings.Fields(commandArgs.Command)
+	args, argErr := util.SplitArgs(commandArgs.Command)
+	if argErr != nil {
+		return &model.CommandResponse{
+			ResponseType: model.COMMAND_RESPONSE_TYPE_EPHEMERAL,
+			Text:         argErr.Error(),
+		}, nil
+	}
 	return confluenceCommandHandler.Handle(commandArgs, args[1:]...), nil
 }
 
@@ -103,21 +115,21 @@ func listChannelSubscriptions(context *model.CommandArgs, args ...string) *model
 
 func deleteSubscription(context *model.CommandArgs, args ...string) *model.CommandResponse {
 	channelSubscriptions := make(map[string]serializer.Subscription)
+	alias := args[0]
 	if err := util.Get(context.ChannelId, &channelSubscriptions); err != nil {
-		postCommandResponse(context, fmt.Sprintf("Error occured while deleting subscription with alias **%s**.", args[0]))
+		postCommandResponse(context, fmt.Sprintf("Error occured while deleting subscription with alias **%s**.", alias))
 		return &model.CommandResponse{}
 	}
-	if subscription, ok := channelSubscriptions[args[0]]; ok {
-		if err := deleteSubscriptionUtil(subscription, channelSubscriptions, args[0]); err != nil {
-			postCommandResponse(context, fmt.Sprintf("Error occured while deleting subscription with alias **%s**.", args[0]))
+	if subscription, ok := channelSubscriptions[alias]; ok {
+		if err := deleteSubscriptionUtil(subscription, channelSubscriptions, alias); err != nil {
+			postCommandResponse(context, fmt.Sprintf("Error occured while deleting subscription with alias **%s**.", alias))
 			return &model.CommandResponse{}
 		}
-		postCommandResponse(context, fmt.Sprintf("Subscription with alias **%s** deleted successfully.", args[0]))
-		return &model.CommandResponse{}
-	} else {
-		postCommandResponse(context, fmt.Sprintf("Subscription with alias **%s** not found.", args[0]))
+		postCommandResponse(context, fmt.Sprintf("Subscription with alias **%s** deleted successfully.", alias))
 		return &model.CommandResponse{}
 	}
+	postCommandResponse(context, fmt.Sprintf("Subscription with alias **%s** not found.", alias))
+	return &model.CommandResponse{}
 }
 
 func deleteSubscriptionUtil(subscription serializer.Subscription, channelSubscriptions map[string]serializer.Subscription, alias string) error {
@@ -138,4 +150,33 @@ func deleteSubscriptionUtil(subscription serializer.Subscription, channelSubscri
 		return err
 	}
 	return nil
+}
+
+func editSubscription(context *model.CommandArgs, args ...string) *model.CommandResponse {
+	channelSubscriptions := make(map[string]serializer.Subscription)
+	alias := args[0]
+	if err := util.Get(context.ChannelId, &channelSubscriptions); err != nil {
+		postCommandResponse(context, fmt.Sprintf("Error occured while editing subscription with alias **%s**.", alias))
+		return &model.CommandResponse{}
+	}
+	if subscription, ok := channelSubscriptions[alias]; ok {
+		bytes, err := json.Marshal(subscription)
+		if err != nil {
+			postCommandResponse(context, fmt.Sprintf("Error occured while editing subscription with alias **%s**.", alias))
+			return &model.CommandResponse{}
+		}
+		config.Mattermost.PublishWebSocketEvent(
+			OpenEditSubscriptionModalWebsocketEvent,
+			map[string]interface{}{
+				"subscription": string(bytes),
+			},
+			&model.WebsocketBroadcast{
+				UserId: context.UserId,
+			},
+		)
+		return &model.CommandResponse{}
+	}
+	postCommandResponse(context, fmt.Sprintf("Subscription with alias **%s** not found.", alias))
+	return &model.CommandResponse{}
+
 }
