@@ -3,10 +3,11 @@ package util
 import (
 	"errors"
 	"fmt"
-	"github.com/Brightscout/mattermost-plugin-confluence/server/config"
 	url2 "net/url"
 	"regexp"
 	"strings"
+
+	"github.com/Brightscout/mattermost-plugin-confluence/server/config"
 )
 
 func GetURLSpaceKeyCombinationKey(url, spaceKey string) (string, error) {

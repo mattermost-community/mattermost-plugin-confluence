@@ -78,7 +78,10 @@ func (p *Plugin) OnConfigurationChange() error {
 func (p *Plugin) ExecuteCommand(context *plugin.Context, commandArgs *model.CommandArgs) (*model.CommandResponse, *model.AppError) {
 	args, argErr := util.SplitArgs(commandArgs.Command)
 	if argErr != nil {
-		return &model.CommandResponse{}, nil
+		return &model.CommandResponse{
+			ResponseType: model.COMMAND_RESPONSE_TYPE_EPHEMERAL,
+			Text:         argErr.Error(),
+		}, nil
 	}
 	return command.ConfluenceCommandHandler.Handle(commandArgs, args[1:]...), nil
 }
