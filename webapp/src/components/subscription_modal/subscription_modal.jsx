@@ -22,21 +22,16 @@ const initialState = {
 export default class SubscriptionModal extends React.PureComponent {
     static propTypes = {
         visibility: PropTypes.bool,
-        editSubscription: PropTypes.bool,
         subscription: PropTypes.object,
-        alias: PropTypes.string,
-        baseURL: PropTypes.string,
-        spaceKey: PropTypes.string,
-        close: PropTypes.func,
-        closeEditSubscription: PropTypes.func,
+        close: PropTypes.func.isRequired,
         theme: PropTypes.object.isRequired,
         saveChannelSubscription: PropTypes.func.isRequired,
         currentChannelID: PropTypes.string.isRequired,
+        editChannelSubscription: PropTypes.func.isRequired,
     };
 
     static defaultProps = {
         visibility: false,
-        editSubscription: false,
         subscription: {},
     };
 
@@ -100,7 +95,7 @@ export default class SubscriptionModal extends React.PureComponent {
             return;
         }
         const {alias, baseURL, spaceKey, events} = this.state;
-        const {currentChannelID, subscription} = this.props;
+        const {currentChannelID, subscription, saveChannelSubscription, editChannelSubscription} = this.props;
         const channelSubscription = {
             alias,
             baseURL,
@@ -111,17 +106,20 @@ export default class SubscriptionModal extends React.PureComponent {
         this.setState({
             saving: true,
         });
+
+        let response;
         if (subscription && subscription.alias) {
-            // TODO : ADD logic to edit subscription
+            response = await editChannelSubscription(channelSubscription);
         } else {
-            const {error} = await this.props.saveChannelSubscription(channelSubscription);
-            if (error) {
-                this.setState({
-                    error: error.response.text,
-                    saving: false,
-                });
-                return;
-            }
+            response = await saveChannelSubscription(channelSubscription);
+        }
+        const {error} = response.error;
+        if (error) {
+            this.setState({
+                error: error.response.text,
+                saving: false,
+            });
+            return;
         }
         this.handleClose();
     };

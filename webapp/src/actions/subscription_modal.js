@@ -14,6 +14,19 @@ export const saveChannelSubscription = (body) => {
     };
 };
 
+export const editChannelSubscription = (body) => {
+    return async () => {
+        let data = null;
+        try {
+            data = await Client.editChannelSubscription(body);
+        } catch (error) {
+            return {data, error};
+        }
+
+        return {data, error: null};
+    };
+};
+
 export const openSubscriptionModal = () => (dispatch) => {
     dispatch({
         type: Constants.ACTION_TYPES.OPEN_SUBSCRIPTION_MODAL,

@@ -19,6 +19,11 @@ export default class Client {
         return this.doPost(url, channelSubscription);
     };
 
+    editChannelSubscription = (channelSubscription) => {
+        const url = `${this.pluginUrl}/edit-channel-subscription`;
+        return this.doPost(url, channelSubscription);
+    };
+
     doGet = async (url, headers = {}) => {
         headers['X-Requested-With'] = 'XMLHttpRequest';
 
@@ -44,4 +49,18 @@ export default class Client {
 
         return response.body;
     };
+
+    doPatch = async (url, body, headers= {}) => {
+        headers['X-Requested-With'] = 'XMLHttpRequest';
+        headers['X-CSRF-Token'] = Cookies.get(Constants.MATTERMOST_CSRF_COOKIE);
+
+        const response = await request.
+            put(url).
+            send(body).
+            set(headers).
+            type('application/json').
+            accept('application/json');
+
+        return response.body;
+    }
 }
