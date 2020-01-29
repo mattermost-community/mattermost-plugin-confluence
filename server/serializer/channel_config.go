@@ -15,6 +15,7 @@ type Subscription struct {
 }
 
 func (s *Subscription) IsValid() error {
+	// TODO : Clean subscription data
 	if s.Alias == "" {
 		return errors.New("alias can not be empty")
 	}

@@ -6,6 +6,7 @@ require (
 	github.com/blang/semver v3.6.1+incompatible // indirect
 	github.com/go-gorp/gorp v2.2.0+incompatible // indirect
 	github.com/go-redis/redis v6.15.6+incompatible // indirect
+	github.com/gorilla/mux v1.7.3
 	github.com/mattermost/mattermost-server v1.4.1-0.20191016162522-6597fdb40134 // Mattermost Server 5.16.0
 	github.com/oklog/run v1.0.1-0.20180308005104-6934b124db28 // indirect
 	github.com/onsi/ginkgo v1.10.3 // indirect

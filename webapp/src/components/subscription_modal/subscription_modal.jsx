@@ -74,7 +74,7 @@ export default class SubscriptionModal extends React.PureComponent {
 
     handleBaseURLChange = (e) => {
         this.setState({
-            baseURL: e.target.value,
+            baseURL: e.target.value.toLowerCase(),
         });
     };
 
@@ -97,11 +97,11 @@ export default class SubscriptionModal extends React.PureComponent {
         const {alias, baseURL, spaceKey, events} = this.state;
         const {currentChannelID, subscription, saveChannelSubscription, editChannelSubscription} = this.props;
         const channelSubscription = {
-            alias,
-            baseURL,
-            spaceKey,
+            alias: alias.trim(),
+            baseURL: baseURL.trim().toLowerCase(),
+            spaceKey: spaceKey.trim(),
             channelID: currentChannelID,
-            events: events.map((event) => event.value),
+            events: events ? events.map((event) => event.value) : [],
         };
         this.setState({
             saving: true,
@@ -113,10 +113,9 @@ export default class SubscriptionModal extends React.PureComponent {
         } else {
             response = await saveChannelSubscription(channelSubscription);
         }
-        const {error} = response.error;
-        if (error) {
+        if (response.error) {
             this.setState({
-                error: error.response.text,
+                error: response.error.response.text,
                 saving: false,
             });
             return;

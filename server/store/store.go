@@ -1,19 +1,17 @@
 package store
 
 import (
-	"crypto/sha256"
-	"encoding/base64"
 	"encoding/json"
+	"fmt"
+	url2 "net/url"
+
+	"github.com/Brightscout/mattermost-plugin-confluence/server/util"
 
 	"github.com/Brightscout/mattermost-plugin-confluence/server/config"
 	"github.com/pkg/errors"
 )
 
-func getKeyHash(key string) string {
-	hash := sha256.New()
-	hash.Write([]byte(key))
-	return base64.StdEncoding.EncodeToString(hash.Sum(nil))
-}
+const ConfluenceSubscriptionKeyPrefix = "confluence_subscription"
 
 func Set(key string, data interface{}) error {
 	bytes, err := json.Marshal(data)
@@ -21,14 +19,14 @@ func Set(key string, data interface{}) error {
 		return err
 	}
 
-	if appErr := config.Mattermost.KVSet(getKeyHash(key), bytes); appErr != nil {
+	if appErr := config.Mattermost.KVSet(util.GetKeyHash(key), bytes); appErr != nil {
 		return errors.New(appErr.Error())
 	}
 	return nil
 }
 
 func Get(key string, data interface{}) error {
-	bytes, appErr := config.Mattermost.KVGet(getKeyHash(key))
+	bytes, appErr := config.Mattermost.KVGet(util.GetKeyHash(key))
 	if appErr != nil {
 		return errors.New(appErr.Error())
 	}
@@ -43,4 +41,16 @@ func Get(key string, data interface{}) error {
 	}
 
 	return nil
+}
+
+func GetURLSpaceKeyCombinationKey(url, spaceKey string) (string, error) {
+	u, err := url2.Parse(url)
+	if err != nil {
+		return "", err
+	}
+	return fmt.Sprintf("%s/%s/%s", ConfluenceSubscriptionKeyPrefix, u.Hostname(), spaceKey), nil
+}
+
+func GetChannelSubscriptionKey(channelID string) string {
+	return fmt.Sprintf("%s/%s", ConfluenceSubscriptionKeyPrefix, channelID)
 }

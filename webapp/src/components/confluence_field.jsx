@@ -52,7 +52,7 @@ export default class ConfluenceField extends React.PureComponent {
     }
 
     isValid = () => {
-        if (this.props.required && !this.props.value) {
+        if (this.props.required && !this.props.value.trim()) {
             this.setState({
                 valid: false,
             });

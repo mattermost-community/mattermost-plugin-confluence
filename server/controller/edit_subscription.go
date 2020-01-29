@@ -5,17 +5,18 @@ import (
 	"net/http"
 
 	"github.com/Brightscout/mattermost-plugin-confluence/server/config"
-	"github.com/Brightscout/mattermost-plugin-confluence/server/platform"
 	"github.com/Brightscout/mattermost-plugin-confluence/server/serializer"
+	"github.com/Brightscout/mattermost-plugin-confluence/server/service"
 )
 
-var SaveChannelSubscription = &Endpoint{
+var EditChannelSubscription = &Endpoint{
 	RequiresAuth: true,
-	Path:         "/save-channel-subscription",
-	Execute:      saveChannelSubscription,
+	Path:         "/subscription",
+	Method:       http.MethodPut,
+	Execute:      editChannelSubscription,
 }
 
-func saveChannelSubscription(w http.ResponseWriter, r *http.Request) {
+func editChannelSubscription(w http.ResponseWriter, r *http.Request) {
 	body := json.NewDecoder(r.Body)
 	subscription := serializer.Subscription{}
 	if err := body.Decode(&subscription); err != nil {
@@ -30,9 +31,10 @@ func saveChannelSubscription(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if errCode, err := platform.SaveSubscription(subscription); err != nil {
+	if errCode, err := service.EditSubscription(subscription); err != nil {
 		config.Mattermost.LogError(err.Error(), "channelID", subscription.ChannelID)
 		http.Error(w, err.Error(), errCode)
 		return
 	}
+	ReturnStatusOK(w)
 }

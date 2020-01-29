@@ -1,25 +1,18 @@
 package util
 
 import (
+	"crypto/sha256"
+	"encoding/base64"
 	"errors"
-	"fmt"
-	url2 "net/url"
 	"regexp"
 	"strings"
-
-	"github.com/Brightscout/mattermost-plugin-confluence/server/config"
 )
 
-func GetURLSpaceKeyCombinationKey(url, spaceKey string) (string, error) {
-	u, err := url2.Parse(url)
-	if err != nil {
-		return "", err
-	}
-	return fmt.Sprintf("%s/%s/%s", config.ConfluenceSubscriptionKeyPrefix, u.Hostname(), spaceKey), nil
-}
-
-func GetChannelSubscriptionKey(channelID string) string {
-	return fmt.Sprintf("%s/%s", config.ConfluenceSubscriptionKeyPrefix, channelID)
+// GetKeyHash can be used to create a hash from a string
+func GetKeyHash(key string) string {
+	hash := sha256.New()
+	hash.Write([]byte(key))
+	return base64.StdEncoding.EncodeToString(hash.Sum(nil))
 }
 
 func Min(a, b int) int {
