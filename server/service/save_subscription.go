@@ -18,6 +18,7 @@ const (
 	subscriptionSaveSuccess = "Subscription saved successfully"
 )
 
+// TODO : Check if we can refactor this.
 func SaveNewSubscription(subscription serializer.Subscription, userID string) (int, error) {
 	channelSubscriptions, cKey, gErr := GetChannelSubscriptions(subscription.ChannelID)
 	if gErr != nil {

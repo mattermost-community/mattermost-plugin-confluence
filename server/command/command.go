@@ -2,6 +2,7 @@ package command
 
 import (
 	"fmt"
+	"github.com/Brightscout/mattermost-plugin-confluence/server/serializer"
 	"strings"
 
 	"github.com/Brightscout/mattermost-plugin-confluence/server/config"
@@ -24,24 +25,14 @@ const (
 	noChannelSubscription     = "No subscription found for this channel."
 )
 
-var (
-	ConfluenceCommandHandler = Handler{
-		handlers: map[string]HandlerFunc{
-			"list":        listChannelSubscription,
-			"unsubscribe": deleteSubscription,
-			"edit":        editSubscription,
-		},
-		defaultHandler: executeConfluenceDefault,
-	}
-	eventTypes = map[string]string{
-		"comment_create": "Comment Create",
-		"comment_update": "Comment Update",
-		"comment_delete": "Comment Delete",
-		"page_create":    "Page Create",
-		"page_update":    "Page Update",
-		"page_delete":    "Page Delete",
-	}
-)
+var ConfluenceCommandHandler = Handler{
+	handlers: map[string]HandlerFunc{
+		"list":        listChannelSubscription,
+		"unsubscribe": deleteSubscription,
+		"edit":        editSubscription,
+	},
+	defaultHandler: executeConfluenceDefault,
+}
 
 func GetCommand() *model.Command {
 	return &model.Command{
@@ -106,15 +97,8 @@ func listChannelSubscription(context *model.CommandArgs, args ...string) *model.
 		postCommandResponse(context, noChannelSubscription)
 		return &model.CommandResponse{}
 	}
-	text := fmt.Sprintf("| Alias | Base Url | Space Key | Events|\n| :----: |:--------:| :--------:| :-----:|")
-	for _, subscription := range channelSubscriptions {
-		var events []string
-		for _, event := range subscription.Events {
-			events = append(events, eventTypes[event])
-		}
-		text += fmt.Sprintf("\n|%s|%s|%s|%s|", subscription.Alias, subscription.BaseURL, subscription.SpaceKey, strings.Join(events, ", "))
-	}
-	postCommandResponse(context, text)
+	list := serializer.FormattedSubscriptionList(channelSubscriptions)
+	postCommandResponse(context, list)
 	return &model.CommandResponse{}
 }
 
