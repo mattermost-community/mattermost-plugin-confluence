@@ -1,7 +1,10 @@
 package command
 
 import (
+	"fmt"
 	"strings"
+
+	"github.com/Brightscout/mattermost-plugin-confluence/server/config"
 
 	"github.com/Brightscout/mattermost-plugin-confluence/server/service"
 
@@ -15,14 +18,30 @@ type Handler struct {
 	defaultHandler HandlerFunc
 }
 
-var ConfluenceCommandHandler = Handler{
-	handlers: map[string]HandlerFunc{
-		"list":        service.ListChannelSubscriptions,
-		"unsubscribe": service.DeleteSubscription,
-		"edit":        service.OpenSubscriptionEditModal,
-	},
-	defaultHandler: executeConfluenceDefault,
-}
+const (
+	specifyAlias              = "Please specify alias."
+	subscriptionDeleteSuccess = "Subscription with alias **%s** deleted successfully."
+	noChannelSubscription     = "No subscription found for this channel."
+)
+
+var (
+	ConfluenceCommandHandler = Handler{
+		handlers: map[string]HandlerFunc{
+			"list":        listChannelSubscription,
+			"unsubscribe": deleteSubscription,
+			"edit":        editSubscription,
+		},
+		defaultHandler: executeConfluenceDefault,
+	}
+	eventTypes = map[string]string{
+		"comment_create": "Comment Create",
+		"comment_update": "Comment Update",
+		"comment_delete": "Comment Delete",
+		"page_create":    "Page Create",
+		"page_update":    "Page Update",
+		"page_delete":    "Page Delete",
+	}
+)
 
 func GetCommand() *model.Command {
 	return &model.Command{
@@ -43,6 +62,15 @@ func executeConfluenceDefault(context *model.CommandArgs, args ...string) *model
 	}
 }
 
+func postCommandResponse(context *model.CommandArgs, text string) {
+	post := &model.Post{
+		UserId:    config.BotUserID,
+		ChannelId: context.ChannelId,
+		Message:   text,
+	}
+	_ = config.Mattermost.SendEphemeralPost(context.UserId, post)
+}
+
 func (ch Handler) Handle(context *model.CommandArgs, args ...string) *model.CommandResponse {
 	for n := len(args); n > 0; n-- {
 		h := ch.handlers[strings.Join(args[:n], "/")]
@@ -51,4 +79,53 @@ func (ch Handler) Handle(context *model.CommandArgs, args ...string) *model.Comm
 		}
 	}
 	return ch.defaultHandler(context, args...)
+}
+
+func deleteSubscription(context *model.CommandArgs, args ...string) *model.CommandResponse {
+	if len(args) == 0 {
+		postCommandResponse(context, specifyAlias)
+		return &model.CommandResponse{}
+	}
+	alias := args[0]
+	if err := service.DeleteSubscription(context.ChannelId, args[0]); err != nil {
+		postCommandResponse(context, err.Error())
+		return &model.CommandResponse{}
+	}
+	postCommandResponse(context, fmt.Sprintf(subscriptionDeleteSuccess, alias))
+	return &model.CommandResponse{}
+}
+
+func listChannelSubscription(context *model.CommandArgs, args ...string) *model.CommandResponse {
+	channelSubscriptions, _, gErr := service.GetChannelSubscriptions(context.ChannelId)
+	if gErr != nil {
+		postCommandResponse(context, gErr.Error())
+		return &model.CommandResponse{}
+	}
+
+	if len(channelSubscriptions) == 0 {
+		postCommandResponse(context, noChannelSubscription)
+		return &model.CommandResponse{}
+	}
+	text := fmt.Sprintf("| Alias | Base Url | Space Key | Events|\n| :----: |:--------:| :--------:| :-----:|")
+	for _, subscription := range channelSubscriptions {
+		var events []string
+		for _, event := range subscription.Events {
+			events = append(events, eventTypes[event])
+		}
+		text += fmt.Sprintf("\n|%s|%s|%s|%s|", subscription.Alias, subscription.BaseURL, subscription.SpaceKey, strings.Join(events, ", "))
+	}
+	postCommandResponse(context, text)
+	return &model.CommandResponse{}
+}
+
+func editSubscription(context *model.CommandArgs, args ...string) *model.CommandResponse {
+	if len(args) == 0 {
+		postCommandResponse(context, specifyAlias)
+		return &model.CommandResponse{}
+	}
+	alias := args[0]
+	if err := service.OpenSubscriptionEditModal(context.ChannelId, context.UserId, alias); err != nil {
+		postCommandResponse(context, err.Error())
+	}
+	return &model.CommandResponse{}
 }

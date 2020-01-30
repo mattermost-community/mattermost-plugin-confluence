@@ -31,7 +31,8 @@ func saveChannelSubscription(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if errCode, err := service.SaveSubscription(subscription); err != nil {
+	userID := r.Header.Get(config.HeaderMattermostUserID)
+	if errCode, err := service.SaveNewSubscription(subscription, userID); err != nil {
 		config.Mattermost.LogError(err.Error(), "channelID", subscription.ChannelID)
 		http.Error(w, err.Error(), errCode)
 		return

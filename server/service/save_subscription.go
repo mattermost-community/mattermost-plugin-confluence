@@ -1,8 +1,6 @@
 package service
 
 import (
-	"encoding/json"
-	"fmt"
 	"net/http"
 
 	"github.com/Brightscout/mattermost-plugin-confluence/server/config"
@@ -14,19 +12,26 @@ import (
 )
 
 const (
-	openEditSubscriptionModalWebsocketEvent = "open_edit_subscription_modal"
-	generalError                            = "Some error occurred. Please try again after sometime."
-	subscriptionEditSuccess                 = "Subscription updated successfully."
+	generalSaveError        = "Failed to save subscription"
+	aliasAlreadyExist       = "Subscription already exist in the channel with this alias"
+	urlSpaceKeyAlreadyExist = "Subscription already exist in the channel with url and space key combination"
+	subscriptionSaveSuccess = "Subscription saved successfully"
 )
 
-func EditSubscription(subscription serializer.Subscription, userID string) (int, error) {
+func SaveNewSubscription(subscription serializer.Subscription, userID string) (int, error) {
 	channelSubscriptions, cKey, gErr := GetChannelSubscriptions(subscription.ChannelID)
 	if gErr != nil {
 		return http.StatusInternalServerError, errors.New(generalSaveError)
 	}
+	if _, ok := channelSubscriptions[subscription.Alias]; ok {
+		return http.StatusBadRequest, errors.New(aliasAlreadyExist)
+	}
 	keySubscriptions, key, kErr := GetURLSpaceKeyCombinationSubscriptions(subscription.BaseURL, subscription.SpaceKey)
 	if kErr != nil {
 		return http.StatusInternalServerError, kErr
+	}
+	if _, ok := keySubscriptions[subscription.ChannelID]; ok {
+		return http.StatusBadRequest, errors.New(urlSpaceKeyAlreadyExist)
 	}
 
 	keySubscriptions[subscription.ChannelID] = subscription.Events
@@ -37,37 +42,13 @@ func EditSubscription(subscription serializer.Subscription, userID string) (int,
 	if err := store.Set(cKey, channelSubscriptions); err != nil {
 		return http.StatusInternalServerError, errors.New(generalSaveError)
 	}
+
 	post := &model.Post{
 		UserId:    config.BotUserID,
 		ChannelId: subscription.ChannelID,
-		Message:   subscriptionEditSuccess,
+		Message:   subscriptionSaveSuccess,
 	}
 	_ = config.Mattermost.SendEphemeralPost(userID, post)
 
 	return http.StatusOK, nil
-}
-
-func OpenSubscriptionEditModal(channelID, userID, alias string) error {
-	channelSubscriptions, _, gErr := GetChannelSubscriptions(channelID)
-	if gErr != nil {
-		return errors.New(generalError)
-	}
-	if subscription, ok := channelSubscriptions[alias]; ok {
-		bytes, err := json.Marshal(subscription)
-		if err != nil {
-			return errors.New(generalError)
-		}
-		config.Mattermost.PublishWebSocketEvent(
-			openEditSubscriptionModalWebsocketEvent,
-			map[string]interface{}{
-				"subscription": string(bytes),
-			},
-			&model.WebsocketBroadcast{
-				UserId: userID,
-			},
-		)
-		return nil
-	}
-
-	return errors.New(fmt.Sprintf(subscriptionNotFound, alias))
 }

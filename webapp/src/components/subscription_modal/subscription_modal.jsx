@@ -105,6 +105,7 @@ export default class SubscriptionModal extends React.PureComponent {
         };
         this.setState({
             saving: true,
+            error: '',
         });
 
         let response;

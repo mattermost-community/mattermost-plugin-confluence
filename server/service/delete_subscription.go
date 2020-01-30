@@ -3,46 +3,42 @@ package service
 import (
 	"fmt"
 
+	"github.com/pkg/errors"
+
 	"github.com/Brightscout/mattermost-plugin-confluence/server/serializer"
 	"github.com/Brightscout/mattermost-plugin-confluence/server/store"
-	"github.com/Brightscout/mattermost-plugin-confluence/server/util"
-	"github.com/mattermost/mattermost-server/model"
 )
 
-func DeleteSubscription(context *model.CommandArgs, args ...string) *model.CommandResponse {
-	channelSubscriptions := make(map[string]serializer.Subscription)
-	alias := args[0]
-	if err := store.Get(store.GetChannelSubscriptionKey(context.ChannelId), &channelSubscriptions); err != nil {
-		util.PostCommandResponse(context, fmt.Sprintf("Error occured while deleting subscription with alias **%s**.", alias))
-		return &model.CommandResponse{}
+const (
+	generalDeleteError   = "Error occurred while deleting subscription with alias **%s**."
+	subscriptionNotFound = "Subscription with alias **%s** not found."
+)
+
+func DeleteSubscription(channelID, alias string) error {
+	channelSubscriptions, cKey, gErr := GetChannelSubscriptions(channelID)
+	if gErr != nil {
+		return errors.New(fmt.Sprintf(generalDeleteError, alias))
 	}
 	if subscription, ok := channelSubscriptions[alias]; ok {
-		if err := deleteSubscriptionUtil(subscription, channelSubscriptions, alias); err != nil {
-			util.PostCommandResponse(context, fmt.Sprintf("Error occured while deleting subscription with alias **%s**.", alias))
-			return &model.CommandResponse{}
+		if err := deleteSubscriptionUtil(subscription, channelSubscriptions, cKey, alias); err != nil {
+			return errors.New(fmt.Sprintf(generalDeleteError, alias))
 		}
-		util.PostCommandResponse(context, fmt.Sprintf("Subscription with alias **%s** deleted successfully.", alias))
-		return &model.CommandResponse{}
+		return nil
 	}
-	util.PostCommandResponse(context, fmt.Sprintf("Subscription with alias **%s** not found.", alias))
-	return &model.CommandResponse{}
+	return errors.New(fmt.Sprintf(subscriptionNotFound, alias))
 }
 
-func deleteSubscriptionUtil(subscription serializer.Subscription, channelSubscriptions map[string]serializer.Subscription, alias string) error {
-	key, kErr := store.GetURLSpaceKeyCombinationKey(subscription.BaseURL, subscription.SpaceKey)
-	if kErr != nil {
-		return kErr
-	}
-	keySubscriptions := make(map[string][]string)
-	if err := store.Get(key, &keySubscriptions); err != nil {
-		return err
+func deleteSubscriptionUtil(subscription serializer.Subscription, channelSubscriptions map[string]serializer.Subscription, cKey, alias string) error {
+	keySubscriptions, key, gErr := GetURLSpaceKeyCombinationSubscriptions(subscription.BaseURL, subscription.SpaceKey)
+	if gErr != nil {
+		return gErr
 	}
 	delete(keySubscriptions, subscription.ChannelID)
 	delete(channelSubscriptions, alias)
 	if err := store.Set(key, keySubscriptions); err != nil {
 		return err
 	}
-	if err := store.Set(store.GetChannelSubscriptionKey(subscription.ChannelID), channelSubscriptions); err != nil {
+	if err := store.Set(cKey, channelSubscriptions); err != nil {
 		return err
 	}
 	return nil

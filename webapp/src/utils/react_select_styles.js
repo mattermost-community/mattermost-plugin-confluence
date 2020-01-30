@@ -1,66 +1,103 @@
-import {blendColors, changeOpacity, makeStyleFromTheme} from 'mattermost-redux/utils/theme_utils';
+// Copyright (c) 2015-present Mattermost, Inc. All Rights Reserved.
+// See LICENSE.txt for license information.
 
-export const getReactSelectTheme = makeStyleFromTheme((mmTheme) => {
-    return (originalTheme) => ({
-        ...originalTheme,
-        colors: {
-            ...originalTheme.colors,
-            primary: mmTheme.centerChannelColor,
-            primary75: changeOpacity(mmTheme.centerChannelColor, 0.75),
-            primary50: changeOpacity(mmTheme.centerChannelColor, 0.50),
-            primary25: changeOpacity(mmTheme.centerChannelColor, 0.25),
-            danger: mmTheme.errorTextColor,
-            dangerLight: changeOpacity(mmTheme.errorTextColor, 0.50),
-            neutral0: blendColors(mmTheme.centerChannelBg, mmTheme.centerChannelColor, 0),
-            neutral5: blendColors(mmTheme.centerChannelBg, mmTheme.centerChannelColor, 0.05),
-            neutral10: blendColors(mmTheme.centerChannelBg, mmTheme.centerChannelColor, 0.10),
-            neutral20: blendColors(mmTheme.centerChannelBg, mmTheme.centerChannelColor, 0.20),
-            neutral30: blendColors(mmTheme.centerChannelBg, mmTheme.centerChannelColor, 0.30),
-            neutral40: blendColors(mmTheme.centerChannelBg, mmTheme.centerChannelColor, 0.40),
-            neutral50: blendColors(mmTheme.centerChannelBg, mmTheme.centerChannelColor, 0.50),
-            neutral60: blendColors(mmTheme.centerChannelBg, mmTheme.centerChannelColor, 0.60),
-            neutral70: blendColors(mmTheme.centerChannelBg, mmTheme.centerChannelColor, 0.70),
-            neutral80: blendColors(mmTheme.centerChannelBg, mmTheme.centerChannelColor, 0.80),
-            neutral90: blendColors(mmTheme.centerChannelBg, mmTheme.centerChannelColor, 0.90),
-        },
-    });
-});
+import {changeOpacity} from 'mattermost-redux/utils/theme_utils';
 
-// From: https://github.com/JedWatson/react-select/wiki/v2:-Styles-to-match-react-bootstrap-fields
-export const reactSelectStyles = {
-    menuPortal: (provided) => ({
-        ...provided,
-        zIndex: 9999,
-    }),
-    container: (styles) => ({
-        ...styles,
-        flex: 1,
-    }),
-    control: (styles) => ({
-        ...styles,
-        minHeight: '34px',
-    }),
-    placeholder: (styles, state) => ({
-        display: state.selectProps.menuIsOpen ? 'none' : 'inline',
-        paddingLeft: 3,
-    }),
-    clearIndicator: (styles) => ({
-        ...styles,
-        padding: '2px 8px',
-    }),
-    indicatorSeparator: () => ({
-        display: 'none',
-    }),
-    dropdownIndicator: (styles) => ({
-        ...styles,
-        padding: '2px 8px',
-    }),
-    loadingIndicator: (styles) => ({
-        ...styles,
-        padding: '2px 8px',
-    }),
-    menu: (styles) => ({
-        ...styles,
-        zIndex: 3, // Without this menu will be overlapped by other fields
-    }),
+export const getStyleForReactSelect = (theme) => {
+    if (!theme) {
+        return null;
+    }
+
+    return {
+        menuPortal: (provided) => ({
+            ...provided,
+            zIndex: 9999,
+        }),
+        control: (provided, state) => ({
+            ...provided,
+            color: theme.centerChannelColor,
+            background: theme.centerChannelBg,
+
+            // Overwrittes the different states of border
+            borderColor: state.isFocused ? changeOpacity(theme.centerChannelColor, 0.25) : changeOpacity(theme.centerChannelColor, 0.2),
+            padding: '2px 4px 2px 6px',
+
+            // Removes weird border around container
+            boxShadow: 'inset 0 1px 1px ' + changeOpacity(theme.centerChannelColor, 0.075),
+            borderRadius: '4px',
+
+            '&:hover': {
+                borderColor: changeOpacity(theme.centerChannelColor, 0.25),
+            },
+        }),
+        option: (provided, state) => ({
+            ...provided,
+            background: state.isFocused ? changeOpacity(theme.centerChannelColor, 0.12) : theme.centerChannelBg,
+            color: theme.centerChannelColor,
+            '&:hover': {
+                background: changeOpacity(theme.centerChannelColor, 0.12),
+            },
+        }),
+        clearIndicator: (provided) => ({
+            ...provided,
+            width: '34px',
+            color: changeOpacity(theme.centerChannelColor, 0.4),
+            transform: 'scaleX(1.15)',
+            marginRight: '-10px',
+            '&:hover': {
+                color: theme.centerChannelColor,
+            },
+        }),
+        multiValue: (provided) => ({
+            ...provided,
+            background: changeOpacity(theme.centerChannelColor, 0.15),
+        }),
+        multiValueLabel: (provided) => ({
+            ...provided,
+            color: theme.centerChannelColor,
+            paddingBottom: '4px',
+            paddingLeft: '8px',
+            fontSize: '90%',
+        }),
+        multiValueRemove: (provided) => ({
+            ...provided,
+            transform: 'translateX(-2px) scaleX(1.15)',
+            color: changeOpacity(theme.centerChannelColor, 0.4),
+            '&:hover': {
+                background: 'transparent',
+            },
+        }),
+        menu: (provided) => ({
+            ...provided,
+            color: theme.centerChannelColor,
+            background: theme.centerChannelBg,
+            border: '1px solid ' + changeOpacity(theme.centerChannelColor, 0.2),
+            borderRadius: '0 0 2px 2px',
+            boxShadow: changeOpacity(theme.centerChannelColor, 0.2) + ' 1px 3px 12px',
+            marginTop: '4px',
+        }),
+        input: (provided) => ({
+            ...provided,
+            color: theme.centerChannelColor,
+        }),
+        placeholder: (provided) => ({
+            ...provided,
+            color: theme.centerChannelColor,
+        }),
+        is: (provided) => ({
+            ...provided,
+
+            '&:hover': {
+                color: theme.centerChannelColor,
+            },
+        }),
+        singleValue: (provided) => ({
+            ...provided,
+            color: theme.centerChannelColor,
+        }),
+        indicatorSeparator: (provided) => ({
+            ...provided,
+            display: 'none',
+        }),
+    };
 };

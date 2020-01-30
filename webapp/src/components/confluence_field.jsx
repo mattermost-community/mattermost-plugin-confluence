@@ -3,7 +3,7 @@ import PropTypes from 'prop-types';
 import {ControlLabel, FormControl, FormGroup} from 'react-bootstrap';
 import Select from 'react-select';
 
-import {getReactSelectTheme, reactSelectStyles} from '../utils/react_select_styles';
+import {getStyleForReactSelect} from '../utils/react_select_styles';
 
 export default class ConfluenceField extends React.PureComponent {
     static propTypes = {
@@ -62,9 +62,10 @@ export default class ConfluenceField extends React.PureComponent {
     };
 
     render() {
+        const {required, fieldType, theme, label} = this.props;
         const requiredErrorMsg = 'This field is required.';
         let requiredError = null;
-        if (this.props.required && !this.state.valid) {
+        if (required && !this.state.valid) {
             requiredError = (
                 <p className='help-text error-text'>
                     <span>{requiredErrorMsg}</span>
@@ -72,29 +73,28 @@ export default class ConfluenceField extends React.PureComponent {
             );
         }
         let field = null;
-        if (this.props.fieldType === 'input') {
+        if (fieldType === 'input') {
             field = (
                 <FormControl
                     {...this.props}
                     onChange={this.handleChange}
                 />
             );
-        } else if (this.props.fieldType === 'dropDown') {
+        } else if (fieldType === 'dropDown') {
             field = (
                 <Select
                     {...this.props}
                     menuPortalTarget={document.body}
                     menuPlacement='auto'
-                    styles={reactSelectStyles}
-                    theme={getReactSelectTheme(this.props.theme)}
+                    styles={getStyleForReactSelect(theme)}
                     onChange={this.handleChange}
                 />
             );
         }
         return (
             <FormGroup>
-                <ControlLabel>{this.props.label}</ControlLabel>
-                {this.props.required &&
+                <ControlLabel>{label}</ControlLabel>
+                {required &&
                 <span
                     className='error-text'
                     style={{marginLeft: '3px'}}
