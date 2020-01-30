@@ -15,7 +15,6 @@ export const subscriptionEditModal = (state = {}, action) => {
     switch (action.type) {
     case Constants.ACTION_TYPES.RECEIVED_SUBSCRIPTION:
         return {
-            editSubscription: true,
             alias: action.data.alias,
             baseURL: action.data.baseURL,
             spaceKey: action.data.spaceKey,
