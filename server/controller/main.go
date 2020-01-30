@@ -4,6 +4,8 @@ import (
 	"net/http"
 	"path/filepath"
 
+	"github.com/mattermost/mattermost-server/model"
+
 	"github.com/gorilla/mux"
 
 	"github.com/Brightscout/mattermost-plugin-confluence/server/config"
@@ -19,7 +21,10 @@ type Endpoint struct {
 
 // Endpoints is a map of endpoint key to endpoint object
 // Usage: getEndpointKey(GetMetadata): GetMetadata
-var Endpoints = map[string]*Endpoint{}
+var Endpoints = map[string]*Endpoint{
+	getEndpointKey(SaveChannelSubscription): SaveChannelSubscription,
+	getEndpointKey(EditChannelSubscription): EditChannelSubscription,
+}
 
 // Uniquely identifies an endpoint using path and method
 func getEndpointKey(endpoint *Endpoint) string {
@@ -61,6 +66,12 @@ func handleAuthRequired(endpoint *Endpoint) func(w http.ResponseWriter, r *http.
 			endpoint.Execute(w, r)
 		}
 	}
+}
+
+func ReturnStatusOK(w http.ResponseWriter) {
+	m := make(map[string]string)
+	m[model.STATUS] = model.STATUS_OK
+	_, _ = w.Write([]byte(model.MapToJson(m)))
 }
 
 // Authenticated verifies if provided request is performed by a logged-in Mattermost user.

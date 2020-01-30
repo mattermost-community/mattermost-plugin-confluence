@@ -38,10 +38,12 @@
   "dependencies": {
     "js-cookie": "^2.2.1",
     "mattermost-redux": "^5.18.0",
+    "prop-types": "15.7.2",
     "react": "16.8.6",
     "react-bootstrap": "^0.32.4",
     "react-dom": "^16.12.0",
     "react-redux": "5.0.7",
+    "react-select": "^3.0.8",
     "redux": "4.0.1",
     "superagent": "^5.2.1"
   }

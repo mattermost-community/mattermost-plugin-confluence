@@ -33,6 +33,8 @@
     }
   },
   "rules": {
+    // TODO : check why object-property-newline is not giving error
+    "object-property-newline": 2,
     "header/header": 0,
     "import/order": [
       2,

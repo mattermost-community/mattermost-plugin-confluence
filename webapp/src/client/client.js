@@ -12,7 +12,18 @@ export default class Client {
         this.baseUrl = `${url.protocol}//${url.host}`;
         this.pluginUrl = `${this.baseUrl}/plugins/${Constants.PLUGIN_NAME}`;
         this.apiUrl = `${this.baseUrl}/api/v4`;
+        this.pluginApiUrl = `${this.pluginUrl}/api/v1`;
     }
+
+    saveChannelSubscription = (channelSubscription) => {
+        const url = `${this.pluginApiUrl}/subscription`;
+        return this.doPost(url, channelSubscription);
+    };
+
+    editChannelSubscription = (channelSubscription) => {
+        const url = `${this.pluginApiUrl}/subscription`;
+        return this.doPut(url, channelSubscription);
+    };
 
     doGet = async (url, headers = {}) => {
         headers['X-Requested-With'] = 'XMLHttpRequest';
@@ -39,4 +50,18 @@ export default class Client {
 
         return response.body;
     };
+
+    doPut = async (url, body, headers = {}) => {
+        headers['X-Requested-With'] = 'XMLHttpRequest';
+        headers['X-CSRF-Token'] = Cookies.get(Constants.MATTERMOST_CSRF_COOKIE);
+
+        const response = await request.
+            put(url).
+            send(body).
+            set(headers).
+            type('application/json').
+            accept('application/json');
+
+        return response.body;
+    }
 }

@@ -1,13 +1,26 @@
 import Constants from './constants';
+import Hooks from './hooks';
+import reducer from './reducers';
+
+import {receivedSubscription} from './actions';
+import SubscriptionModal from './components/subscription_modal';
 
 //
 // Define the plugin class that will register
 // our plugin components.
 //
-export default class PluginClass {
-    // eslint-disable-next-line no-unused-vars
+class PluginClass {
     initialize(registry, store) {
-        // @see https://developers.mattermost.com/extend/plugins/webapp/reference/
+        registry.registerReducer(reducer);
+        registry.registerRootComponent(SubscriptionModal);
+        registry.registerWebSocketEventHandler(
+            Constants.OPEN_EDIT_SUBSCRIPTION_MODAL_WEBSOCKET_EVENT,
+            (payload) => {
+                store.dispatch(receivedSubscription(payload.data.subscription));
+            },
+        );
+        const hooks = new Hooks(store);
+        registry.registerSlashCommandWillBePostedHook(hooks.slashCommandWillBePostedHook);
     }
 }
 
