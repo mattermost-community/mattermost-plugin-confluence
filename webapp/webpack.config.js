@@ -1,4 +1,4 @@
-var path = require('path');
+const path = require('path');
 
 module.exports = {
     entry: [
@@ -19,12 +19,13 @@ module.exports = {
                 use: {
                     loader: 'babel-loader',
                     options: {
+                        cacheDirectory: true,
                         plugins: [
                             '@babel/plugin-proposal-class-properties',
                             '@babel/plugin-syntax-dynamic-import',
                             '@babel/proposal-object-rest-spread',
                         ],
-                        presets: [
+                        presets: [ // Babel configuration is in .babelrc because jest requires it to be there.
                             ['@babel/preset-env', {
                                 targets: {
                                     chrome: 66,
@@ -34,6 +35,7 @@ module.exports = {
                                 },
                                 modules: false,
                                 debug: false,
+                                corejs: '3.6.4',
                                 useBuiltIns: 'usage',
                                 shippedProposals: true,
                             }],
@@ -43,6 +45,11 @@ module.exports = {
                         ],
                     },
                 },
+            },
+            {
+                test: /.(bmp|gif|jpe?g|png|svg)$/,
+                exclude: /node_modules/,
+                loader: 'url-loader',
             },
         ],
     },
@@ -59,4 +66,9 @@ module.exports = {
         publicPath: '/',
         filename: 'main.js',
     },
+    devtool: 'source-map',
+    performance: {
+        hints: 'warning',
+    },
+    target: 'web',
 };

@@ -63,7 +63,9 @@ export default class ConfluenceField extends React.PureComponent {
     };
 
     render() {
-        const {required, fieldType, theme, label} = this.props;
+        const {
+            required, fieldType, theme, label,
+        } = this.props;
         const requiredErrorMsg = 'This field is required.';
         let requiredError = null;
         if (required && !this.state.valid) {
