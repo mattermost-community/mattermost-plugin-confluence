@@ -7,10 +7,16 @@ export const saveChannelSubscription = (body) => {
         try {
             data = await Client.saveChannelSubscription(body);
         } catch (error) {
-            return {data, error};
+            return {
+                data,
+                error,
+            };
         }
 
-        return {data, error: null};
+        return {
+            data,
+            error: null,
+        };
     };
 };
 
@@ -20,10 +26,16 @@ export const editChannelSubscription = (body) => {
         try {
             data = await Client.editChannelSubscription(body);
         } catch (error) {
-            return {data, error};
+            return {
+                data,
+                error,
+            };
         }
 
-        return {data, error: null};
+        return {
+            data,
+            error: null,
+        };
     };
 };
 

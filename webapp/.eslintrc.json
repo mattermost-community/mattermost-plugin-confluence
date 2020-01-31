@@ -33,8 +33,6 @@
     }
   },
   "rules": {
-    // TODO : check why object-property-newline is not giving error
-    "object-property-newline": 2,
     "header/header": 0,
     "import/order": [
       2,
@@ -71,6 +69,21 @@
         ],
         "enforceConst": true,
         "ignoreArrayIndexes": true
+      }
+    ],
+    "object-property-newline": [
+      2,
+      {
+        "allowAllPropertiesOnSameLine": false
+      }
+    ],
+    "object-curly-newline": [
+      2,
+      {
+        "ObjectExpression": { "minProperties": 4, "multiline": true, "consistent": true },
+        "ObjectPattern": { "minProperties": 4, "multiline": true, "consistent": true },
+        "ImportDeclaration": { "minProperties": 4, "multiline": true, "consistent": true },
+        "ExportDeclaration": { "minProperties": 4, "multiline": true, "consistent": true }
       }
     ],
     "quotes": [

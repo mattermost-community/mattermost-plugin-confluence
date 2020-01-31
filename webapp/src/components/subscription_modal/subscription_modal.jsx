@@ -48,7 +48,9 @@ export default class SubscriptionModal extends React.PureComponent {
     }
 
     setData = () => {
-        const {alias, baseURL, spaceKey, events} = this.props.subscription;
+        const {
+            alias, baseURL, spaceKey, events,
+        } = this.props.subscription;
         if (alias) {
             this.setState({
                 alias,
@@ -94,8 +96,12 @@ export default class SubscriptionModal extends React.PureComponent {
         if (!this.validator.validate()) {
             return;
         }
-        const {alias, baseURL, spaceKey, events} = this.state;
-        const {currentChannelID, subscription, saveChannelSubscription, editChannelSubscription} = this.props;
+        const {
+            alias, baseURL, spaceKey, events,
+        } = this.state;
+        const {
+            currentChannelID, subscription, saveChannelSubscription, editChannelSubscription,
+        } = this.props;
         const channelSubscription = {
             alias: alias.trim(),
             baseURL: baseURL.trim().toLowerCase(),

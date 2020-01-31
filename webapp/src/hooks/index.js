@@ -15,6 +15,9 @@ export default class Hooks {
             this.store.dispatch(openSubscriptionModal());
             return Promise.resolve({});
         }
-        return Promise.resolve({message, args: contextArgs});
+        return Promise.resolve({
+            message,
+            args: contextArgs,
+        });
     }
 }

@@ -43,7 +43,7 @@ default: all
 
 ## Checks the code style, tests, builds and bundles the plugin.
 .PHONY: all
-all: check-style test dist
+all: clean check-style test dist
 
 ## Propagates plugin manifest information into the server/ and webapp/ folders as required.
 .PHONY: apply
@@ -204,6 +204,12 @@ ifneq ($(HAS_WEBAPP),)
 	$(NPM) run debug;
 endif
 
+## Gets the vendor dependencies.
+vendor: go.sum
+ifneq ($(HAS_SERVER),)
+	$(GO) mod vendor
+endif
+
 ## Builds the server, if it exists, including support for multiple architectures.
 .PHONY: server
 server:
@@ -240,25 +246,29 @@ endif
 
 ## Builds and bundles the plugin.
 .PHONY: dist
-dist:	apply server webapp bundle
+dist: .distclean apply server webapp bundle
 
 ## Builds and bundles the plugin in debug mode (if it exists).
 .PHONY: debug-dist
-debug-dist: apply server webapp-debug bundle
+debug-dist: .distclean apply server webapp-debug bundle
 
-## Clean removes all build artifacts.
-.PHONY: clean
-clean:
+## Removes all build artifacts.
+.PHONY: .distclean
+.distclean:
+	@echo ${BOLD}"Cleaning dist files\n"${RESET}
 	rm -fr dist/
-ifneq ($(HAS_SERVER),)
 	rm -fr server/dist
-endif
-ifneq ($(HAS_WEBAPP),)
-	rm -fr webapp/.npminstall
 	rm -fr webapp/dist
+	@echo "\n"
+
+## Removes all dependencies and build-artifacts.
+.PHONY: clean
+clean: .distclean
+	@echo ${BOLD}"Cleaning plugin\n"${RESET}
+	rm -fr vendor
 	rm -fr webapp/node_modules
 	rm -fr webapp/.npminstall
-endif
+	@echo "\n"
 
 # Help documentation à la https://marmelab.com/blog/2016/02/29/auto-documented-makefile.html
 help:
