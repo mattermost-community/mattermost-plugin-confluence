@@ -18,7 +18,7 @@ var confluenceServerWebhook = &Endpoint{
 func handleConfluenceServerWebhook(w http.ResponseWriter, r *http.Request) {
 	config.Mattermost.LogInfo("Received confluence server event.")
 
-	event := serializer.ConfluenceServerEventFromJson(r.Body)
+	event := serializer.ConfluenceServerEventFromJSON(r.Body)
 	service.SendConfluenceServerNotifications(event)
 
 	w.Header().Set("Content-Type", "application/json")

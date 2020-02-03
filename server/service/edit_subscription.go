@@ -24,9 +24,9 @@ func EditSubscription(subscription serializer.Subscription, userID string) (int,
 	if gErr != nil {
 		return http.StatusInternalServerError, errors.New(generalSaveError)
 	}
-	keySubscriptions, key, kErr := GetURLSpaceKeyCombinationSubscriptions(subscription.BaseURL, subscription.SpaceKey)
-	if kErr != nil {
-		return http.StatusInternalServerError, kErr
+	keySubscriptions, key, keyErr := GetURLSpaceKeyCombinationSubscriptions(subscription.BaseURL, subscription.SpaceKey)
+	if keyErr != nil {
+		return http.StatusInternalServerError, keyErr
 	}
 
 	keySubscriptions[subscription.ChannelID] = subscription.Events

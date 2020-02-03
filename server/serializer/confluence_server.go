@@ -135,7 +135,7 @@ type ConfluenceServerEvent struct {
 	Timestamp      int64                     `json:"timestamp"`
 }
 
-func ConfluenceServerEventFromJson(data io.Reader) *ConfluenceServerEvent {
+func ConfluenceServerEventFromJSON(data io.Reader) *ConfluenceServerEvent {
 	var me ConfluenceServerEvent
 	if err := json.NewDecoder(data).Decode(&me); err != nil {
 		config.Mattermost.LogError("Unable to decode JSON for ConfluenceServerEvent.", "Error", err.Error())

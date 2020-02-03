@@ -27,9 +27,9 @@ func SaveNewSubscription(subscription serializer.Subscription, userID string) (i
 	if _, ok := channelSubscriptions[subscription.Alias]; ok {
 		return http.StatusBadRequest, errors.New(aliasAlreadyExist)
 	}
-	keySubscriptions, key, kErr := GetURLSpaceKeyCombinationSubscriptions(subscription.BaseURL, subscription.SpaceKey)
-	if kErr != nil {
-		return http.StatusInternalServerError, kErr
+	keySubscriptions, key, keyErr := GetURLSpaceKeyCombinationSubscriptions(subscription.BaseURL, subscription.SpaceKey)
+	if keyErr != nil {
+		return http.StatusInternalServerError, keyErr
 	}
 	if _, ok := keySubscriptions[subscription.ChannelID]; ok {
 		return http.StatusBadRequest, errors.New(urlSpaceKeyAlreadyExist)
