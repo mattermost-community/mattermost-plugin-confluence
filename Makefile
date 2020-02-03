@@ -207,6 +207,7 @@ endif
 ## Gets the vendor dependencies.
 vendor: go.sum
 ifneq ($(HAS_SERVER),)
+	$(GO) mod tidy
 	$(GO) mod vendor
 endif
 

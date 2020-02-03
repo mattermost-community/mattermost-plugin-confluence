@@ -3,28 +3,36 @@ import {ACTION_TYPES} from './action_types';
 
 const CONFLUENCE_EVENTS = [
     {
-        value: 'comment_create',
+        value: 'comment_created',
         label: 'Comment Create',
     },
     {
-        value: 'comment_update',
+        value: 'comment_updated',
         label: 'Comment Update',
     },
     {
-        value: 'comment_delete',
-        label: 'Comment Delete',
+        value: 'comment_removed',
+        label: 'Comment Remove',
     },
     {
-        value: 'page_create',
+        value: 'page_created',
         label: 'Page Create',
     },
     {
-        value: 'page_update',
+        value: 'page_updated',
         label: 'Page Update',
     },
     {
-        value: 'page_delete',
-        label: 'Page Delete',
+        value: 'page_trashed',
+        label: 'Page Trash',
+    },
+    {
+        value: 'page_restored',
+        label: 'Page Restore',
+    },
+    {
+        value: 'page_removed',
+        label: 'Page Remove',
     },
 ];
 
