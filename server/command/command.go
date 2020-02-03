@@ -2,8 +2,9 @@ package command
 
 import (
 	"fmt"
-	"github.com/Brightscout/mattermost-plugin-confluence/server/serializer"
 	"strings"
+
+	"github.com/Brightscout/mattermost-plugin-confluence/server/serializer"
 
 	"github.com/Brightscout/mattermost-plugin-confluence/server/config"
 
