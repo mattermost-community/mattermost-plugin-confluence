@@ -3,6 +3,7 @@ package controller
 import (
 	"encoding/json"
 	"fmt"
+	"github.com/Brightscout/mattermost-plugin-confluence/server/service"
 	"net/http"
 	"time"
 
@@ -28,21 +29,12 @@ func parseCloudEvent(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "Could not decode request body", http.StatusBadRequest)
 		return
 	}
-
-	switch params["event"] {
-	case "page_created":
-		pageCreateEvent(cloudEvent.Page)
-	case "comment_created":
-		commentCreateEvent(cloudEvent.Comment)
-	case "page_update":
-		pageUpdateEvent(cloudEvent.Page)
-	case "comment_update":
-		commentUpdate(cloudEvent.Comment)
-	case "page_delete":
-		pageDeleteEvent(cloudEvent.Page)
-	case "comment_delete":
-		commentDeleteEvent(cloudEvent.Comment)
+	if err := service.SendCloudNotification(cloudEvent, params["event"]); err != nil {
+		config.Mattermost.LogError("Error occurred while sending confluence cloud notification")
+		http.Error(w, err.Error(), errCode)
+		return
 	}
+	ReturnStatusOK(w)
 }
 
 func pageCreateEvent(page *serializer.Page) *model.AppError {
