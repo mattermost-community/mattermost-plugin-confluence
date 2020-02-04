@@ -3,12 +3,12 @@ package service
 import (
 	"net/http"
 
-	"github.com/Brightscout/mattermost-plugin-confluence/server/config"
 	"github.com/mattermost/mattermost-server/model"
+	"github.com/pkg/errors"
 
+	"github.com/Brightscout/mattermost-plugin-confluence/server/config"
 	"github.com/Brightscout/mattermost-plugin-confluence/server/serializer"
 	"github.com/Brightscout/mattermost-plugin-confluence/server/store"
-	"github.com/pkg/errors"
 )
 
 const (
@@ -27,9 +27,9 @@ func SaveNewSubscription(subscription serializer.Subscription, userID string) (i
 	if _, ok := channelSubscriptions[subscription.Alias]; ok {
 		return http.StatusBadRequest, errors.New(aliasAlreadyExist)
 	}
-	keySubscriptions, key, kErr := GetURLSpaceKeyCombinationSubscriptions(subscription.BaseURL, subscription.SpaceKey)
-	if kErr != nil {
-		return http.StatusInternalServerError, kErr
+	keySubscriptions, key, keyErr := GetURLSpaceKeyCombinationSubscriptions(subscription.BaseURL, subscription.SpaceKey)
+	if keyErr != nil {
+		return http.StatusInternalServerError, keyErr
 	}
 	if _, ok := keySubscriptions[subscription.ChannelID]; ok {
 		return http.StatusBadRequest, errors.New(urlSpaceKeyAlreadyExist)
