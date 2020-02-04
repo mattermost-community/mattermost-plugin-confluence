@@ -136,9 +136,9 @@ type ConfluenceServerEvent struct {
 }
 
 func ConfluenceServerEventFromJSON(data io.Reader) *ConfluenceServerEvent {
-	var me ConfluenceServerEvent
-	if err := json.NewDecoder(data).Decode(&me); err != nil {
+	var confluenceServerEvent ConfluenceServerEvent
+	if err := json.NewDecoder(data).Decode(&confluenceServerEvent); err != nil {
 		config.Mattermost.LogError("Unable to decode JSON for ConfluenceServerEvent.", "Error", err.Error())
 	}
-	return &me
+	return &confluenceServerEvent
 }

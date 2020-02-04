@@ -28,6 +28,11 @@ func generateConfluenceServerNotificationPost(event *serializer.ConfluenceServer
 		"page_updated":    "[%s](%s) updated a [page](%s) in [Confluence](%s).",
 	}
 
+	// if event is not in the eventMap
+	if _, ok := eventMap[event.Event]; !ok {
+		return nil
+	}
+
 	pretext := fmt.Sprintf(eventMap[event.Event], event.User.FullName, event.User.URL, event.ContentURL, event.BaseURL)
 	fallback := fmt.Sprintf(eventMap[event.Event], event.User.FullName, event.User.URL, event.ContentURL, event.BaseURL)
 
