@@ -21,8 +21,6 @@ const (
 
 type Plugin struct {
 	plugin.MattermostPlugin
-
-	handler http.Handler
 }
 
 func (p *Plugin) OnActivate() error {

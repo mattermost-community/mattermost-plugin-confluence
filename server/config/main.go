@@ -1,18 +1,14 @@
 package config
 
 import (
+	"strings"
+
 	"github.com/mattermost/mattermost-server/plugin"
+	"github.com/pkg/errors"
 	"go.uber.org/atomic"
 )
 
 const (
-	CommandPrefix             = PluginName
-	URLMappingKeyPrefix       = "url_"
-	ServerExeToWebappRootPath = "/../webapp"
-
-	URLPluginBase = "/plugins/" + PluginName
-	URLStaticBase = URLPluginBase + "/static"
-
 	HeaderMattermostUserID = "Mattermost-User-Id"
 )
 
@@ -23,6 +19,7 @@ var (
 )
 
 type Configuration struct {
+	Secret string `json:"Secret"`
 }
 
 func GetConfig() *Configuration {
@@ -34,14 +31,15 @@ func SetConfig(c *Configuration) {
 }
 
 func (c *Configuration) ProcessConfiguration() error {
-	// any post-processing on configurations goes here
+	c.Secret = strings.TrimSpace(c.Secret)
 
 	return nil
 }
 
 func (c *Configuration) IsValid() error {
-	// Add config validations here.
-	// Check for required fields, formats, etc.
+	if c.Secret == "" {
+		return errors.New("please provide the Webhook Secret")
+	}
 
 	return nil
 }

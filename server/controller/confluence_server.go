@@ -18,6 +18,11 @@ var confluenceServerWebhook = &Endpoint{
 func handleConfluenceServerWebhook(w http.ResponseWriter, r *http.Request) {
 	config.Mattermost.LogInfo("Received confluence server event.")
 
+	if status, err := verifyHTTPSecret(config.GetConfig().Secret, r.FormValue("secret")); err != nil {
+		http.Error(w, err.Error(), status)
+		return
+	}
+
 	event := serializer.ConfluenceServerEventFromJSON(r.Body)
 	service.SendConfluenceServerNotifications(event)
 

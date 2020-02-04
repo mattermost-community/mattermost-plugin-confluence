@@ -37,24 +37,7 @@ func generateConfluenceServerNotificationPost(event *serializer.ConfluenceServer
 
 	var fields []*model.SlackAttachmentField
 
-	if event.ContentType == serializer.ConfluenceContentTypePage {
-		pageTitle = event.Page.Title
-		pageLink = event.Page.URL
-		pageExcerpt = event.Page.Excerpt
-	}
-	if event.ContentType == serializer.ConfluenceContentTypeComment {
-		switch event.ContainerType {
-		case serializer.ConfluenceContentTypePage:
-			pageTitle = event.Page.Title
-			pageLink = event.Page.URL
-			pageExcerpt = event.Page.Excerpt
-
-		case serializer.ConfluenceContentTypeBlogPost:
-			pageTitle = event.Blog.Title
-			pageLink = event.Blog.URL
-			pageExcerpt = event.Blog.Excerpt
-		}
-
+	if event.Comment != nil {
 		fields = append(fields, &model.SlackAttachmentField{
 			Title: "Comment",
 			Value: event.Comment.Excerpt,
@@ -70,6 +53,17 @@ func generateConfluenceServerNotificationPost(event *serializer.ConfluenceServer
 		}
 	}
 
+	if event.Page != nil {
+		pageTitle = event.Page.Title
+		pageLink = event.Page.URL
+		pageExcerpt = event.Page.Excerpt
+	} else if event.Blog != nil {
+		pageTitle = event.Blog.Title
+		pageLink = event.Blog.URL
+		pageExcerpt = event.Blog.Excerpt
+	}
+
+	// If event is an instance of Edited event
 	if strings.TrimSpace(event.VersionComment) != "" {
 		fields = append(fields, &model.SlackAttachmentField{
 			Title: "Version Comment",
@@ -102,6 +96,7 @@ func generateConfluenceServerNotificationPost(event *serializer.ConfluenceServer
 	post := &model.Post{
 		UserId: config.BotUserID,
 	}
-	post.AddProp("attachments", []*model.SlackAttachment{attachment})
+
+	model.ParseSlackAttachment(post, []*model.SlackAttachment{attachment})
 	return post
 }

@@ -1,11 +1,14 @@
 package controller
 
 import (
+	"crypto/subtle"
 	"net/http"
+	"net/url"
 	"path/filepath"
 
 	"github.com/gorilla/mux"
 	"github.com/mattermost/mattermost-server/model"
+	"github.com/pkg/errors"
 
 	"github.com/Brightscout/mattermost-plugin-confluence/server/config"
 	"github.com/Brightscout/mattermost-plugin-confluence/server/util"
@@ -56,7 +59,7 @@ func handleStaticFiles(r *mux.Router) {
 		return
 	}
 
-	// This will serve files under '/static/<filename>'
+	// This will serve static files from the 'assets' directory under '/static/<filename>'
 	r.PathPrefix("/static/").Handler(http.StripPrefix("/static/", http.FileServer(http.Dir(filepath.Join(bundlePath, "assets")))))
 }
 
@@ -83,4 +86,20 @@ func ReturnStatusOK(w http.ResponseWriter) {
 	m := make(map[string]string)
 	m[model.STATUS] = model.STATUS_OK
 	_, _ = w.Write([]byte(model.MapToJson(m)))
+}
+
+func verifyHTTPSecret(expected, got string) (status int, err error) {
+	for {
+		if subtle.ConstantTimeCompare([]byte(got), []byte(expected)) == 1 {
+			break
+		}
+
+		unescaped, _ := url.QueryUnescape(got)
+		if unescaped == got {
+			return http.StatusForbidden, errors.New("Request URL: secret did not match")
+		}
+		got = unescaped
+	}
+
+	return 0, nil
 }
