@@ -10,12 +10,12 @@ import (
 )
 
 const (
-	pageCreateMessage    = "A new page [%s](%s) was created in the **%s** space."
-	commentCreateMessage = "A new [comment](%s) was posted on the [%s](%s) page."
-	pageUpdateMessage    = "Page [%s](%s) was updated in the **%s** space."
-	commentUpdateMessage = "A [comment](%s) was updated on the [%s](%s) page."
-	pageDeleteMessage    = "Page **%s** was removed from the **%s** space."
-	commentDeleteMessage = "A comment was deleted from the [%s](%s) page."
+	confluenceCloudPageCreateMessage    = "A new page [%s](%s) was created in the **%s** space."
+	confluenceCloudPageUpdateMessage    = "Page [%s](%s) was updated in the **%s** space."
+	confluenceCloudPageDeleteMessage    = "Page **%s** was removed from the **%s** space."
+	confluenceCloudCommentCreateMessage = "A new [comment](%s) was posted on the [%s](%s) page."
+	confluenceCloudCommentUpdateMessage = "A [comment](%s) was updated on the [%s](%s) page."
+	confluenceCloudCommentDeleteMessage = "A comment was deleted from the [%s](%s) page."
 )
 
 func SendConfluenceCloudNotification(event *serializer.ConfluenceCloudEvent, eventType string) {
@@ -37,17 +37,17 @@ func generateConfluenceCloudNotificationPost(event *serializer.ConfluenceCloudEv
 	comment := event.Comment
 	switch eventType {
 	case serializer.PageCreatedEvent:
-		message = fmt.Sprintf(pageCreateMessage, page.Title, page.Self, page.SpaceKey)
+		message = fmt.Sprintf(confluenceCloudPageCreateMessage, page.Title, page.Self, page.SpaceKey)
 	case serializer.CommentCreatedEvent:
-		message = fmt.Sprintf(commentCreateMessage, comment.Self, comment.Parent.Title, comment.Parent.Self)
+		message = fmt.Sprintf(confluenceCloudCommentCreateMessage, comment.Self, comment.Parent.Title, comment.Parent.Self)
 	case serializer.PageUpdatedEvent:
-		message = fmt.Sprintf(pageUpdateMessage, page.Title, page.Self, page.SpaceKey)
+		message = fmt.Sprintf(confluenceCloudPageUpdateMessage, page.Title, page.Self, page.SpaceKey)
 	case serializer.CommentUpdatedEvent:
-		message = fmt.Sprintf(commentUpdateMessage, comment.Self, comment.Parent.Title, comment.Parent.Self)
+		message = fmt.Sprintf(confluenceCloudCommentUpdateMessage, comment.Self, comment.Parent.Title, comment.Parent.Self)
 	case serializer.PageRemovedEvent:
-		message = fmt.Sprintf(pageDeleteMessage, page.Title, page.SpaceKey)
+		message = fmt.Sprintf(confluenceCloudPageDeleteMessage, page.Title, page.SpaceKey)
 	case serializer.CommentRemovedEvent:
-		message = fmt.Sprintf(commentDeleteMessage, comment.Parent.Title, comment.Parent.Self)
+		message = fmt.Sprintf(confluenceCloudCommentDeleteMessage, comment.Parent.Title, comment.Parent.Self)
 	default:
 		return nil
 	}
