@@ -10,12 +10,12 @@ import (
 )
 
 const (
-	pageCreateMessage    = "Page [%s](%s) created in space **%s**"
-	commentCreateMessage = "[Comment](%s) created in page [%s](%s)"
-	pageUpdateMessage    = "Page [%s](%s) updated in space **%s**"
-	commentUpdateMessage = "[Comment](%s) updated in page [%s](%s)"
-	pageDeleteMessage    = "Page [%s](%s) removed in space **%s**"
-	commentDeleteMessage = "Comment deleted in page [%s](%s)"
+	pageCreateMessage    = "A new page [%s](%s) was created in the **%s** space."
+	commentCreateMessage = "A new [Comment](%s) was posted on the [%s](%s) page."
+	pageUpdateMessage    = "Page [%s](%s) was updated in the **%s** space."
+	commentUpdateMessage = "A [Comment](%s) was updated on the [%s](%s) page."
+	pageDeleteMessage    = "Page **%s** was removed from the **%s** space."
+	commentDeleteMessage = "A Comment was deleted from the [%s](%s) page."
 )
 
 func SendConfluenceCloudNotification(event *serializer.ConfluenceCloudEvent, eventType string) {
@@ -40,13 +40,13 @@ func generateConfluenceCloudNotificationPost(event *serializer.ConfluenceCloudEv
 		message = fmt.Sprintf(pageCreateMessage, page.Title, page.Self, page.SpaceKey)
 	case "comment_created":
 		message = fmt.Sprintf(commentCreateMessage, comment.Self, comment.Parent.Title, comment.Parent.Self)
-	case "page_update":
+	case "page_updated":
 		message = fmt.Sprintf(pageUpdateMessage, page.Title, page.Self, page.SpaceKey)
-	case "comment_update":
+	case "comment_updated":
 		message = fmt.Sprintf(commentUpdateMessage, comment.Self, comment.Parent.Title, comment.Parent.Self)
 	case "page_removed":
-		message = fmt.Sprintf(pageDeleteMessage, page.Title, page.Self, page.SpaceKey)
-	case "comment_delete":
+		message = fmt.Sprintf(pageDeleteMessage, page.Title, page.SpaceKey)
+	case "comment_removed":
 		message = fmt.Sprintf(commentDeleteMessage, comment.Parent.Title, comment.Parent.Self)
 	default:
 		return nil

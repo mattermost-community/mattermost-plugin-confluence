@@ -30,16 +30,21 @@ type Page struct {
 }
 
 type Comment struct {
-	CreatorAccountID      string `json:"creatorAccountId"`
-	SpaceKey              string `json:"spaceKey"`
-	ModificationDate      int64  `json:"modificationDate"`
-	LastModifierAccountID string `json:"lastModifierAccountId"`
-	Self                  string `json:"self"`
-	ID                    int    `json:"id"`
-	CreationDate          int    `json:"creationDate"`
-	ContentTypes          string `json:"contentType"`
-	Version               int    `json:"version"`
-	Parent                *Page  `json:"parent"`
+	CreatorAccountID      string         `json:"creatorAccountId"`
+	SpaceKey              string         `json:"spaceKey"`
+	ModificationDate      int64          `json:"modificationDate"`
+	LastModifierAccountID string         `json:"lastModifierAccountId"`
+	Self                  string         `json:"self"`
+	ID                    int            `json:"id"`
+	CreationDate          int            `json:"creationDate"`
+	ContentTypes          string         `json:"contentType"`
+	Version               int            `json:"version"`
+	Parent                *Page          `json:"parent"`
+	InReplyTo             *ParentComment `json:"inReplyTo"`
+}
+
+type ParentComment struct {
+	ID string `json:"id"`
 }
 
 func ConfluenceCloudEventFromJSON(data io.Reader) *ConfluenceCloudEvent {
