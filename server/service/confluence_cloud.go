@@ -3,18 +3,19 @@ package service
 import (
 	"fmt"
 
+	"github.com/mattermost/mattermost-server/model"
+
 	"github.com/Brightscout/mattermost-plugin-confluence/server/config"
 	"github.com/Brightscout/mattermost-plugin-confluence/server/serializer"
-	"github.com/mattermost/mattermost-server/model"
 )
 
 const (
-	pageCreateMessage = "Page [%s](%s) created in space **%s**"
-	commentCreateMessage= "[Comment](%s) created in page [%s](%s)"
-	pageUpdateMessage = "Page [%s](%s) updated in space **%s**"
-	commentUpdateMessage= "[Comment](%s) updated in page [%s](%s)"
-	pageDeleteMessage = "Page [%s](%s) removed in space **%s**"
-	commentDeleteMessage= "Comment deleted in page [%s](%s)"
+	pageCreateMessage    = "Page [%s](%s) created in space **%s**"
+	commentCreateMessage = "[Comment](%s) created in page [%s](%s)"
+	pageUpdateMessage    = "Page [%s](%s) updated in space **%s**"
+	commentUpdateMessage = "[Comment](%s) updated in page [%s](%s)"
+	pageDeleteMessage    = "Page [%s](%s) removed in space **%s**"
+	commentDeleteMessage = "Comment deleted in page [%s](%s)"
 )
 
 func SendConfluenceCloudNotification(event *serializer.ConfluenceCloudEvent, eventType string) {

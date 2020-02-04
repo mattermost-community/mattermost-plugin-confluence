@@ -4,10 +4,11 @@ import (
 	"fmt"
 	"strings"
 
+	"github.com/mattermost/mattermost-server/model"
+
 	"github.com/Brightscout/mattermost-plugin-confluence/server/config"
 	"github.com/Brightscout/mattermost-plugin-confluence/server/serializer"
 	"github.com/Brightscout/mattermost-plugin-confluence/server/service"
-	"github.com/mattermost/mattermost-server/model"
 )
 
 type HandlerFunc func(context *model.CommandArgs, args ...string) *model.CommandResponse

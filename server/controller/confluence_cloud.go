@@ -3,10 +3,11 @@ package controller
 import (
 	"net/http"
 
+	"github.com/gorilla/mux"
+
 	"github.com/Brightscout/mattermost-plugin-confluence/server/config"
 	"github.com/Brightscout/mattermost-plugin-confluence/server/serializer"
 	"github.com/Brightscout/mattermost-plugin-confluence/server/service"
-	"github.com/gorilla/mux"
 )
 
 var confluenceCloudWebhook = &Endpoint{
