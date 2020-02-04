@@ -48,9 +48,9 @@ type ParentComment struct {
 }
 
 func ConfluenceCloudEventFromJSON(data io.Reader) *ConfluenceCloudEvent {
-	var confluenceServerEvent ConfluenceCloudEvent
-	if err := json.NewDecoder(data).Decode(&confluenceServerEvent); err != nil {
+	var confluenceCloudEvent ConfluenceCloudEvent
+	if err := json.NewDecoder(data).Decode(&confluenceCloudEvent); err != nil {
 		config.Mattermost.LogError("Unable to decode JSON for ConfluenceServerEvent.", "Error", err.Error())
 	}
-	return &confluenceServerEvent
+	return &confluenceCloudEvent
 }

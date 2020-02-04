@@ -16,15 +16,26 @@ type Subscription struct {
 	ChannelID string   `json:"channelID"`
 }
 
+const (
+	CommentCreatedEvent = "comment_created"
+	CommentUpdatedEvent = "comment_updated"
+	CommentRemovedEvent = "comment_removed"
+	PageCreatedEvent    = "page_created"
+	PageUpdatedEvent    = "page_updated"
+	PageTrashedEvent    = "page_trashed"
+	PageRestoredEvent   = "page_restored"
+	PageRemovedEvent    = "page_removed"
+)
+
 var eventTypes = map[string]string{
-	"comment_created": "Comment Create",
-	"comment_updated": "Comment Update",
-	"comment_removed": "Comment Remove",
-	"page_created":    "Page Create",
-	"page_updated":    "Page Update",
-	"page_trashed":    "Page Trash",
-	"page_restored":   "Page Restore",
-	"page_removed":    "Page Remove",
+	CommentCreatedEvent: "Comment Create",
+	CommentUpdatedEvent: "Comment Update",
+	CommentRemovedEvent: "Comment Remove",
+	PageCreatedEvent:    "Page Create",
+	PageUpdatedEvent:    "Page Update",
+	PageTrashedEvent:    "Page Trash",
+	PageRestoredEvent:   "Page Restore",
+	PageRemovedEvent:    "Page Remove",
 }
 
 func (s *Subscription) IsValid() error {

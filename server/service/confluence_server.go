@@ -13,6 +13,9 @@ import (
 
 func SendConfluenceServerNotifications(event *serializer.ConfluenceServerEvent) {
 	post := generateConfluenceServerNotificationPost(event)
+	if post == nil {
+		return
+	}
 	SendConfluenceNotifications(post, event.BaseURL, event.Space.Key, event.Event)
 }
 
