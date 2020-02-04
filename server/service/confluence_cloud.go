@@ -2,16 +2,30 @@ package service
 
 import (
 	"fmt"
+
 	"github.com/Brightscout/mattermost-plugin-confluence/server/config"
 	"github.com/Brightscout/mattermost-plugin-confluence/server/serializer"
 	"github.com/mattermost/mattermost-server/model"
 )
 
-func SendCloudNotification (cloudEvent serializer.ConfluenceCloudEvent, event string) *model.AppError {
+func SendConfluenceCloudNotification(event *serializer.ConfluenceCloudEvent, eventType string) {
+	post := generateConfluenceCloudNotificationPost(event, eventType)
+	if post == nil {
+		return
+	}
+
+	if event.Comment != nil {
+		SendConfluenceNotifications(post, event.Comment.Self, event.Comment.SpaceKey, eventType)
+	} else if event.Page != nil {
+		SendConfluenceNotifications(post, event.Page.Self, event.Page.SpaceKey, eventType)
+	}
+}
+
+func generateConfluenceCloudNotificationPost(event *serializer.ConfluenceCloudEvent, eventType string) *model.Post {
 	message := ""
-	page := cloudEvent.Page
-	comment := cloudEvent.Comment
-	switch event {
+	page := event.Page
+	comment := event.Comment
+	switch eventType {
 	case "page_created":
 		message = fmt.Sprintf("Page [%s](%s) created in space **%s**", page.Title, page.Self, page.SpaceKey)
 	case "comment_created":
@@ -28,13 +42,10 @@ func SendCloudNotification (cloudEvent serializer.ConfluenceCloudEvent, event st
 		return nil
 	}
 
-	// TODO : Update the send notification logic.
 	post := &model.Post{
-		ChannelId: "617td783y38y8egdymy4w6qisw",
-		UserId:    config.BotUserID,
-		Type:      model.POST_DEFAULT,
-		Message:   message,
+		UserId:  config.BotUserID,
+		Type:    model.POST_DEFAULT,
+		Message: message,
 	}
-	_, appErr := config.Mattermost.CreatePost(post)
-	return appErr
+	return post
 }

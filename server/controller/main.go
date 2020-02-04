@@ -1,12 +1,14 @@
 package controller
 
 import (
+	"crypto/subtle"
 	"net/http"
+	"net/url"
 	"path/filepath"
 
-	"github.com/mattermost/mattermost-server/model"
-
 	"github.com/gorilla/mux"
+	"github.com/mattermost/mattermost-server/model"
+	"github.com/pkg/errors"
 
 	"github.com/Brightscout/mattermost-plugin-confluence/server/config"
 	"github.com/Brightscout/mattermost-plugin-confluence/server/util"
@@ -22,9 +24,10 @@ type Endpoint struct {
 // Endpoints is a map of endpoint key to endpoint object
 // Usage: getEndpointKey(GetMetadata): GetMetadata
 var Endpoints = map[string]*Endpoint{
-	getEndpointKey(CloudEvent):              CloudEvent,
+	getEndpointKey(confluenceCloudWebhook):  confluenceCloudWebhook,
 	getEndpointKey(SaveChannelSubscription): SaveChannelSubscription,
 	getEndpointKey(EditChannelSubscription): EditChannelSubscription,
+	getEndpointKey(confluenceServerWebhook): confluenceServerWebhook,
 }
 
 // Uniquely identifies an endpoint using path and method
@@ -57,7 +60,7 @@ func handleStaticFiles(r *mux.Router) {
 		return
 	}
 
-	// This will serve files under '/static/<filename>'
+	// This will serve static files from the 'assets' directory under '/static/<filename>'
 	r.PathPrefix("/static/").Handler(http.StripPrefix("/static/", http.FileServer(http.Dir(filepath.Join(bundlePath, "assets")))))
 }
 
@@ -69,12 +72,6 @@ func handleAuthRequired(endpoint *Endpoint) func(w http.ResponseWriter, r *http.
 	}
 }
 
-func ReturnStatusOK(w http.ResponseWriter) {
-	m := make(map[string]string)
-	m[model.STATUS] = model.STATUS_OK
-	_, _ = w.Write([]byte(model.MapToJson(m)))
-}
-
 // Authenticated verifies if provided request is performed by a logged-in Mattermost user.
 func Authenticated(w http.ResponseWriter, r *http.Request) bool {
 	userID := r.Header.Get(config.HeaderMattermostUserID)
@@ -84,4 +81,26 @@ func Authenticated(w http.ResponseWriter, r *http.Request) bool {
 	}
 
 	return true
+}
+
+func ReturnStatusOK(w http.ResponseWriter) {
+	m := make(map[string]string)
+	m[model.STATUS] = model.STATUS_OK
+	_, _ = w.Write([]byte(model.MapToJson(m)))
+}
+
+func verifyHTTPSecret(expected, got string) (status int, err error) {
+	for {
+		if subtle.ConstantTimeCompare([]byte(got), []byte(expected)) == 1 {
+			break
+		}
+
+		unescaped, _ := url.QueryUnescape(got)
+		if unescaped == got {
+			return http.StatusForbidden, errors.New("Request URL: secret did not match")
+		}
+		got = unescaped
+	}
+
+	return 0, nil
 }

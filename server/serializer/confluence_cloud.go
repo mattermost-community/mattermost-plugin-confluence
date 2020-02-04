@@ -1,5 +1,12 @@
 package serializer
 
+import (
+	"encoding/json"
+	"io"
+
+	"github.com/Brightscout/mattermost-plugin-confluence/server/config"
+)
+
 type ConfluenceCloudEvent struct {
 	UserAccountID string   `json:"userAccountId"`
 	AccountType   string   `json:"accountType"`
@@ -33,4 +40,12 @@ type Comment struct {
 	ContentTypes          string `json:"contentType"`
 	Version               int    `json:"version"`
 	Parent                *Page  `json:"parent"`
+}
+
+func ConfluenceCloudEventFromJSON(data io.Reader) *ConfluenceCloudEvent {
+	var confluenceServerEvent ConfluenceCloudEvent
+	if err := json.NewDecoder(data).Decode(&confluenceServerEvent); err != nil {
+		config.Mattermost.LogError("Unable to decode JSON for ConfluenceServerEvent.", "Error", err.Error())
+	}
+	return &confluenceServerEvent
 }

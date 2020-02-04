@@ -5,10 +5,10 @@ import (
 	"fmt"
 	url2 "net/url"
 
-	"github.com/Brightscout/mattermost-plugin-confluence/server/util"
+	"github.com/pkg/errors"
 
 	"github.com/Brightscout/mattermost-plugin-confluence/server/config"
-	"github.com/pkg/errors"
+	"github.com/Brightscout/mattermost-plugin-confluence/server/util"
 )
 
 const ConfluenceSubscriptionKeyPrefix = "confluence_subscription"

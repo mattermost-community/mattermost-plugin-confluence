@@ -6,11 +6,17 @@ jobs:
     working_directory: /go/src/github.com/Brightscout/mattermost-plugin-confluence
     steps:
       - checkout
+      - restore_cache:
+          key: go-mod-v1-{{ checksum "go.sum" }}
       - type: shell
         name: 'Checks the code style, tests, builds and bundles the plugin.'
         command: make all
         environment:
-            TERM: dumb
+          TERM: dumb
+      - save_cache:
+          key: go-mod-v1-{{ checksum "go.sum" }}
+          paths:
+            - "/go/pkg/mod"
       - store_artifacts:
           path: ./dist
           destination: build

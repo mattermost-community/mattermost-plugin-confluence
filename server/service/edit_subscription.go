@@ -5,12 +5,12 @@ import (
 	"fmt"
 	"net/http"
 
-	"github.com/Brightscout/mattermost-plugin-confluence/server/config"
 	"github.com/mattermost/mattermost-server/model"
+	"github.com/pkg/errors"
 
+	"github.com/Brightscout/mattermost-plugin-confluence/server/config"
 	"github.com/Brightscout/mattermost-plugin-confluence/server/serializer"
 	"github.com/Brightscout/mattermost-plugin-confluence/server/store"
-	"github.com/pkg/errors"
 )
 
 const (
@@ -24,9 +24,9 @@ func EditSubscription(subscription serializer.Subscription, userID string) (int,
 	if gErr != nil {
 		return http.StatusInternalServerError, errors.New(generalSaveError)
 	}
-	keySubscriptions, key, kErr := GetURLSpaceKeyCombinationSubscriptions(subscription.BaseURL, subscription.SpaceKey)
-	if kErr != nil {
-		return http.StatusInternalServerError, kErr
+	keySubscriptions, key, keyErr := GetURLSpaceKeyCombinationSubscriptions(subscription.BaseURL, subscription.SpaceKey)
+	if keyErr != nil {
+		return http.StatusInternalServerError, keyErr
 	}
 
 	keySubscriptions[subscription.ChannelID] = subscription.Events

@@ -17,12 +17,14 @@ type Subscription struct {
 }
 
 var eventTypes = map[string]string{
-	"comment_create": "Comment Create",
-	"comment_update": "Comment Update",
-	"comment_delete": "Comment Delete",
-	"page_create":    "Page Create",
-	"page_update":    "Page Update",
-	"page_delete":    "Page Delete",
+	"comment_created": "Comment Create",
+	"comment_updated": "Comment Update",
+	"comment_removed": "Comment Remove",
+	"page_created":    "Page Create",
+	"page_updated":    "Page Update",
+	"page_trashed":    "Page Trash",
+	"page_restored":   "Page Restore",
+	"page_removed":    "Page Remove",
 }
 
 func (s *Subscription) IsValid() error {
