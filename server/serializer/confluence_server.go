@@ -2,7 +2,9 @@ package serializer
 
 import (
 	"encoding/json"
+	"fmt"
 	"io"
+	"strings"
 
 	"github.com/Brightscout/mattermost-plugin-confluence/server/config"
 )
@@ -141,4 +143,58 @@ func ConfluenceServerEventFromJSON(data io.Reader) *ConfluenceServerEvent {
 		config.Mattermost.LogError("Unable to decode JSON for ConfluenceServerEvent.", "Error", err.Error())
 	}
 	return &confluenceServerEvent
+}
+
+func (e *ConfluenceServerEvent) GetUserDisplayName(withLink bool) string {
+	name := "Someone"
+	if strings.TrimSpace(e.User.FullName) != "" {
+		name = strings.TrimSpace(e.User.FullName)
+	} else if strings.TrimSpace(e.User.Username) != "" {
+		name = strings.TrimSpace(e.User.Username)
+	}
+
+	if withLink && e.User.URL != "" {
+		name = fmt.Sprintf("[%s](%s)", name, e.User.URL)
+	}
+
+	return name
+}
+
+func (e *ConfluenceServerEvent) GetSpaceDisplayName(withLink bool) string {
+	name := e.Space.Key
+	if strings.TrimSpace(e.Space.Name) != "" {
+		name = strings.TrimSpace(e.Space.Name)
+	}
+
+	if withLink && e.Space.URL != "" {
+		name = fmt.Sprintf("[%s](%s)", name, e.Space.URL)
+	}
+
+	return name
+}
+
+func (e *ConfluenceServerEvent) GetPageDisplayName(withLink bool) string {
+	if e.Page == nil {
+		return ""
+	}
+
+	name := e.Page.Title
+	if withLink && e.Page.URL != "" {
+		name = fmt.Sprintf("[%s](%s)", name, e.Page.URL)
+	}
+
+	return name
+}
+
+func (e *ConfluenceServerEvent) GetBlogDisplayName(withLink bool) string {
+	if e.Blog == nil {
+		return ""
+	}
+
+	name := e.Blog.Title
+	if withLink && e.Blog.URL != "" {
+		name = fmt.Sprintf("[%s](%s)", name, e.Blog.URL)
+	}
+
+	return name
 }
