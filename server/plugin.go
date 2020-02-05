@@ -1,7 +1,11 @@
 package main
 
 import (
+	"io/ioutil"
 	"net/http"
+	"path/filepath"
+
+	"github.com/pkg/errors"
 
 	"github.com/Brightscout/mattermost-plugin-confluence/server/command"
 	"github.com/Brightscout/mattermost-plugin-confluence/server/util"
@@ -25,16 +29,10 @@ type Plugin struct {
 
 func (p *Plugin) OnActivate() error {
 	config.Mattermost = p.API
-	botUserID, err := p.Helpers.EnsureBot(&model.Bot{
-		Username:    botUserName,
-		DisplayName: botDisplayName,
-		Description: botDescription,
-	})
-	if err != nil {
-		config.Mattermost.LogError("Error in setting up bot user", "Error", err.Error())
-		return err
+
+	if err := p.setUpBotUser(); err != nil {
+		config.Mattermost.LogError("Failed to create a bot user", "Error", err.Error())
 	}
-	config.BotUserID = botUserID
 
 	if err := p.OnConfigurationChange(); err != nil {
 		return err
@@ -70,6 +68,35 @@ func (p *Plugin) OnConfigurationChange() error {
 	}
 
 	config.SetConfig(&configuration)
+	return nil
+}
+
+func (p *Plugin) setUpBotUser() error {
+	botUserID, err := p.Helpers.EnsureBot(&model.Bot{
+		Username:    botUserName,
+		DisplayName: botDisplayName,
+		Description: botDescription,
+	})
+	if err != nil {
+		config.Mattermost.LogError("Error in setting up bot user", "Error", err.Error())
+		return err
+	}
+
+	bundlePath, err := p.API.GetBundlePath()
+	if err != nil {
+		return err
+	}
+
+	profileImage, err := ioutil.ReadFile(filepath.Join(bundlePath, "assets", "logo.png"))
+	if err != nil {
+		return err
+	}
+
+	if appErr := p.API.SetProfileImage(botUserID, profileImage); appErr != nil {
+		return errors.Wrap(appErr, "couldn't set profile image")
+	}
+
+	config.BotUserID = botUserID
 	return nil
 }
 
