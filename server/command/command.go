@@ -50,11 +50,10 @@ func GetCommand() *model.Command {
 	}
 }
 
-// TODO : Show help text instead of invalid command.
 func executeConfluenceDefault(context *model.CommandArgs, args ...string) *model.CommandResponse {
 	return &model.CommandResponse{
 		ResponseType: model.COMMAND_RESPONSE_TYPE_EPHEMERAL,
-		Text:         "Invalid command",
+		Text:         "Invalid command parameters. Please use `/confluence help` for more information.",
 	}
 }
 
