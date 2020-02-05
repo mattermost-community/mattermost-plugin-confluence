@@ -27,7 +27,7 @@ const (
 	PageRemovedEvent    = "page_removed"
 )
 
-var eventTypes = map[string]string{
+var eventDisplayName = map[string]string{
 	CommentCreatedEvent: "Comment Create",
 	CommentUpdatedEvent: "Comment Update",
 	CommentRemovedEvent: "Comment Remove",
@@ -60,7 +60,7 @@ func FormattedSubscriptionList(channelSubscriptions map[string]Subscription) str
 	for _, subscription := range channelSubscriptions {
 		var events []string
 		for _, event := range subscription.Events {
-			events = append(events, eventTypes[event])
+			events = append(events, eventDisplayName[event])
 		}
 		list += fmt.Sprintf("\n|%s|%s|%s|%s|", subscription.Alias, subscription.BaseURL, subscription.SpaceKey, strings.Join(events, ", "))
 	}
