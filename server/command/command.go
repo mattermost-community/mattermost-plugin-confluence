@@ -23,10 +23,10 @@ const (
 	subscriptionDeleteSuccess = "Subscription with alias **%s** deleted successfully."
 	noChannelSubscription     = "No subscription found for this channel."
 	helpText                  = "###### Mattermost Confluence Plugin - Slash Command Help\n" +
-		"\n* `/confluence subscribe` - Subscribe the current channel to receive notifications from a confluence instance.\n" +
-		"* `/confluence unsubscribe \"<alias>\"` - Unsubscribe the current channel from given alias.\n" +
-		"* `/confluence list` - List all the confluence subscriptions for a channel.\n" +
-		"* `/confluence edit \"<alias>\"` - Edit subscription for a given alias.\n"
+		"\n* `/confluence subscribe` - Subscribe the current channel to receive notifications from Confluence.\n" +
+		"* `/confluence unsubscribe \"<alias>\"` - Unsubscribe notifications for the current channel for a given subscription alias.\n" +
+		"* `/confluence list` - List all subscriptions configured for the current channel.\n" +
+		"* `/confluence edit \"<alias>\"` - Edit the subscribed events for the given subscription alias for the current channel.\n"
 )
 
 var ConfluenceCommandHandler = Handler{
