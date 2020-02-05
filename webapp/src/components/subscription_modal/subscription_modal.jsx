@@ -14,7 +14,7 @@ const initialState = {
     alias: '',
     baseURL: '',
     spaceKey: '',
-    events: [],
+    events: Constants.CONFLUENCE_EVENTS,
     error: '',
     saving: false,
 };

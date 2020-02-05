@@ -35,7 +35,6 @@ var ConfluenceCommandHandler = Handler{
 		"unsubscribe": deleteSubscription,
 		"edit":        editSubscription,
 		"help":        confluenceHelp,
-		"":            confluenceHelp,
 	},
 	defaultHandler: executeConfluenceDefault,
 }
@@ -46,7 +45,7 @@ func GetCommand() *model.Command {
 		DisplayName:      "Confluence",
 		Description:      "Integration with Confluence.",
 		AutoComplete:     true,
-		AutoCompleteDesc: "Available commands: subscribe,list,unsubscribe \"<alias>\",edit \"<alias>\",help",
+		AutoCompleteDesc: "Available commands: subscribe, list, unsubscribe \"<alias>\", edit \"<alias>\", help.",
 		AutoCompleteHint: "[command]",
 	}
 }
@@ -69,6 +68,9 @@ func postCommandResponse(context *model.CommandArgs, text string) {
 }
 
 func (ch Handler) Handle(context *model.CommandArgs, args ...string) *model.CommandResponse {
+	if len(args) == 0 {
+		return ch.handlers["help"](context, "")
+	}
 	for n := len(args); n > 0; n-- {
 		h := ch.handlers[strings.Join(args[:n], "/")]
 		if h != nil {
