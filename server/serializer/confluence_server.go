@@ -202,3 +202,11 @@ func (e *ConfluenceServerEvent) GetBlogDisplayName(withLink bool) string {
 
 	return name
 }
+
+func (e *ConfluenceServerEvent) GetCommentPageOrBlogDisplayName() string {
+	commentedOn := e.GetPageDisplayName(true)
+	if commentedOn == "" {
+		commentedOn = e.GetBlogDisplayName(true)
+	}
+	return commentedOn
+}
