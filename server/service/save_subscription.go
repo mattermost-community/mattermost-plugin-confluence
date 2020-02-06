@@ -15,7 +15,7 @@ const (
 	generalSaveError        = "Failed to save subscription"
 	aliasAlreadyExist       = "Subscription already exist in the channel with this alias"
 	urlSpaceKeyAlreadyExist = "Subscription already exist in the channel with url and space key combination"
-	subscriptionSaveSuccess = "Subscription saved successfully"
+	subscriptionSaveSuccess = "Your subscription has been saved."
 )
 
 // TODO : Check if we can refactor this.

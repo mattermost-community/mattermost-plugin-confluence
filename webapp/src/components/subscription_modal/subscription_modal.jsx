@@ -156,7 +156,7 @@ export default class SubscriptionModal extends React.PureComponent {
             >
                 <Modal.Header closeButton={true}>
                     <Modal.Title>
-                        {'Channel Confluence Settings'}
+                        {'Edit Your Confluence Subscription'}
                     </Modal.Title>
                 </Modal.Header>
                 <Modal.Body>
@@ -174,7 +174,7 @@ export default class SubscriptionModal extends React.PureComponent {
                             onChange={this.handleAlias}
                         />
                         <ConfluenceField
-                            label={'CONFLUENCE BASE URL'}
+                            label={'Confluence Base Url'}
                             type={'text'}
                             fieldType={'input'}
                             required={true}
@@ -186,7 +186,7 @@ export default class SubscriptionModal extends React.PureComponent {
                             onChange={this.handleBaseURLChange}
                         />
                         <ConfluenceField
-                            label={'SPACE KEY'}
+                            label={'Space Key'}
                             type={'text'}
                             fieldType={'input'}
                             required={true}
@@ -199,7 +199,7 @@ export default class SubscriptionModal extends React.PureComponent {
                         />
                         <ConfluenceField
                             isMulti={true}
-                            label={'EVENTS'}
+                            label={'Events'}
                             name={'events'}
                             fieldType={'dropDown'}
                             required={false}
