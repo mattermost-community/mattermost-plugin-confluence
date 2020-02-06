@@ -132,7 +132,7 @@ type ConfluenceServerEvent struct {
 	Blog           *ConfluenceServerBlogPost `json:"blog"`
 	Event          string                    `json:"event"`
 	Excerpt        string                    `json:"excerpt"`
-	User           *ConfluenceServerUser      `json:"user"`
+	User           *ConfluenceServerUser     `json:"user"`
 	Space          ConfluenceServerSpace     `json:"space"`
 	Timestamp      int64                     `json:"timestamp"`
 }
