@@ -132,7 +132,7 @@ type ConfluenceServerEvent struct {
 	Blog           *ConfluenceServerBlogPost `json:"blog"`
 	Event          string                    `json:"event"`
 	Excerpt        string                    `json:"excerpt"`
-	User           ConfluenceServerUser      `json:"user"`
+	User           *ConfluenceServerUser      `json:"user"`
 	Space          ConfluenceServerSpace     `json:"space"`
 	Timestamp      int64                     `json:"timestamp"`
 }
@@ -147,6 +147,10 @@ func ConfluenceServerEventFromJSON(data io.Reader) *ConfluenceServerEvent {
 
 func (e *ConfluenceServerEvent) GetUserDisplayName(withLink bool) string {
 	name := "Someone"
+	if e.User == nil {
+		return name
+	}
+
 	if strings.TrimSpace(e.User.FullName) != "" {
 		name = strings.TrimSpace(e.User.FullName)
 	} else if strings.TrimSpace(e.User.Username) != "" {
