@@ -61,7 +61,7 @@ func generateConfluenceServerNotificationPost(event *serializer.ConfluenceServer
 			attachment = &model.SlackAttachment{
 				Fallback: message,
 				Pretext:  message,
-				Text:     fmt.Sprintf("**What has changed?**\n> %s", strings.TrimSpace(event.VersionComment)),
+				Text:     fmt.Sprintf("**What changed?**\n> %s", strings.TrimSpace(event.VersionComment)),
 				Fields: []*model.SlackAttachmentField{
 					{
 						Title: "",
@@ -125,7 +125,7 @@ func generateConfluenceServerNotificationPost(event *serializer.ConfluenceServer
 		attachment = &model.SlackAttachment{
 			Fallback: message,
 			Pretext:  message,
-			Text: text,
+			Text:     text,
 			Fields: []*model.SlackAttachmentField{
 				{
 					Title: "",
@@ -142,7 +142,7 @@ func generateConfluenceServerNotificationPost(event *serializer.ConfluenceServer
 			attachment = &model.SlackAttachment{
 				Fallback: message,
 				Pretext:  message,
-				Text: fmt.Sprintf("**Deleted Comment**\n> %s", strings.TrimSpace(event.Comment.Excerpt)),
+				Text:     fmt.Sprintf("**Deleted Comment**\n> %s", strings.TrimSpace(event.Comment.Excerpt)),
 			}
 		} else {
 			post.Message = message
