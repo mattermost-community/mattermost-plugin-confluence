@@ -56,7 +56,7 @@ func (s *Subscription) IsValid() error {
 }
 
 func FormattedSubscriptionList(channelSubscriptions map[string]Subscription) string {
-	list := fmt.Sprintf("| Alias | Base Url | Space Key | Events|\n| :----: |:--------:| :--------:| :-----:|")
+	list := fmt.Sprintf("| Alias | Base Url | Space Key | Events|\n| :----|:--------| :--------| :-----|")
 	for _, subscription := range channelSubscriptions {
 		var events []string
 		for _, event := range subscription.Events {
