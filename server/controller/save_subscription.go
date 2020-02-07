@@ -9,14 +9,14 @@ import (
 	"github.com/Brightscout/mattermost-plugin-confluence/server/service"
 )
 
-var SaveChannelSubscription = &Endpoint{
+var saveChannelSubscription = &Endpoint{
 	RequiresAuth: true,
 	Path:         "/subscription",
 	Method:       http.MethodPost,
-	Execute:      saveChannelSubscription,
+	Execute:      handleSaveChannelSubscription,
 }
 
-func saveChannelSubscription(w http.ResponseWriter, r *http.Request) {
+func handleSaveChannelSubscription(w http.ResponseWriter, r *http.Request) {
 	body := json.NewDecoder(r.Body)
 	subscription := serializer.Subscription{}
 	if err := body.Decode(&subscription); err != nil {

@@ -1,4 +1,8 @@
-import {openSubscriptionModal, openEditSubscriptionModal} from '../actions';
+import {openSubscriptionModal, getChannelSubscription} from '../actions';
+
+import {splitArgs} from '../utils';
+import {sendEphemeralPost} from '../actions/subscription_modal';
+import Constants from '../constants';
 
 export default class Hooks {
     constructor(store) {
@@ -10,16 +14,17 @@ export default class Hooks {
         if (message) {
             commandTrimmed = message.trim();
         }
-
+        const userID = this.store.getState().entities.users.currentUserId;
         if (commandTrimmed && commandTrimmed === '/confluence subscribe') {
             this.store.dispatch(openSubscriptionModal());
             return Promise.resolve({});
         } else if (commandTrimmed && commandTrimmed.startsWith('/confluence edit')) {
-            const data = {
-                message,
-                channelID: contextArgs.channel_id,
-            };
-            this.store.dispatch(openEditSubscriptionModal(data, this.store.getState().entities.users.currentUserId));
+            const args = splitArgs(commandTrimmed);
+            if (args.length < 3) { // eslint-disable-line
+                this.store.dispatch(sendEphemeralPost(Constants.SPECIFY_ALIAS, contextArgs.channel_id, userID));
+            } else {
+                this.store.dispatch(getChannelSubscription(contextArgs.channel_id, args[2], userID));
+            }
             return Promise.resolve({});
         }
         return Promise.resolve({
