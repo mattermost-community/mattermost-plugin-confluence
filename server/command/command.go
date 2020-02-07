@@ -33,7 +33,6 @@ var ConfluenceCommandHandler = Handler{
 	handlers: map[string]HandlerFunc{
 		"list":        listChannelSubscription,
 		"unsubscribe": deleteSubscription,
-		"edit":        editSubscription,
 		"help":        confluenceHelp,
 	},
 	defaultHandler: executeConfluenceDefault,
@@ -106,18 +105,6 @@ func listChannelSubscription(context *model.CommandArgs, args ...string) *model.
 	}
 	list := serializer.FormattedSubscriptionList(channelSubscriptions)
 	postCommandResponse(context, list)
-	return &model.CommandResponse{}
-}
-
-func editSubscription(context *model.CommandArgs, args ...string) *model.CommandResponse {
-	if len(args) == 0 {
-		postCommandResponse(context, specifyAlias)
-		return &model.CommandResponse{}
-	}
-	alias := args[0]
-	if err := service.OpenSubscriptionEditModal(context.ChannelId, context.UserId, alias); err != nil {
-		postCommandResponse(context, err.Error())
-	}
 	return &model.CommandResponse{}
 }
 

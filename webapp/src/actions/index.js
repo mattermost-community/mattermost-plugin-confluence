@@ -1,5 +1,5 @@
 import {
-    closeSubscriptionModal, openSubscriptionModal, saveChannelSubscription, receivedSubscription, editChannelSubscription,
+    closeSubscriptionModal, openSubscriptionModal, saveChannelSubscription, receivedSubscription, editChannelSubscription, openEditSubscriptionModal,
 } from './subscription_modal';
 
 export {
@@ -8,4 +8,5 @@ export {
     closeSubscriptionModal,
     receivedSubscription,
     editChannelSubscription,
+    openEditSubscriptionModal,
 };

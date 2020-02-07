@@ -25,6 +25,11 @@ export default class Client {
         return this.doPut(url, channelSubscription);
     };
 
+    openEditSubscriptionModal = (body) => {
+        const url = `${this.pluginApiUrl}/open-edit-subscription`;
+        return this.doPost(url, body);
+    };
+
     doGet = async (url, headers = {}) => {
         headers['X-Requested-With'] = 'XMLHttpRequest';
 

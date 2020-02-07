@@ -1,6 +1,7 @@
 package serializer
 
 import (
+	"encoding/json"
 	"fmt"
 	url2 "net/url"
 	"strings"
@@ -13,6 +14,12 @@ type Subscription struct {
 	BaseURL   string   `json:"baseURL"`
 	SpaceKey  string   `json:"spaceKey"`
 	Events    []string `json:"events"`
+	ChannelID string   `json:"channelID"`
+}
+
+type EditSubscription struct {
+	UserID    string   `json:"userID"`
+	Message   string   `json:"message"`
 	ChannelID string   `json:"channelID"`
 }
 
@@ -65,4 +72,12 @@ func FormattedSubscriptionList(channelSubscriptions map[string]Subscription) str
 		list += fmt.Sprintf("\n|%s|%s|%s|%s|", subscription.Alias, subscription.BaseURL, subscription.SpaceKey, strings.Join(events, ", "))
 	}
 	return list
+}
+
+func (s *Subscription) ToJSON() string {
+	b, err := json.Marshal(s)
+	if err != nil {
+		return ""
+	}
+	return string(b)
 }
