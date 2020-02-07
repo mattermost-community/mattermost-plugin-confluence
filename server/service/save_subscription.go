@@ -12,9 +12,9 @@ import (
 )
 
 const (
-	generalSaveError        = "Failed to save subscription"
-	aliasAlreadyExist       = "Subscription already exist in the channel with this alias"
-	urlSpaceKeyAlreadyExist = "Subscription already exist in the channel with url and space key combination"
+	generalSaveError        = "An error occurred attempting to save a subscription."
+	aliasAlreadyExist       = "A subscription with the same alias already exists."
+	urlSpaceKeyAlreadyExist = "A subscription with the same url and space key already exists."
 	subscriptionSaveSuccess = "Your subscription has been saved."
 )
 

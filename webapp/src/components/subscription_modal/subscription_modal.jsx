@@ -167,19 +167,19 @@ export default class SubscriptionModal extends React.PureComponent {
                             fieldType={'input'}
                             required={true}
                             readOnly={editSubscription}
-                            placeholder={'Enter alias for this subscription'}
+                            placeholder={'Enter an alias for this subscription.'}
                             value={this.state.alias}
                             addValidation={this.validator.addValidation}
                             removeValidation={this.validator.removeValidation}
                             onChange={this.handleAlias}
                         />
                         <ConfluenceField
-                            label={'Confluence Base Url'}
+                            label={'Confluence Base URL'}
                             type={'text'}
                             fieldType={'input'}
                             required={true}
                             readOnly={editSubscription}
-                            placeholder={'Enter confluence base url'}
+                            placeholder={'Enter the Confluence Base URL.'}
                             value={this.state.baseURL}
                             addValidation={this.validator.addValidation}
                             removeValidation={this.validator.removeValidation}
@@ -191,7 +191,7 @@ export default class SubscriptionModal extends React.PureComponent {
                             fieldType={'input'}
                             required={true}
                             readOnly={editSubscription}
-                            placeholder={'Enter space key'}
+                            placeholder={'Enter the Confluence Space Key.'}
                             value={this.state.spaceKey}
                             addValidation={this.validator.addValidation}
                             removeValidation={this.validator.removeValidation}

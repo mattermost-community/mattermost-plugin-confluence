@@ -11,15 +11,18 @@ import (
 )
 
 const (
-	confluenceServerPageCreatedMessage  = "%s published a new page in %s."
-	confluenceServerPageUpdatedMessage  = "%s updated %s in %s."
-	confluenceServerPageTrashedMessage  = "%s moved page %s to trash in %s."
-	confluenceServerPageRestoredMessage = "%s restored a page %s in %s."
-	confluenceServerPageRemovedMessage  = "%s removed a page %s in %s."
+	confluenceServerPageCreatedMessage            = "%s published a new page in %s."
+	confluenceServerPageCreatedWithoutBodyMessage = "%s published a new page %s in %s."
+	confluenceServerPageUpdatedMessage            = "%s updated %s in %s."
+	confluenceServerPageTrashedMessage            = "%s trashed %s in %s."
+	confluenceServerPageRestoredMessage           = "%s restored %s in %s."
+	confluenceServerPageRemovedMessage            = "%s removed **%s** in %s."
 
 	confluenceServerCommentCreatedMessage      = "%s commented on %s in %s."
-	confluenceServerCommentReplyCreatedMessage = "%s replied to a comment on [%s](%s) in %s."
-	confluenceServerCommentUpdatedMessage      = "%s updated a [comment](%s) on %s in %s."
+	confluenceServerEmptyCommentCreatedMessage = "%s [commented](%s) on %s in %s."
+	confluenceServerCommentReplyCreatedMessage = "%s replied to a comment on %s in %s."
+	confluenceServerCommentUpdatedMessage      = "%s updated a comment on %s in %s."
+	confluenceServerEmptyCommentUpdatedMessage = "%s updated a [comment](%s) on %s in %s."
 	confluenceServerCommentRemovedMessage      = "%s removed a comment on %s in %s."
 )
 
@@ -32,6 +35,7 @@ func SendConfluenceServerNotifications(event *serializer.ConfluenceServerEvent) 
 }
 
 func generateConfluenceServerNotificationPost(event *serializer.ConfluenceServerEvent) *model.Post {
+	var attachment *model.SlackAttachment
 	post := &model.Post{
 		UserId: config.BotUserID,
 	}
@@ -39,160 +43,94 @@ func generateConfluenceServerNotificationPost(event *serializer.ConfluenceServer
 	switch event.Event {
 	case serializer.PageCreatedEvent:
 		message := fmt.Sprintf(confluenceServerPageCreatedMessage, event.GetUserDisplayName(true), event.GetSpaceDisplayName(true))
-		attachment := &model.SlackAttachment{
-			Fallback:  message,
-			Pretext:   message,
-			Title:     event.Page.Title,
-			TitleLink: event.Page.URL,
-			Text:      event.Page.Excerpt,
-			Fields: []*model.SlackAttachmentField{
-				{
-					Title: "Link",
-					Value: fmt.Sprintf("[View in Confluence](%s)", event.Page.URL),
-					Short: false,
-				},
-			},
+		if strings.TrimSpace(event.Page.Excerpt) != "" {
+			attachment = &model.SlackAttachment{
+				Fallback:  message,
+				Pretext:   message,
+				Title:     event.Page.Title,
+				TitleLink: event.Page.URL,
+				Text:      fmt.Sprintf("%s\n\n[**View in Confluence**](%s)", strings.TrimSpace(event.Page.Excerpt), event.Page.URL),
+			}
+		} else {
+			post.Message = fmt.Sprintf(confluenceServerPageCreatedWithoutBodyMessage, event.GetUserDisplayName(true), event.GetPageDisplayName(true), event.GetSpaceDisplayName(true))
 		}
-		model.ParseSlackAttachment(post, []*model.SlackAttachment{attachment})
-		return post
 
 	case serializer.PageUpdatedEvent:
 		message := fmt.Sprintf(confluenceServerPageUpdatedMessage, event.GetUserDisplayName(true), event.GetPageDisplayName(true), event.GetSpaceDisplayName(true))
-
 		if strings.TrimSpace(event.VersionComment) != "" {
-			attachment := &model.SlackAttachment{
+			attachment = &model.SlackAttachment{
 				Fallback: message,
 				Pretext:  message,
-				Text:     event.VersionComment,
-				Fields: []*model.SlackAttachmentField{
-					{
-						Title: "Link",
-						Value: fmt.Sprintf("[View in Confluence](%s)", event.Page.URL),
-						Short: false,
-					},
-				},
+				Text:     fmt.Sprintf("**What’s Changed?**\n> %s\n\n[**View in Confluence**](%s)", strings.TrimSpace(event.VersionComment), event.Page.URL),
 			}
-			model.ParseSlackAttachment(post, []*model.SlackAttachment{attachment})
 		} else {
 			post.Message = message
 		}
-		return post
 
 	case serializer.PageTrashedEvent:
-		message := fmt.Sprintf(confluenceServerPageTrashedMessage, event.GetUserDisplayName(true), event.GetPageDisplayName(true), event.GetSpaceDisplayName(true))
-		attachment := &model.SlackAttachment{
-			Fallback: message,
-			Pretext:  message,
-			Fields: []*model.SlackAttachmentField{
-				{
-					Title: "Link",
-					Value: fmt.Sprintf("[View in Confluence](%s)", event.Page.URL),
-					Short: false,
-				},
-			},
-		}
-		model.ParseSlackAttachment(post, []*model.SlackAttachment{attachment})
-		return post
+		post.Message = fmt.Sprintf(confluenceServerPageTrashedMessage, event.GetUserDisplayName(true), event.GetPageDisplayName(true), event.GetSpaceDisplayName(true))
 
 	case serializer.PageRestoredEvent:
-		message := fmt.Sprintf(confluenceServerPageRestoredMessage, event.GetUserDisplayName(true), event.GetPageDisplayName(true), event.GetSpaceDisplayName(true))
-		attachment := &model.SlackAttachment{
-			Fallback: message,
-			Pretext:  message,
-			Fields: []*model.SlackAttachmentField{
-				{
-					Title: "Link",
-					Value: fmt.Sprintf("[View in Confluence](%s)", event.Page.URL),
-					Short: false,
-				},
-			},
-		}
-		model.ParseSlackAttachment(post, []*model.SlackAttachment{attachment})
-		return post
+		post.Message = fmt.Sprintf(confluenceServerPageRestoredMessage, event.GetUserDisplayName(true), event.GetPageDisplayName(true), event.GetSpaceDisplayName(true))
 
 	case serializer.PageRemovedEvent:
 		// No link for page since the page was removed
 		post.Message = fmt.Sprintf(confluenceServerPageRemovedMessage, event.GetUserDisplayName(true), event.GetPageDisplayName(false), event.GetSpaceDisplayName(true))
-		return post
 
 	case serializer.CommentCreatedEvent:
-		commentedOn := event.GetPageDisplayName(true)
-		if commentedOn == "" {
-			commentedOn = event.GetBlogDisplayName(true)
+		message := fmt.Sprintf(confluenceServerCommentCreatedMessage, event.GetUserDisplayName(true), event.GetCommentPageOrBlogDisplayName(true), event.GetSpaceDisplayName(true))
+
+		text := ""
+		if strings.TrimSpace(event.Comment.Excerpt) != "" {
+			text += fmt.Sprintf("**%s wrote:**\n> %s\n\n", event.GetUserFirstName(), strings.TrimSpace(event.Comment.Excerpt))
+		}
+		if event.Comment.ParentComment != nil && strings.TrimSpace(event.Comment.ParentComment.Excerpt) != "" {
+			message = fmt.Sprintf(confluenceServerCommentReplyCreatedMessage, event.GetUserDisplayName(true), event.GetCommentPageOrBlogDisplayName(true), event.GetSpaceDisplayName(true))
+			text += fmt.Sprintf("**In Reply to:**\n%s\n", strings.TrimSpace(event.Comment.ParentComment.Excerpt))
 		}
 
-		message := fmt.Sprintf(confluenceServerCommentCreatedMessage, event.GetUserDisplayName(true), commentedOn, event.GetSpaceDisplayName(true))
-		var fields []*model.SlackAttachmentField
-
-		if event.Comment.ParentComment != nil {
-			message = fmt.Sprintf(confluenceServerCommentReplyCreatedMessage, event.GetUserDisplayName(true), event.Page.Title, event.Page.URL, event.GetSpaceDisplayName(true))
-			fields = append(fields, &model.SlackAttachmentField{
-				Title: "In Reply to",
-				Value: nil,
-				Short: false,
-			})
+		if text != "" {
+			attachment = &model.SlackAttachment{
+				Fallback: message,
+				Pretext:  message,
+				Text:     fmt.Sprintf("%s\n\n[**View in Confluence**](%s)", text, event.Comment.URL),
+			}
+		} else {
+			post.Message = fmt.Sprintf(confluenceServerEmptyCommentCreatedMessage, event.GetUserDisplayName(true), event.Comment.URL, event.GetCommentPageOrBlogDisplayName(true), event.GetSpaceDisplayName(true))
 		}
-		fields = append(fields, &model.SlackAttachmentField{
-			Title: "Link",
-			Value: fmt.Sprintf("[View in Confluence](%s)", event.Comment.URL),
-			Short: false,
-		})
-		attachment := &model.SlackAttachment{
-			Fallback: message,
-			Pretext:  message,
-			Text:     event.Comment.Excerpt,
-			Fields:   fields,
-		}
-		model.ParseSlackAttachment(post, []*model.SlackAttachment{attachment})
-		return post
 
 	case serializer.CommentUpdatedEvent:
-		commentedOn := event.GetPageDisplayName(true)
-		if commentedOn == "" {
-			commentedOn = event.GetBlogDisplayName(true)
+		message := fmt.Sprintf(confluenceServerCommentUpdatedMessage, event.GetUserDisplayName(true), event.GetCommentPageOrBlogDisplayName(true), event.GetSpaceDisplayName(true))
+		if strings.TrimSpace(event.Comment.Excerpt) != "" {
+			attachment = &model.SlackAttachment{
+				Fallback: message,
+				Pretext:  message,
+				Text:     fmt.Sprintf("**Updated Comment:**\n> %s\n\n[**View in Confluence**](%s)", strings.TrimSpace(event.Comment.Excerpt), event.Comment.URL),
+			}
+		} else {
+			post.Message = fmt.Sprintf(confluenceServerEmptyCommentUpdatedMessage, event.GetUserDisplayName(true), event.Comment.URL, event.GetCommentPageOrBlogDisplayName(true), event.GetSpaceDisplayName(true))
 		}
-
-		message := fmt.Sprintf(confluenceServerCommentUpdatedMessage, event.GetUserDisplayName(true), event.Comment.URL, commentedOn, event.GetSpaceDisplayName(true))
-		attachment := &model.SlackAttachment{
-			Fallback: message,
-			Pretext:  message,
-			Fields: []*model.SlackAttachmentField{
-				{
-					Title: "Updated Comment",
-					Value: event.Comment.Excerpt,
-					Short: false,
-				},
-				{
-					Title: "Link",
-					Value: fmt.Sprintf("[View in Confluence](%s)", event.Page.URL),
-					Short: false,
-				},
-			},
-		}
-		model.ParseSlackAttachment(post, []*model.SlackAttachment{attachment})
-		return post
 
 	case serializer.CommentRemovedEvent:
-		commentedOn := event.GetPageDisplayName(true)
-		if commentedOn == "" {
-			commentedOn = event.GetBlogDisplayName(true)
+		// No link since the comment was removed.
+		message := fmt.Sprintf(confluenceServerCommentRemovedMessage, event.GetUserDisplayName(true), event.GetCommentPageOrBlogDisplayName(true), event.GetSpaceDisplayName(true))
+		if strings.TrimSpace(event.Comment.Excerpt) != "" {
+			attachment = &model.SlackAttachment{
+				Fallback: message,
+				Pretext:  message,
+				Text:     fmt.Sprintf("**Deleted Comment:**\n> %s", strings.TrimSpace(event.Comment.Excerpt)),
+			}
+		} else {
+			post.Message = message
 		}
 
-		message := fmt.Sprintf(confluenceServerCommentRemovedMessage, event.GetUserDisplayName(true), commentedOn, event.GetSpaceDisplayName(true))
-		attachment := &model.SlackAttachment{
-			Fallback: message,
-			Pretext:  message,
-			Fields: []*model.SlackAttachmentField{
-				{
-					Title: "Comment",
-					Value: event.Comment.Excerpt,
-					Short: false,
-				},
-			},
-		}
-		model.ParseSlackAttachment(post, []*model.SlackAttachment{attachment})
-		return post
+	default:
+		return nil
 	}
 
-	return nil
+	if attachment != nil {
+		model.ParseSlackAttachment(post, []*model.SlackAttachment{attachment})
+	}
+
+	return post
 }
