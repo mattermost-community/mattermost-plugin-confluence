@@ -25,6 +25,11 @@ export default class Client {
         return this.doPut(url, channelSubscription);
     };
 
+    getChannelSubscription = (channelID, alias) => {
+        const url = `${this.pluginApiUrl}/subscription?channelID=${channelID}&alias=${alias}`;
+        return this.doGet(url);
+    };
+
     doGet = async (url, headers = {}) => {
         headers['X-Requested-With'] = 'XMLHttpRequest';
 

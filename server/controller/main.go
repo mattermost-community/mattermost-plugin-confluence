@@ -25,9 +25,10 @@ type Endpoint struct {
 // Usage: getEndpointKey(GetMetadata): GetMetadata
 var Endpoints = map[string]*Endpoint{
 	getEndpointKey(confluenceCloudWebhook):  confluenceCloudWebhook,
-	getEndpointKey(SaveChannelSubscription): SaveChannelSubscription,
-	getEndpointKey(EditChannelSubscription): EditChannelSubscription,
+	getEndpointKey(saveChannelSubscription): saveChannelSubscription,
+	getEndpointKey(editChannelSubscription): editChannelSubscription,
 	getEndpointKey(confluenceServerWebhook): confluenceServerWebhook,
+	getEndpointKey(getChannelSubscription):  getChannelSubscription,
 }
 
 // Uniquely identifies an endpoint using path and method

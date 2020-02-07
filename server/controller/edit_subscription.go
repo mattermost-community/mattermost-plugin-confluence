@@ -9,14 +9,14 @@ import (
 	"github.com/Brightscout/mattermost-plugin-confluence/server/service"
 )
 
-var EditChannelSubscription = &Endpoint{
+var editChannelSubscription = &Endpoint{
 	RequiresAuth: true,
 	Path:         "/subscription",
 	Method:       http.MethodPut,
-	Execute:      editChannelSubscription,
+	Execute:      handleEditChannelSubscription,
 }
 
-func editChannelSubscription(w http.ResponseWriter, r *http.Request) {
+func handleEditChannelSubscription(w http.ResponseWriter, r *http.Request) {
 	body := json.NewDecoder(r.Body)
 	subscription := serializer.Subscription{}
 	if err := body.Decode(&subscription); err != nil {

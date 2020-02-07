@@ -1,6 +1,7 @@
 package serializer
 
 import (
+	"encoding/json"
 	"fmt"
 	url2 "net/url"
 	"strings"
@@ -65,4 +66,12 @@ func FormattedSubscriptionList(channelSubscriptions map[string]Subscription) str
 		list += fmt.Sprintf("\n|%s|%s|%s|%s|", subscription.Alias, subscription.BaseURL, subscription.SpaceKey, strings.Join(events, ", "))
 	}
 	return list
+}
+
+func (s *Subscription) ToJSON() string {
+	b, err := json.Marshal(s)
+	if err != nil {
+		return ""
+	}
+	return string(b)
 }

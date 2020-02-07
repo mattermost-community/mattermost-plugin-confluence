@@ -38,6 +38,7 @@ const CONFLUENCE_EVENTS = [
 
 const MATTERMOST_CSRF_COOKIE = 'MMCSRF';
 const OPEN_EDIT_SUBSCRIPTION_MODAL_WEBSOCKET_EVENT = `custom_${PLUGIN_NAME}_open_edit_subscription_modal`;
+const SPECIFY_ALIAS = 'Please specify alias.';
 
 export default {
     ACTION_TYPES,
@@ -45,4 +46,5 @@ export default {
     MATTERMOST_CSRF_COOKIE,
     OPEN_EDIT_SUBSCRIPTION_MODAL_WEBSOCKET_EVENT,
     PLUGIN_NAME,
+    SPECIFY_ALIAS,
 };

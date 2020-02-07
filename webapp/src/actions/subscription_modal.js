@@ -1,3 +1,5 @@
+import {PostTypes} from 'mattermost-redux/action_types';
+
 import Client from '../client';
 import Constants from '../constants';
 
@@ -51,10 +53,36 @@ export const closeSubscriptionModal = () => (dispatch) => {
     });
 };
 
-export const receivedSubscription = (subscription) => (dispatch) => {
-    dispatch({
-        type: Constants.ACTION_TYPES.RECEIVED_SUBSCRIPTION,
-        data: JSON.parse(subscription),
-    });
+export const getChannelSubscription = (channelID, alias, userID) => async (dispatch) => {
+    try {
+        const response = await Client.getChannelSubscription(channelID, alias);
+        dispatch({
+            type: Constants.ACTION_TYPES.RECEIVED_SUBSCRIPTION,
+            data: response,
+        });
+    } catch (e) {
+        dispatch(sendEphemeralPost(e.response.text, channelID, userID));
+    }
 };
 
+export function sendEphemeralPost(message, channelID, userID) {
+    const timestamp = Date.now();
+    const post = {
+        id: 'confluencePlugin' + timestamp,
+        user_id: userID,
+        channel_id: channelID,
+        message,
+        type: 'system_ephemeral',
+        create_at: timestamp,
+        update_at: timestamp,
+        root_id: '',
+        parent_id: '',
+        props: {},
+    };
+
+    return {
+        type: PostTypes.RECEIVED_NEW_POST,
+        data: post,
+        channelID,
+    };
+}
