@@ -18,9 +18,9 @@ type Subscription struct {
 }
 
 type EditSubscription struct {
-	UserID    string   `json:"userID"`
-	Message   string   `json:"message"`
-	ChannelID string   `json:"channelID"`
+	UserID    string `json:"userID"`
+	Message   string `json:"message"`
+	ChannelID string `json:"channelID"`
 }
 
 const (

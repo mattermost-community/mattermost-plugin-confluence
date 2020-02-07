@@ -12,9 +12,9 @@ import (
 )
 
 const (
-	specifyAlias = "Please specify alias."
+	specifyAlias         = "Please specify alias."
 	subscriptionNotFound = "Subscription with alias **%s** not found."
-	generalError = "Some error occurred. Please try again after sometime."
+	generalError         = "Some error occurred. Please try again after sometime."
 )
 
 var (
