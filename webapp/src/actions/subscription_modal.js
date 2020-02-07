@@ -53,13 +53,6 @@ export const closeSubscriptionModal = () => (dispatch) => {
     });
 };
 
-export const receivedSubscription = (subscription) => (dispatch) => {
-    dispatch({
-        type: Constants.ACTION_TYPES.RECEIVED_SUBSCRIPTION,
-        data: JSON.parse(subscription),
-    });
-};
-
 export const openEditSubscriptionModal = (body, userID) => async (dispatch) => {
     try {
         const response = await Client.openEditSubscriptionModal(body);

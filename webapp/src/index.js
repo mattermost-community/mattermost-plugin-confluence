@@ -2,7 +2,6 @@ import Constants from './constants';
 import Hooks from './hooks';
 import reducer from './reducers';
 
-import {receivedSubscription} from './actions';
 import SubscriptionModal from './components/subscription_modal';
 
 //
@@ -13,12 +12,6 @@ class PluginClass {
     initialize(registry, store) {
         registry.registerReducer(reducer);
         registry.registerRootComponent(SubscriptionModal);
-        registry.registerWebSocketEventHandler(
-            Constants.OPEN_EDIT_SUBSCRIPTION_MODAL_WEBSOCKET_EVENT,
-            (payload) => {
-                store.dispatch(receivedSubscription(payload.data.subscription));
-            },
-        );
         const hooks = new Hooks(store);
         registry.registerSlashCommandWillBePostedHook(hooks.slashCommandWillBePostedHook);
     }
