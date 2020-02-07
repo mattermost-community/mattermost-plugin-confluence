@@ -17,12 +17,6 @@ type Subscription struct {
 	ChannelID string   `json:"channelID"`
 }
 
-type EditSubscription struct {
-	UserID    string `json:"userID"`
-	Message   string `json:"message"`
-	ChannelID string `json:"channelID"`
-}
-
 const (
 	CommentCreatedEvent = "comment_created"
 	CommentUpdatedEvent = "comment_updated"
