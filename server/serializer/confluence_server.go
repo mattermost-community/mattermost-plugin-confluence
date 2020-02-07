@@ -164,6 +164,10 @@ func (e *ConfluenceServerEvent) GetUserDisplayName(withLink bool) string {
 	return name
 }
 
+func (e *ConfluenceServerEvent) GetUserFirstName() string {
+	return strings.Split(e.GetUserDisplayName(false), " ")[0]
+}
+
 func (e *ConfluenceServerEvent) GetSpaceDisplayName(withLink bool) string {
 	name := e.Space.Key
 	if strings.TrimSpace(e.Space.Name) != "" {
@@ -203,10 +207,10 @@ func (e *ConfluenceServerEvent) GetBlogDisplayName(withLink bool) string {
 	return name
 }
 
-func (e *ConfluenceServerEvent) GetCommentPageOrBlogDisplayName() string {
-	commentedOn := e.GetPageDisplayName(true)
+func (e *ConfluenceServerEvent) GetCommentPageOrBlogDisplayName(withLink bool) string {
+	commentedOn := e.GetPageDisplayName(withLink)
 	if commentedOn == "" {
-		commentedOn = e.GetBlogDisplayName(true)
+		commentedOn = e.GetBlogDisplayName(withLink)
 	}
 	return commentedOn
 }

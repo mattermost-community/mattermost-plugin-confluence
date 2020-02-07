@@ -19,14 +19,14 @@ type Handler struct {
 }
 
 const (
-	specifyAlias              = "Please specify alias."
-	subscriptionDeleteSuccess = "Subscription with alias **%s** deleted successfully."
+	specifyAlias              = "Please specify an alias."
+	subscriptionDeleteSuccess = "**%s** has been deleted."
 	noChannelSubscription     = "No subscriptions found for this channel."
-	helpText                  = "###### Mattermost Confluence Plugin - Slash Command Help\n" +
-		"\n* `/confluence subscribe` - Subscribe the current channel to receive notifications from Confluence.\n" +
-		"* `/confluence unsubscribe \"<alias>\"` - Unsubscribe notifications for the current channel for a given subscription alias.\n" +
-		"* `/confluence list` - List all subscriptions configured for the current channel.\n" +
-		"* `/confluence edit \"<alias>\"` - Edit the subscribed events for the given subscription alias for the current channel.\n"
+	helpText                  = "###### Mattermost Confluence Plugin - Slash Command Help\n\n" +
+		"* `/confluence subscribe` - Subscribe the current channel to notifications from Confluence.\n" +
+		"* `/confluence unsubscribe \"<alias>\"` - Unsubscribe the current channel from notifications associated with the given alias.\n" +
+		"* `/confluence list` - List all subscriptions for the current channel.\n" +
+		"* `/confluence edit \"<alias>\"` - Edit the subscription settings associated with the given alias.\n"
 )
 
 var ConfluenceCommandHandler = Handler{
