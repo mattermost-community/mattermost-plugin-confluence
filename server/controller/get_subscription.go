@@ -14,9 +14,9 @@ var getChannelSubscription = &Endpoint{
 }
 
 func handleGetChannelSubscription(w http.ResponseWriter, r *http.Request) {
-	channelID :=  r.FormValue("channelID")
+	channelID := r.FormValue("channelID")
 	alias := r.FormValue("alias")
-	subscription, err, errCode := service.GetChannelSubscription(channelID, alias)
+	subscription, errCode, err := service.GetChannelSubscription(channelID, alias)
 	if err != nil {
 		http.Error(w, err.Error(), errCode)
 		return

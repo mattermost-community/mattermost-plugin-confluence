@@ -16,7 +16,6 @@ var editChannelSubscription = &Endpoint{
 	Execute:      handleEditChannelSubscription,
 }
 
-
 func handleEditChannelSubscription(w http.ResponseWriter, r *http.Request) {
 	body := json.NewDecoder(r.Body)
 	subscription := serializer.Subscription{}

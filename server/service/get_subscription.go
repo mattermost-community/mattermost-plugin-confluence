@@ -11,14 +11,14 @@ import (
 
 const generalError = "Some error occurred. Please try again after sometime."
 
-func GetChannelSubscription(channelID, alias string) (serializer.Subscription, error, int){
+func GetChannelSubscription(channelID, alias string) (serializer.Subscription, int, error) {
 	channelSubscriptions, _, gErr := GetChannelSubscriptions(channelID)
 	if gErr != nil {
-		return serializer.Subscription{}, errors.New(generalError), http.StatusInternalServerError
+		return serializer.Subscription{}, http.StatusInternalServerError, errors.New(generalError)
 	}
 	subscription, found := channelSubscriptions[alias]
 	if !found {
-		return serializer.Subscription{}, errors.New(fmt.Sprintf(subscriptionNotFound, alias)), http.StatusBadRequest
+		return serializer.Subscription{}, http.StatusBadRequest, errors.New(fmt.Sprintf(subscriptionNotFound, alias))
 	}
-	return subscription, nil, http.StatusOK
+	return subscription, http.StatusOK, nil
 }
