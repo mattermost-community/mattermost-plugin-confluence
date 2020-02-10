@@ -86,7 +86,7 @@ func generateConfluenceServerNotificationPost(event *serializer.ConfluenceServer
 		}
 		if event.Comment.ParentComment != nil && strings.TrimSpace(event.Comment.ParentComment.Excerpt) != "" {
 			message = fmt.Sprintf(confluenceServerCommentReplyCreatedMessage, event.GetUserDisplayName(true), event.GetCommentPageOrBlogDisplayName(true), event.GetSpaceDisplayName(true))
-			text += fmt.Sprintf("**In Reply to:**\n%s\n", strings.TrimSpace(event.Comment.ParentComment.Excerpt))
+			text += fmt.Sprintf("**In Reply to:**\n> %s\n", strings.TrimSpace(event.Comment.ParentComment.Excerpt))
 		}
 
 		if text != "" {
