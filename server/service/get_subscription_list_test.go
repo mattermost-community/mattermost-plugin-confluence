@@ -25,11 +25,11 @@ func baseMock() *plugintest.API {
 
 func TestGetChannelSubscriptions(t *testing.T) {
 	for name, val := range map[string]struct {
-		Subscriptions map[string]serializer.Subscription
-		RunAssertions func(t *testing.T, s map[string]serializer.Subscription)
+		subscriptions map[string]serializer.Subscription
+		runAssertions func(t *testing.T, s map[string]serializer.Subscription)
 	}{
 		"single subscription": {
-			Subscriptions: map[string]serializer.Subscription{
+			subscriptions: map[string]serializer.Subscription{
 				"test": {
 					Alias:     "test",
 					BaseURL:   "https://test.com",
@@ -38,7 +38,7 @@ func TestGetChannelSubscriptions(t *testing.T) {
 					Events:    []string{serializer.CommentRemovedEvent, serializer.CommentUpdatedEvent},
 				},
 			},
-			RunAssertions: func(t *testing.T, subscriptions map[string]serializer.Subscription) {
+			runAssertions: func(t *testing.T, subscriptions map[string]serializer.Subscription) {
 				expected := map[string]serializer.Subscription{
 					"test": {
 						Alias:     "test",
@@ -52,7 +52,7 @@ func TestGetChannelSubscriptions(t *testing.T) {
 			},
 		},
 		"multiple subscription": {
-			Subscriptions: map[string]serializer.Subscription{
+			subscriptions: map[string]serializer.Subscription{
 				"test": {
 					Alias:     "test",
 					BaseURL:   "https://test.com",
@@ -68,7 +68,7 @@ func TestGetChannelSubscriptions(t *testing.T) {
 					Events:    []string{serializer.CommentUpdatedEvent, serializer.PageRemovedEvent},
 				},
 			},
-			RunAssertions: func(t *testing.T, sub map[string]serializer.Subscription) {
+			runAssertions: func(t *testing.T, sub map[string]serializer.Subscription) {
 				expected := map[string]serializer.Subscription{
 					"test": {
 						Alias:     "test",
@@ -89,8 +89,8 @@ func TestGetChannelSubscriptions(t *testing.T) {
 			},
 		},
 		"no subscription": {
-			Subscriptions: map[string]serializer.Subscription{},
-			RunAssertions: func(t *testing.T, sub map[string]serializer.Subscription) {
+			subscriptions: map[string]serializer.Subscription{},
+			runAssertions: func(t *testing.T, sub map[string]serializer.Subscription) {
 				expected := map[string]serializer.Subscription{}
 				assert.Equal(t, expected, sub)
 			},
@@ -99,7 +99,7 @@ func TestGetChannelSubscriptions(t *testing.T) {
 		t.Run(name, func(t *testing.T) {
 			defer monkey.UnpatchAll()
 			mockAPI := baseMock()
-			subscriptionBytes, err := json.Marshal(val.Subscriptions)
+			subscriptionBytes, err := json.Marshal(val.subscriptions)
 			assert.Nil(t, err)
 			monkey.Patch(store.GetChannelSubscriptionKey, func(channelID string) string {
 				return "testSubscriptionKey"
@@ -112,7 +112,7 @@ func TestGetChannelSubscriptions(t *testing.T) {
 			assert.Nil(t, err)
 			assert.NotNil(t, sub)
 			assert.NotNil(t, key)
-			val.RunAssertions(t, sub)
+			val.runAssertions(t, sub)
 		})
 	}
 }

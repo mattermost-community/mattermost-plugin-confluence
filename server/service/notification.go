@@ -2,7 +2,7 @@ package service
 
 import (
 	"github.com/mattermost/mattermost-server/model"
-	funk "github.com/thoas/go-funk"
+	"github.com/thoas/go-funk"
 
 	"github.com/Brightscout/mattermost-plugin-confluence/server/config"
 )
