@@ -187,8 +187,8 @@ func (e *ConfluenceServerEvent) GetPageDisplayName(withLink bool) string {
 	}
 
 	name := e.Page.Title
-	if withLink && e.Page.URL != "" {
-		name = fmt.Sprintf("[%s](%s)", name, e.Page.URL)
+	if withLink && e.Page.TinyURL != "" {
+		name = fmt.Sprintf("[%s](%s)", name, e.Page.TinyURL)
 	}
 
 	return name
