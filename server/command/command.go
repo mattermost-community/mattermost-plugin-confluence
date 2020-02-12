@@ -26,7 +26,8 @@ const (
 		"* `/confluence subscribe` - Subscribe the current channel to notifications from Confluence.\n" +
 		"* `/confluence unsubscribe \"<alias>\"` - Unsubscribe the current channel from notifications associated with the given alias.\n" +
 		"* `/confluence list` - List all subscriptions for the current channel.\n" +
-		"* `/confluence edit \"<alias>\"` - Edit the subscription settings associated with the given alias.\n"
+		"* `/confluence edit \"<alias>\"` - Edit the subscription settings associated with the given alias."
+	invalidCommand			  = "Invalid command parameters. Please use `/confluence help` for more information."
 )
 
 var ConfluenceCommandHandler = Handler{
@@ -52,7 +53,7 @@ func GetCommand() *model.Command {
 func executeConfluenceDefault(context *model.CommandArgs, args ...string) *model.CommandResponse {
 	return &model.CommandResponse{
 		ResponseType: model.COMMAND_RESPONSE_TYPE_EPHEMERAL,
-		Text:         "Invalid command parameters. Please use `/confluence help` for more information.",
+		Text:         invalidCommand,
 	}
 }
 

@@ -7,11 +7,11 @@ import (
 
 	"github.com/pkg/errors"
 
-	"github.com/Brightscout/mattermost-plugin-confluence/server/command"
-	"github.com/Brightscout/mattermost-plugin-confluence/server/util"
-
 	"github.com/mattermost/mattermost-server/model"
 	"github.com/mattermost/mattermost-server/plugin"
+
+	"github.com/Brightscout/mattermost-plugin-confluence/server/command"
+	"github.com/Brightscout/mattermost-plugin-confluence/server/util"
 
 	"github.com/Brightscout/mattermost-plugin-confluence/server/config"
 	"github.com/Brightscout/mattermost-plugin-confluence/server/controller"
