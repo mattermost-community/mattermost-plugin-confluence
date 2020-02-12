@@ -10,9 +10,9 @@ import (
 )
 
 const (
-	confluenceCloudPageCreateMessage    = "A new page [%s](%s) was created in the **%s** space."
-	confluenceCloudPageUpdateMessage    = "Page [%s](%s) was updated in the **%s** space."
-	confluenceCloudPageDeleteMessage    = "Page **%s** was removed from the **%s** space."
+	confluenceCloudPageCreateMessage    = "A new page titled [%s](%s) was created in the **%s** space."
+	confluenceCloudPageUpdateMessage    = "A page titled [%s](%s) was updated in the **%s** space."
+	confluenceCloudPageDeleteMessage    = "A page titled **%s** was removed from the **%s** space."
 	confluenceCloudCommentCreateMessage = "A new [comment](%s) was posted on the [%s](%s) page."
 	confluenceCloudCommentUpdateMessage = "A [comment](%s) was updated on the [%s](%s) page."
 	confluenceCloudCommentDeleteMessage = "A comment was deleted from the [%s](%s) page."
