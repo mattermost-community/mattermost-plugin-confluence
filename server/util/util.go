@@ -6,6 +6,8 @@ import (
 	"errors"
 	"regexp"
 	"strings"
+
+	"github.com/Brightscout/mattermost-plugin-confluence/server/config"
 )
 
 // GetKeyHash can be used to create a hash from a string
@@ -58,4 +60,25 @@ func SplitArgs(s string) ([]string, error) {
 	}
 
 	return cleanedArgs[0:count], nil
+}
+
+func GetPluginKey() string {
+	var regexpNonAlnum = regexp.MustCompile("[^a-zA-Z0-9]+")
+	return "mattermost_" + regexpNonAlnum.ReplaceAllString(GetSiteURL(), "_")
+}
+
+func GetPluginURLPath() string {
+	return "/plugins/" + config.PluginName
+}
+
+func GetPluginURL() string {
+	return strings.TrimRight(GetSiteURL(), "/") + GetPluginURLPath()
+}
+
+func GetSiteURL() string {
+	ptr := config.Mattermost.GetConfig().ServiceSettings.SiteURL
+	if ptr == nil {
+		return ""
+	}
+	return *ptr
 }
