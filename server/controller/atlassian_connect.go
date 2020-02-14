@@ -49,7 +49,7 @@ func renderAtlassianConnectJSON(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 	err = tmpl.Execute(w, values)
 	if err != nil {
-		http.Error(w, "failed to write response: " + err.Error(), http.StatusInternalServerError)
+		http.Error(w, "failed to write response: "+err.Error(), http.StatusInternalServerError)
 		return
 	}
 }
