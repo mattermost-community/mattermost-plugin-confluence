@@ -48,8 +48,8 @@ func generateConfluenceServerNotificationPost(event *serializer.ConfluenceServer
 				Fallback:  message,
 				Pretext:   message,
 				Title:     event.Page.Title,
-				TitleLink: event.Page.URL,
-				Text:      fmt.Sprintf("%s\n\n[**View in Confluence**](%s)", strings.TrimSpace(event.Page.Excerpt), event.Page.URL),
+				TitleLink: event.Page.TinyURL,
+				Text:      fmt.Sprintf("%s\n\n[**View in Confluence**](%s)", strings.TrimSpace(event.Page.Excerpt), event.Page.TinyURL),
 			}
 		} else {
 			post.Message = fmt.Sprintf(confluenceServerPageCreatedWithoutBodyMessage, event.GetUserDisplayName(true), event.GetPageDisplayName(true), event.GetSpaceDisplayName(true))
@@ -61,7 +61,7 @@ func generateConfluenceServerNotificationPost(event *serializer.ConfluenceServer
 			attachment = &model.SlackAttachment{
 				Fallback: message,
 				Pretext:  message,
-				Text:     fmt.Sprintf("**What’s Changed?**\n> %s\n\n[**View in Confluence**](%s)", strings.TrimSpace(event.VersionComment), event.Page.URL),
+				Text:     fmt.Sprintf("**What’s Changed?**\n> %s\n\n[**View in Confluence**](%s)", strings.TrimSpace(event.VersionComment), event.Page.TinyURL),
 			}
 		} else {
 			post.Message = message
