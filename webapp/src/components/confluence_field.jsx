@@ -20,7 +20,11 @@ export default class ConfluenceField extends React.PureComponent {
         removeValidation: PropTypes.func.isRequired,
         theme: PropTypes.object,
         fieldType: PropTypes.string.isRequired,
-        readOnly: PropTypes.bool.isRequired,
+        readOnly: PropTypes.bool,
+    };
+
+    static defaultProps = {
+        readOnly: false,
     };
 
     constructor(props) {

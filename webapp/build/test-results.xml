@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuites name="jest tests" tests="4" failures="0" time="3.765">
+  <testsuite name="components/ChannelSettingsModal" errors="0" failures="0" skipped="0" timestamp="2020-02-14T13:08:00" time="3.12" tests="4">
+    <testcase classname="components/ChannelSettingsModal subscription modal snapshot test" name="components/ChannelSettingsModal subscription modal snapshot test" time="0.018">
+    </testcase>
+    <testcase classname="components/ChannelSettingsModal new subscription" name="components/ChannelSettingsModal new subscription" time="0.011">
+    </testcase>
+    <testcase classname="components/ChannelSettingsModal edit subscription" name="components/ChannelSettingsModal edit subscription" time="0.006">
+    </testcase>
+    <testcase classname="components/ChannelSettingsModal subscription data clean" name="components/ChannelSettingsModal subscription data clean" time="0.005">
+    </testcase>
+  </testsuite>
+</testsuites>
