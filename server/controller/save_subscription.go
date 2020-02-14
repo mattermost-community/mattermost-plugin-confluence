@@ -4,10 +4,14 @@ import (
 	"encoding/json"
 	"net/http"
 
+	"github.com/mattermost/mattermost-server/model"
+
 	"github.com/Brightscout/mattermost-plugin-confluence/server/config"
 	"github.com/Brightscout/mattermost-plugin-confluence/server/serializer"
 	"github.com/Brightscout/mattermost-plugin-confluence/server/service"
 )
+
+const subscriptionSaveSuccess = "Your subscription has been saved."
 
 var saveChannelSubscription = &Endpoint{
 	RequiresAuth: true,
@@ -31,11 +35,19 @@ func handleSaveChannelSubscription(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	userID := r.Header.Get(config.HeaderMattermostUserID)
-	if errCode, err := service.SaveNewSubscription(subscription, userID); err != nil {
+	if errCode, err := service.SaveNewSubscription(subscription); err != nil {
 		config.Mattermost.LogError(err.Error(), "channelID", subscription.ChannelID)
 		http.Error(w, err.Error(), errCode)
 		return
 	}
+
+	userID := r.Header.Get(config.HeaderMattermostUserID)
+	post := &model.Post{
+		UserId:    config.BotUserID,
+		ChannelId: subscription.ChannelID,
+		Message:   subscriptionSaveSuccess,
+	}
+	_ = config.Mattermost.SendEphemeralPost(userID, post)
+
 	ReturnStatusOK(w)
 }
