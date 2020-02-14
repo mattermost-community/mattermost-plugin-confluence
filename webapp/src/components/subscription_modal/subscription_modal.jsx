@@ -14,6 +14,8 @@ const initialState = {
     alias: '',
     baseURL: '',
     spaceKey: '',
+    pageID: '',
+    subscriptionType: Constants.SUBSCRIPTION_TYPE[0],
     events: Constants.CONFLUENCE_EVENTS,
     error: '',
     saving: false,
@@ -86,9 +88,21 @@ export default class SubscriptionModal extends React.PureComponent {
         });
     };
 
+    handlePageID = (e) => {
+        this.setState({
+            pageID: e.target.value,
+        });
+    };
+
     handleEvents = (events) => {
         this.setState({
             events,
+        });
+    };
+
+    handleSubscriptionType = (subscriptionType) => {
+        this.setState({
+            subscriptionType,
         });
     };
 
@@ -97,15 +111,17 @@ export default class SubscriptionModal extends React.PureComponent {
             return;
         }
         const {
-            alias, baseURL, spaceKey, events,
+            alias, baseURL, spaceKey, events, pageID, subscriptionType,
         } = this.state;
         const {
             currentChannelID, subscription, saveChannelSubscription, editChannelSubscription,
         } = this.props;
         const channelSubscription = {
+            subscriptionType: subscriptionType.value,
             alias: alias.trim(),
             baseURL: baseURL.trim().toLowerCase(),
             spaceKey: spaceKey.trim(),
+            pageID: parseInt(pageID, 0),
             channelID: currentChannelID,
             events: events ? events.map((event) => event.value) : [],
         };
@@ -134,7 +150,37 @@ export default class SubscriptionModal extends React.PureComponent {
         const {visibility, subscription} = this.props;
         const editSubscription = Boolean(subscription && subscription.alias);
         const isModalVisible = Boolean(visibility || editSubscription);
-        const {error, saving} = this.state;
+        const {error, saving, subscriptionType} = this.state;
+        let innerField = (
+            <ConfluenceField
+                label={'Space Key'}
+                type={'text'}
+                fieldType={'input'}
+                required={true}
+                readOnly={editSubscription}
+                placeholder={'Enter the Confluence Space Key.'}
+                value={this.state.spaceKey}
+                addValidation={this.validator.addValidation}
+                removeValidation={this.validator.removeValidation}
+                onChange={this.handleSpaceKey}
+            />
+        );
+        if (subscriptionType === Constants.SUBSCRIPTION_TYPE[1]) {
+            innerField = (
+                <ConfluenceField
+                    label={'Page Id'}
+                    type={'number'}
+                    fieldType={'input'}
+                    required={true}
+                    readOnly={editSubscription}
+                    placeholder={'Enter the page id.'}
+                    value={this.state.pageID}
+                    addValidation={this.validator.addValidation}
+                    removeValidation={this.validator.removeValidation}
+                    onChange={this.handlePageID}
+                />
+            );
+        }
         let createError = null;
         if (error) {
             createError = (
@@ -162,6 +208,20 @@ export default class SubscriptionModal extends React.PureComponent {
                 <Modal.Body>
                     <div>
                         <ConfluenceField
+                            isSearchable={false}
+                            isMulti={false}
+                            label={'Type'}
+                            name={'type'}
+                            fieldType={'dropDown'}
+                            required={true}
+                            theme={this.props.theme}
+                            options={Constants.SUBSCRIPTION_TYPE}
+                            value={this.state.subscriptionType}
+                            addValidation={this.validator.addValidation}
+                            removeValidation={this.validator.removeValidation}
+                            onChange={this.handleSubscriptionType}
+                        />
+                        <ConfluenceField
                             label={'Alias'}
                             type={'text'}
                             fieldType={'input'}
@@ -185,18 +245,7 @@ export default class SubscriptionModal extends React.PureComponent {
                             removeValidation={this.validator.removeValidation}
                             onChange={this.handleBaseURLChange}
                         />
-                        <ConfluenceField
-                            label={'Space Key'}
-                            type={'text'}
-                            fieldType={'input'}
-                            required={true}
-                            readOnly={editSubscription}
-                            placeholder={'Enter the Confluence Space Key.'}
-                            value={this.state.spaceKey}
-                            addValidation={this.validator.addValidation}
-                            removeValidation={this.validator.removeValidation}
-                            onChange={this.handleSpaceKey}
-                        />
+                        {innerField}
                         <ConfluenceField
                             isMulti={true}
                             label={'Events'}
