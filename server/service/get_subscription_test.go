@@ -15,20 +15,20 @@ import (
 
 func TestGetChannelSubscription(t *testing.T) {
 	for name, val := range map[string]struct {
-		channelID string
-		alias string
+		channelID    string
+		alias        string
 		statusCode   int
 		errorMessage string
 	}{
 		"get subscription success": {
-			channelID: "testtesttesttest",
-			alias: "test",
+			channelID:    "testtesttesttest",
+			alias:        "test",
 			statusCode:   http.StatusOK,
 			errorMessage: "",
 		},
 		"subscription not found for alias": {
-			channelID: "testtesttesttest",
-			alias: "test4",
+			channelID:    "testtesttesttest",
+			alias:        "test4",
 			statusCode:   http.StatusBadRequest,
 			errorMessage: fmt.Sprintf(subscriptionNotFound, "test4"),
 		},

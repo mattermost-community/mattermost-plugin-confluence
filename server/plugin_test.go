@@ -25,7 +25,7 @@ const (
 		"* `/confluence unsubscribe \"<alias>\"` - Unsubscribe the current channel from notifications associated with the given alias.\n" +
 		"* `/confluence list` - List all subscriptions for the current channel.\n" +
 		"* `/confluence edit \"<alias>\"` - Edit the subscription settings associated with the given alias."
-	invalidCommand			  = "Invalid command parameters. Please use `/confluence help` for more information."
+	invalidCommand = "Invalid command parameters. Please use `/confluence help` for more information."
 )
 
 func baseMock() *plugintest.API {
@@ -40,16 +40,16 @@ func TestExecuteCommand(t *testing.T) {
 	mockAPI := baseMock()
 
 	for name, val := range map[string]struct {
-		commandArgs       *model.CommandArgs
+		commandArgs        *model.CommandArgs
 		patchFunctionCalls func()
-		ephemeralMessage string
+		ephemeralMessage   string
 	}{
 		"empty command ": {
-			commandArgs:       &model.CommandArgs{Command: "/confluence", UserId: "abcdabcdabcdabcd", ChannelId: "testtesttesttest"},
+			commandArgs:      &model.CommandArgs{Command: "/confluence", UserId: "abcdabcdabcdabcd", ChannelId: "testtesttesttest"},
 			ephemeralMessage: helpText,
 		},
 		"list command": {
-			commandArgs:       &model.CommandArgs{Command: "/confluence list", UserId: "abcdabcdabcdabcd", ChannelId: "testtesttesttest"},
+			commandArgs: &model.CommandArgs{Command: "/confluence list", UserId: "abcdabcdabcdabcd", ChannelId: "testtesttesttest"},
 			patchFunctionCalls: func() {
 				channelSubscriptions := map[string]serializer.Subscription{
 					"test": {
@@ -59,22 +59,15 @@ func TestExecuteCommand(t *testing.T) {
 						ChannelID: "testtesttesttest",
 						Events:    []string{serializer.CommentRemovedEvent, serializer.CommentUpdatedEvent},
 					},
-					"test1": {
-						Alias:     "test1",
-						BaseURL:   "https://test1.com",
-						SpaceKey:  "TS1",
-						ChannelID: "testtesttesttest",
-						Events:    []string{serializer.CommentRemovedEvent, serializer.CommentUpdatedEvent},
-					},
 				}
 				monkey.Patch(service.GetChannelSubscriptions, func(channelID string) (map[string]serializer.Subscription, string, error) {
 					return channelSubscriptions, "testSub", nil
 				})
 			},
-			ephemeralMessage: "| Alias | Base Url | Space Key | Events|\n| :----|:--------| :--------| :-----|\n|test|https://test.com|TS|Comment Remove, Comment Update|\n|test1|https://test1.com|TS1|Comment Remove, Comment Update|",
+			ephemeralMessage: "| Alias | Base Url | Space Key | Events|\n| :----|:--------| :--------| :-----|\n|test|https://test.com|TS|Comment Remove, Comment Update|",
 		},
 		"list command empty list": {
-			commandArgs:       &model.CommandArgs{Command: "/confluence list", UserId: "abcdabcdabcdabcd", ChannelId: "testtesttesttest"},
+			commandArgs: &model.CommandArgs{Command: "/confluence list", UserId: "abcdabcdabcdabcd", ChannelId: "testtesttesttest"},
 			patchFunctionCalls: func() {
 				monkey.Patch(service.GetChannelSubscriptions, func(channelID string) (map[string]serializer.Subscription, string, error) {
 					return map[string]serializer.Subscription{}, "testSub", nil
@@ -83,27 +76,26 @@ func TestExecuteCommand(t *testing.T) {
 			ephemeralMessage: noChannelSubscription,
 		},
 		"help command": {
-			commandArgs:       &model.CommandArgs{Command: "/confluence help", UserId: "abcdabcdabcdabcd", ChannelId: "testtesttesttest"},
+			commandArgs:      &model.CommandArgs{Command: "/confluence help", UserId: "abcdabcdabcdabcd", ChannelId: "testtesttesttest"},
 			ephemeralMessage: helpText,
 		},
 		"unsubscribe command ": {
-			commandArgs:       &model.CommandArgs{Command: "/confluence unsubscribe \"abc\"", UserId: "abcdabcdabcdabcd", ChannelId: "testtesttesttest"},
-			patchFunctionCalls: func () {
-				monkey.Patch(service.DeleteSubscription, func (channelID, alias string) error {
+			commandArgs: &model.CommandArgs{Command: "/confluence unsubscribe \"abc\"", UserId: "abcdabcdabcdabcd", ChannelId: "testtesttesttest"},
+			patchFunctionCalls: func() {
+				monkey.Patch(service.DeleteSubscription, func(channelID, alias string) error {
 					return nil
 				})
 			},
 			ephemeralMessage: fmt.Sprintf(subscriptionDeleteSuccess, "abc"),
 		},
 		"unsubscribe command no alias": {
-			commandArgs:       &model.CommandArgs{Command: "/confluence unsubscribe", UserId: "abcdabcdabcdabcd", ChannelId: "testtesttesttest"},
+			commandArgs:      &model.CommandArgs{Command: "/confluence unsubscribe", UserId: "abcdabcdabcdabcd", ChannelId: "testtesttesttest"},
 			ephemeralMessage: specifyAlias,
 		},
 		"invalid command": {
-			commandArgs:       &model.CommandArgs{Command: "/confluence xyz", UserId: "abcdabcdabcdabcd", ChannelId: "testtesttesttest"},
+			commandArgs:      &model.CommandArgs{Command: "/confluence xyz", UserId: "abcdabcdabcdabcd", ChannelId: "testtesttesttest"},
 			ephemeralMessage: invalidCommand,
 		},
-
 	} {
 		t.Run(name, func(t *testing.T) {
 			defer monkey.UnpatchAll()

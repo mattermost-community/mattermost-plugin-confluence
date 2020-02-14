@@ -14,10 +14,10 @@ import (
 
 func TestSaveSubscription(t *testing.T) {
 	for name, val := range map[string]struct {
-		subscription serializer.Subscription
-		statusCode   int
-		errorMessage string
-		channelSubscriptions map[string]serializer.Subscription
+		subscription                        serializer.Subscription
+		statusCode                          int
+		errorMessage                        string
+		channelSubscriptions                map[string]serializer.Subscription
 		urlSpaceKeyCombinationSubscriptions map[string][]string
 	}{
 		"alias already exist": {
@@ -30,7 +30,7 @@ func TestSaveSubscription(t *testing.T) {
 			},
 			statusCode:   http.StatusBadRequest,
 			errorMessage: aliasAlreadyExist,
-			channelSubscriptions : map[string]serializer.Subscription{
+			channelSubscriptions: map[string]serializer.Subscription{
 				"test": {
 					Alias:     "test",
 					BaseURL:   "https://test.com",
@@ -39,7 +39,7 @@ func TestSaveSubscription(t *testing.T) {
 					Events:    []string{serializer.CommentRemovedEvent, serializer.CommentUpdatedEvent},
 				},
 			},
-			urlSpaceKeyCombinationSubscriptions : map[string][]string{
+			urlSpaceKeyCombinationSubscriptions: map[string][]string{
 				"testtesttesttest": {serializer.CommentRemovedEvent, serializer.CommentUpdatedEvent},
 			},
 		},
@@ -53,7 +53,7 @@ func TestSaveSubscription(t *testing.T) {
 			},
 			statusCode:   http.StatusBadRequest,
 			errorMessage: urlSpaceKeyAlreadyExist,
-			channelSubscriptions : map[string]serializer.Subscription{
+			channelSubscriptions: map[string]serializer.Subscription{
 				"test": {
 					Alias:     "test",
 					BaseURL:   "https://test.com",
@@ -62,7 +62,7 @@ func TestSaveSubscription(t *testing.T) {
 					Events:    []string{serializer.CommentRemovedEvent, serializer.CommentUpdatedEvent},
 				},
 			},
-			urlSpaceKeyCombinationSubscriptions : map[string][]string{
+			urlSpaceKeyCombinationSubscriptions: map[string][]string{
 				"testtesttesttest": {serializer.CommentRemovedEvent, serializer.CommentUpdatedEvent},
 			},
 		},
@@ -76,7 +76,7 @@ func TestSaveSubscription(t *testing.T) {
 			},
 			statusCode:   http.StatusOK,
 			errorMessage: "",
-			channelSubscriptions : map[string]serializer.Subscription{
+			channelSubscriptions: map[string]serializer.Subscription{
 				"test": {
 					Alias:     "test",
 					BaseURL:   "https://test.com",
@@ -85,7 +85,7 @@ func TestSaveSubscription(t *testing.T) {
 					Events:    []string{serializer.CommentRemovedEvent, serializer.CommentUpdatedEvent},
 				},
 			},
-			urlSpaceKeyCombinationSubscriptions : map[string][]string{},
+			urlSpaceKeyCombinationSubscriptions: map[string][]string{},
 		},
 		"subscription unique space key": {
 			subscription: serializer.Subscription{
@@ -97,7 +97,7 @@ func TestSaveSubscription(t *testing.T) {
 			},
 			statusCode:   http.StatusOK,
 			errorMessage: "",
-			channelSubscriptions : map[string]serializer.Subscription{
+			channelSubscriptions: map[string]serializer.Subscription{
 				"test": {
 					Alias:     "test",
 					BaseURL:   "https://test.com",
@@ -106,7 +106,7 @@ func TestSaveSubscription(t *testing.T) {
 					Events:    []string{serializer.CommentRemovedEvent, serializer.CommentUpdatedEvent},
 				},
 			},
-			urlSpaceKeyCombinationSubscriptions : map[string][]string{},
+			urlSpaceKeyCombinationSubscriptions: map[string][]string{},
 		},
 	} {
 		t.Run(name, func(t *testing.T) {

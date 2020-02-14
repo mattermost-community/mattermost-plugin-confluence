@@ -27,7 +27,7 @@ const (
 		"* `/confluence unsubscribe \"<alias>\"` - Unsubscribe the current channel from notifications associated with the given alias.\n" +
 		"* `/confluence list` - List all subscriptions for the current channel.\n" +
 		"* `/confluence edit \"<alias>\"` - Edit the subscription settings associated with the given alias."
-	invalidCommand			  = "Invalid command parameters. Please use `/confluence help` for more information."
+	invalidCommand = "Invalid command parameters. Please use `/confluence help` for more information."
 )
 
 var ConfluenceCommandHandler = Handler{
