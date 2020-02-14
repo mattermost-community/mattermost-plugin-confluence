@@ -68,7 +68,7 @@ func GetPluginKey() string {
 }
 
 func GetPluginURLPath() string {
-	return "/plugins/" + config.PluginName
+	return "/plugins/" + config.PluginName + "/api/v1"
 }
 
 func GetPluginURL() string {
