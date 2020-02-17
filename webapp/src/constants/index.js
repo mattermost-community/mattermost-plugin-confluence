@@ -39,11 +39,11 @@ const CONFLUENCE_EVENTS = [
 const SUBSCRIPTION_TYPE = [
     {
         value: 'space_subscription',
-        label: 'Space subscription',
+        label: 'Space',
     },
     {
         value: 'page_subscription',
-        label: 'Page Subscription',
+        label: 'Page',
     },
 ];
 
