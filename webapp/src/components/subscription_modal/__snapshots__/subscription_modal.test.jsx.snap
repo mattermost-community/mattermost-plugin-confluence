@@ -1,0 +1,196 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`components/ChannelSettingsModal subscription modal snapshot test 1`] = `
+<Modal
+  animation={true}
+  autoFocus={true}
+  backdrop="static"
+  bsClass="modal"
+  dialogComponentClass={[Function]}
+  enforceFocus={true}
+  keyboard={true}
+  manager={
+    ModalManager {
+      "add": [Function],
+      "containers": Array [],
+      "data": Array [],
+      "handleContainerOverflow": true,
+      "hideSiblingNodes": true,
+      "isTopModal": [Function],
+      "modals": Array [],
+      "remove": [Function],
+    }
+  }
+  onHide={[Function]}
+  renderBackdrop={[Function]}
+  restoreFocus={true}
+  show={true}
+>
+  <ModalHeader
+    bsClass="modal-header"
+    closeButton={true}
+    closeLabel="Close"
+  >
+    <ModalTitle
+      bsClass="modal-title"
+      componentClass="h4"
+    >
+      Edit Your Confluence Subscription
+    </ModalTitle>
+  </ModalHeader>
+  <ModalBody
+    bsClass="modal-body"
+    componentClass="div"
+  >
+    <div>
+      <ConfluenceField
+        addValidation={[Function]}
+        fieldType="input"
+        label="Alias"
+        onChange={[Function]}
+        placeholder="Enter an alias for this subscription."
+        readOnly={false}
+        removeValidation={[Function]}
+        required={true}
+        type="text"
+        value=""
+      />
+      <ConfluenceField
+        addValidation={[Function]}
+        fieldType="input"
+        label="Confluence Base URL"
+        onChange={[Function]}
+        placeholder="Enter the Confluence Base URL."
+        readOnly={false}
+        removeValidation={[Function]}
+        required={true}
+        type="text"
+        value=""
+      />
+      <ConfluenceField
+        addValidation={[Function]}
+        fieldType="input"
+        label="Space Key"
+        onChange={[Function]}
+        placeholder="Enter the Confluence Space Key."
+        readOnly={false}
+        removeValidation={[Function]}
+        required={true}
+        type="text"
+        value=""
+      />
+      <ConfluenceField
+        addValidation={[Function]}
+        fieldType="dropDown"
+        isMulti={true}
+        label="Events"
+        name="events"
+        onChange={[Function]}
+        options={
+          Array [
+            Object {
+              "label": "Comment Create",
+              "value": "comment_created",
+            },
+            Object {
+              "label": "Comment Update",
+              "value": "comment_updated",
+            },
+            Object {
+              "label": "Comment Remove",
+              "value": "comment_removed",
+            },
+            Object {
+              "label": "Page Create",
+              "value": "page_created",
+            },
+            Object {
+              "label": "Page Update",
+              "value": "page_updated",
+            },
+            Object {
+              "label": "Page Trash",
+              "value": "page_trashed",
+            },
+            Object {
+              "label": "Page Restore",
+              "value": "page_restored",
+            },
+            Object {
+              "label": "Page Remove",
+              "value": "page_removed",
+            },
+          ]
+        }
+        readOnly={false}
+        removeValidation={[Function]}
+        required={false}
+        theme={Object {}}
+        value={
+          Array [
+            Object {
+              "label": "Comment Create",
+              "value": "comment_created",
+            },
+            Object {
+              "label": "Comment Update",
+              "value": "comment_updated",
+            },
+            Object {
+              "label": "Comment Remove",
+              "value": "comment_removed",
+            },
+            Object {
+              "label": "Page Create",
+              "value": "page_created",
+            },
+            Object {
+              "label": "Page Update",
+              "value": "page_updated",
+            },
+            Object {
+              "label": "Page Trash",
+              "value": "page_trashed",
+            },
+            Object {
+              "label": "Page Restore",
+              "value": "page_restored",
+            },
+            Object {
+              "label": "Page Remove",
+              "value": "page_removed",
+            },
+          ]
+        }
+      />
+    </div>
+  </ModalBody>
+  <ModalFooter
+    bsClass="modal-footer"
+    componentClass="div"
+  >
+    <Button
+      active={false}
+      block={false}
+      bsClass="btn"
+      bsStyle="link"
+      disabled={false}
+      onClick={[Function]}
+      type="button"
+    >
+      Cancel
+    </Button>
+    <Button
+      active={false}
+      block={false}
+      bsClass="btn"
+      bsStyle="primary"
+      disabled={false}
+      onClick={[Function]}
+      type="submit"
+    >
+      Save Subscription
+    </Button>
+  </ModalFooter>
+</Modal>
+`;

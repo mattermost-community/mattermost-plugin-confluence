@@ -73,3 +73,6 @@ plugin.exe
 vendor/
 .history/
 coverage.txt
+
+# webapp test cases
+build/test-results.xml

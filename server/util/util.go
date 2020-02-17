@@ -52,7 +52,7 @@ func SplitArgs(s string) ([]string, error) {
 
 	for _, arg := range args {
 		if arg != "" {
-			cleanedArgs[count] = arg
+			cleanedArgs[count] = strings.TrimSpace(arg)
 			count++
 		}
 	}
