@@ -8,6 +8,8 @@ import (
 	"regexp"
 	"strings"
 
+	"github.com/mattermost/mattermost-server/model"
+
 	"github.com/Brightscout/mattermost-plugin-confluence/server/config"
 )
 
@@ -85,5 +87,13 @@ func GetSiteURL() string {
 }
 
 func GetAtlassianConnectURLPath() string {
-	return "/api/v1/atlassian-connect.json?secret=" + url.QueryEscape(config.GetConfig().Secret)
+	return "/atlassian-connect.json?secret=" + url.QueryEscape(config.GetConfig().Secret)
+}
+
+func IsSystemAdmin(userID string) bool {
+	user, appErr := config.Mattermost.GetUser(userID)
+	if appErr != nil {
+		return false
+	}
+	return user.IsInRole(model.SYSTEM_ADMIN_ROLE_ID)
 }

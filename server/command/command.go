@@ -9,6 +9,7 @@ import (
 	"github.com/Brightscout/mattermost-plugin-confluence/server/config"
 	"github.com/Brightscout/mattermost-plugin-confluence/server/serializer"
 	"github.com/Brightscout/mattermost-plugin-confluence/server/service"
+	"github.com/Brightscout/mattermost-plugin-confluence/server/util"
 )
 
 type HandlerFunc func(context *model.CommandArgs, args ...string) *model.CommandResponse
@@ -31,9 +32,10 @@ const (
 
 var ConfluenceCommandHandler = Handler{
 	handlers: map[string]HandlerFunc{
-		"list":        listChannelSubscription,
-		"unsubscribe": deleteSubscription,
-		"help":        confluenceHelp,
+		"list":              listChannelSubscription,
+		"unsubscribe":       deleteSubscription,
+		"atlassian-connect": showAtlassianConnectURL,
+		"help":              confluenceHelp,
 	},
 	defaultHandler: executeConfluenceDefault,
 }
@@ -76,6 +78,16 @@ func (ch Handler) Handle(context *model.CommandArgs, args ...string) *model.Comm
 		}
 	}
 	return ch.defaultHandler(context, args...)
+}
+
+func showAtlassianConnectURL(context *model.CommandArgs, args ...string) *model.CommandResponse {
+	if !util.IsSystemAdmin(context.UserId) {
+		postCommandResponse(context, "Only a system admin can run this command.")
+		return &model.CommandResponse{}
+	}
+	atlassianConnectURL := util.GetPluginURL() + util.GetAtlassianConnectURLPath()
+	postCommandResponse(context, fmt.Sprintf("Use this URL to install the plugin in your Atlassian Confluence Cloud instance:\n%s", atlassianConnectURL))
+	return &model.CommandResponse{}
 }
 
 func deleteSubscription(context *model.CommandArgs, args ...string) *model.CommandResponse {
