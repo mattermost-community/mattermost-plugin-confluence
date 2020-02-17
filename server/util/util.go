@@ -4,6 +4,7 @@ import (
 	"crypto/sha256"
 	"encoding/base64"
 	"errors"
+	"net/url"
 	"regexp"
 	"strings"
 
@@ -81,4 +82,8 @@ func GetSiteURL() string {
 		return ""
 	}
 	return *ptr
+}
+
+func GetAtlassianConnectURLPath() string {
+	return "/api/v1/atlassian-connect.json?secret=" + url.QueryEscape(config.GetConfig().Secret)
 }

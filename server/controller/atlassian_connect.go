@@ -31,11 +31,11 @@ func renderAtlassianConnectJSON(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	templateDir := filepath.Join(bundlePath, "assets")
+	templateDir := filepath.Join(bundlePath, "assets", "templates")
 	tmplPath := path.Join(templateDir, "atlassian-connect.json")
 	values := map[string]string{
 		"BaseURL":      util.GetPluginURL(),
-		"RouteACJSON":  "/api/v1/atlassian-connect.json?secret=" + url.QueryEscape(conf.Secret),
+		"RouteACJSON":  util.GetAtlassianConnectURLPath(),
 		"ExternalURL":  util.GetSiteURL(),
 		"PluginKey":    util.GetPluginKey(),
 		"SharedSecret": url.QueryEscape(conf.Secret),
@@ -47,8 +47,7 @@ func renderAtlassianConnectJSON(w http.ResponseWriter, r *http.Request) {
 	}
 
 	w.Header().Set("Content-Type", "application/json")
-	err = tmpl.Execute(w, values)
-	if err != nil {
+	if err = tmpl.Execute(w, values); err != nil {
 		http.Error(w, "failed to write response: "+err.Error(), http.StatusInternalServerError)
 		return
 	}
