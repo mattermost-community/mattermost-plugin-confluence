@@ -46,7 +46,7 @@ func GetCommand() *model.Command {
 		DisplayName:      "Confluence",
 		Description:      "Integration with Confluence.",
 		AutoComplete:     true,
-		AutoCompleteDesc: "Available commands: subscribe, list, unsubscribe \"<alias>\", edit \"<alias>\", help.",
+		AutoCompleteDesc: "Available commands: subscribe, list, unsubscribe \"<alias>\", edit \"<alias>\", atlassian-connect, help.",
 		AutoCompleteHint: "[command]",
 	}
 }
