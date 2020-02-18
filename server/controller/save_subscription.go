@@ -2,6 +2,7 @@ package controller
 
 import (
 	"encoding/json"
+	"fmt"
 	"net/http"
 
 	"github.com/mattermost/mattermost-server/model"
@@ -17,25 +18,25 @@ var saveChannelSubscription = &Endpoint{
 	RequiresAuth: true,
 	Path:         "/subscription",
 	Method:       http.MethodPost,
-	Execute:      handleSaveChannelSubscription,
+	Execute:      handleSavePageSubscription,
 }
 
-func handleSaveChannelSubscription(w http.ResponseWriter, r *http.Request) {
+func handleSavePageSubscription(w http.ResponseWriter, r *http.Request) {
 	body := json.NewDecoder(r.Body)
-	subscription := serializer.Subscription{}
+	subscription := serializer.PageSubscription{}
 	if err := body.Decode(&subscription); err != nil {
 		config.Mattermost.LogError("Error decoding request body.", "Error", err.Error())
 		http.Error(w, "Could not decode request body", http.StatusBadRequest)
 		return
 	}
-
+	fmt.Println("sub=", subscription)
 	if err := subscription.IsValid(); err != nil {
 		config.Mattermost.LogError(err.Error(), "channelID", subscription.ChannelID)
 		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
 	}
 
-	if errCode, err := service.SaveNewSubscription(subscription); err != nil {
+	if errCode, err := service.SavePageSubscription(&subscription); err != nil {
 		config.Mattermost.LogError(err.Error(), "channelID", subscription.ChannelID)
 		http.Error(w, err.Error(), errCode)
 		return

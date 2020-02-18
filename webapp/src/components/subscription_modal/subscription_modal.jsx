@@ -60,7 +60,7 @@ export default class SubscriptionModal extends React.PureComponent {
                 spaceKey,
                 pageID,
                 events: Constants.CONFLUENCE_EVENTS.filter((option) => events.includes(option.value)),
-                subscriptionType: pageID ? Constants.CONFLUENCE_EVENTS[1] : Constants.CONFLUENCE_EVENTS[0],
+                subscriptionType: pageID ? Constants.SUBSCRIPTION_TYPE[1] : Constants.SUBSCRIPTION_TYPE[0],
             });
         }
     };

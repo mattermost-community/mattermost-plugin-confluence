@@ -1,6 +1,8 @@
 package service
 
 import (
+	"fmt"
+
 	"github.com/pkg/errors"
 
 	"github.com/Brightscout/mattermost-plugin-confluence/server/serializer"
@@ -9,21 +11,38 @@ import (
 
 const getChannelSubscriptionsError = " Error getting channel subscriptions."
 
-func GetChannelSubscriptions(channelID string) (map[string]serializer.Subscription, string, error) {
-	key := store.GetChannelSubscriptionKey(channelID)
-	channelSubscriptions := make(map[string]serializer.Subscription)
-	if err := store.Get(key, &channelSubscriptions); err != nil {
-		return nil, "", errors.New(getChannelSubscriptionsError)
+func GetSubscriptions() (serializer.Subscriptions, error) {
+	key := store.GetSubscriptionKey()
+	var subscriptions serializer.Subscriptions
+	if err := store.Get(key, &subscriptions); err != nil {
+		return serializer.Subscriptions{}, errors.New(getChannelSubscriptionsError)
 	}
-	return channelSubscriptions, key, nil
+	return subscriptions, nil
 }
 
-func GetURLSpaceKeyCombinationSubscriptions(baseURL, spaceKey string) (map[string][]string, string, error) {
-	// Error is ignored as the url is already parsed in isValid method
-	key, _ := store.GetURLSpaceKeyCombinationKey(baseURL, spaceKey)
-	keySubscriptions := make(map[string][]string)
-	if err := store.Get(key, &keySubscriptions); err != nil {
-		return nil, "", err
+func GetSubscriptionsByChannelID(channelID string) (map[string]serializer.Subscription, error) {
+	subscriptions, err := GetSubscriptions()
+	fmt.Println("abc=", subscriptions)
+	if err != nil {
+		return nil, err
 	}
-	return keySubscriptions, key, nil
+	return subscriptions.ByChannelID[channelID], nil
+}
+
+func GetSubscriptionsByURLSpaceKey(url, spaceKey string) (map[string][]string, error) {
+	key := store.GetURLSpaceKeyCombinationKey(url, spaceKey)
+	subscriptions, err := GetSubscriptions()
+	if err != nil {
+		return nil, err
+	}
+	return subscriptions.ByURLSpaceKey[key], nil
+}
+
+func GetSubscriptionsByURLPageID(url, pageID string) (map[string][]string, error) {
+	key := store.GetURLPageIDCombinationKey(url, pageID)
+	subscriptions, err := GetSubscriptions()
+	if err != nil {
+		return nil, err
+	}
+	return subscriptions.ByURLPagID[key], nil
 }
