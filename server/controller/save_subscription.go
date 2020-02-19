@@ -36,7 +36,7 @@ func handleSavePageSubscription(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if errCode, err := service.SavePageSubscription(&subscription); err != nil {
+	if errCode, err := service.SaveSubscription(&subscription); err != nil {
 		config.Mattermost.LogError(err.Error(), "channelID", subscription.ChannelID)
 		http.Error(w, err.Error(), errCode)
 		return

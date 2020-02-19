@@ -5,6 +5,7 @@ import (
 
 	"github.com/pkg/errors"
 
+	"github.com/Brightscout/mattermost-plugin-confluence/server/config"
 	"github.com/Brightscout/mattermost-plugin-confluence/server/serializer"
 	"github.com/Brightscout/mattermost-plugin-confluence/server/store"
 )
@@ -13,16 +14,20 @@ const getChannelSubscriptionsError = " Error getting channel subscriptions."
 
 func GetSubscriptions() (serializer.Subscriptions, error) {
 	key := store.GetSubscriptionKey()
-	var subscriptions serializer.Subscriptions
-	if err := store.Get(key, &subscriptions); err != nil {
+	initialBytes, appErr := config.Mattermost.KVGet(key)
+	if appErr != nil {
 		return serializer.Subscriptions{}, errors.New(getChannelSubscriptionsError)
 	}
-	return subscriptions, nil
+	subscriptions, err := serializer.SubscriptionsFromJson(initialBytes)
+	if err != nil {
+		return serializer.Subscriptions{}, errors.New(getChannelSubscriptionsError)
+	}
+	return *subscriptions, nil
 }
 
-func GetSubscriptionsByChannelID(channelID string) (map[string]serializer.Subscription, error) {
+func GetSubscriptionsByChannelID(channelID string) (serializer.StringSubscription, error) {
 	subscriptions, err := GetSubscriptions()
-	fmt.Println("abc=", subscriptions)
+	fmt.Println("list of subs=", subscriptions)
 	if err != nil {
 		return nil, err
 	}

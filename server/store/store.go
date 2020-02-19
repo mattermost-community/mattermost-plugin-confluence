@@ -61,7 +61,7 @@ func GetChannelSubscriptionKey(channelID string) string {
 }
 
 func GetSubscriptionKey() string {
-	return "abcde"
+	return "abcdefghijklmn"
 }
 
 func AtomicModify(key string, modify func(initialValue []byte) ([]byte, error)) error {
