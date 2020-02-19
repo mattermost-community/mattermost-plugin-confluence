@@ -16,12 +16,12 @@ export default class Client {
     }
 
     saveChannelSubscription = (channelSubscription) => {
-        const url = `${this.pluginApiUrl}/subscription`;
+        const url = `${this.pluginApiUrl}/subscription?type=${channelSubscription.subscriptionType}`;
         return this.doPost(url, channelSubscription);
     };
 
     editChannelSubscription = (channelSubscription) => {
-        const url = `${this.pluginApiUrl}/subscription`;
+        const url = `${this.pluginApiUrl}/subscription?type=${channelSubscription.subscriptionType}`;
         return this.doPut(url, channelSubscription);
     };
 

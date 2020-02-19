@@ -127,8 +127,8 @@ export default class SubscriptionModal extends React.PureComponent {
             subscriptionType: subscriptionType.value,
             alias: alias.trim(),
             baseURL: baseURL.trim().toLowerCase(),
-            spaceKey: spaceKey.trim(),
-            pageID: pageID.trim(),
+            spaceKey: spaceKey ? spaceKey.trim() : '',
+            pageID: pageID ? pageID.trim() : '',
             channelID: currentChannelID,
             events: events ? events.map((event) => event.value) : [],
         };
@@ -198,6 +198,7 @@ export default class SubscriptionModal extends React.PureComponent {
                     formGroupStyle={getStyle.subscriptionType}
                     isSearchable={false}
                     isMulti={false}
+                    isDisabled={editSubscription}
                     label={'Subscribe To'}
                     name={'type'}
                     fieldType={'dropDown'}

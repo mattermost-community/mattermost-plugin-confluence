@@ -1,8 +1,6 @@
 package service
 
 import (
-	"fmt"
-
 	"github.com/pkg/errors"
 
 	"github.com/Brightscout/mattermost-plugin-confluence/server/config"
@@ -27,7 +25,6 @@ func GetSubscriptions() (serializer.Subscriptions, error) {
 
 func GetSubscriptionsByChannelID(channelID string) (serializer.StringSubscription, error) {
 	subscriptions, err := GetSubscriptions()
-	fmt.Println("list of subs=", subscriptions)
 	if err != nil {
 		return nil, err
 	}

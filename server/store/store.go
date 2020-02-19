@@ -14,7 +14,7 @@ import (
 	"github.com/Brightscout/mattermost-plugin-confluence/server/util"
 )
 
-const ConfluenceSubscriptionKeyPrefix = "confluence_subscription121"
+const ConfluenceSubscriptionKeyPrefix = "confluence_subs"
 
 func Set(key string, data interface{}) error {
 	bytes, err := json.Marshal(data)
@@ -61,7 +61,7 @@ func GetChannelSubscriptionKey(channelID string) string {
 }
 
 func GetSubscriptionKey() string {
-	return "abcdefghijklmn"
+	return util.GetKeyHash(ConfluenceSubscriptionKeyPrefix)
 }
 
 func AtomicModify(key string, modify func(initialValue []byte) ([]byte, error)) error {
