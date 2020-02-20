@@ -331,13 +331,14 @@ func (e ConfluenceServerEvent) GetNotificationPost(eventType string) *model.Post
 	return post
 }
 
-func (e ConfluenceServerEvent) GetEventDetails() *Event {
-	if e.Page != nil {
-		return &Event{
-			URL:      e.BaseURL,
-			SpaceKey: e.Space.Key,
-			PageID:   e.Page.ID,
-		}
-	}
-	return &Event{}
+func (e ConfluenceServerEvent) GetURL() string {
+	return e.BaseURL
+}
+
+func (e ConfluenceServerEvent) GetSpaceKey() string {
+	return e.Space.Key
+}
+
+func (e ConfluenceServerEvent) GetPageID() string {
+	return  e.Page.ID
 }

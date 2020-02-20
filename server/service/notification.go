@@ -9,13 +9,15 @@ import (
 )
 
 func SendConfluenceNotifications(event serializer.ConfluenceEvent, eventType string) {
-	details := event.GetEventDetails()
+	url := event.GetURL()
+	spaceKey := event.GetSpaceKey()
+	pageID := event.GetPageID()
 	post := event.GetNotificationPost(eventType)
 
-	if post == nil || details.PageID == "" || details.URL == "" || details.SpaceKey == "" {
+	if post == nil || pageID == "" || url == "" || spaceKey == "" {
 		return
 	}
-	subscriptionChannelIDs := getNotificationChannelIDs(details, eventType)
+	subscriptionChannelIDs := getNotificationChannelIDs(url, spaceKey, pageID, eventType)
 	for _, channelID := range subscriptionChannelIDs {
 		post.ChannelId = channelID
 		if _, err := config.Mattermost.CreatePost(post); err != nil {
@@ -24,13 +26,13 @@ func SendConfluenceNotifications(event serializer.ConfluenceEvent, eventType str
 	}
 }
 
-func getNotificationChannelIDs(d *serializer.Event, eventType string) []string {
-	urlSpaceKeySubscriptions, err := GetSubscriptionsByURLSpaceKey(d.URL, d.SpaceKey)
+func getNotificationChannelIDs(url, spaceKey, pageID, eventType string) []string {
+	urlSpaceKeySubscriptions, err := GetSubscriptionsByURLSpaceKey(url, spaceKey)
 	if err != nil {
 		config.Mattermost.LogError("Unable to get subscribed channels.", "Error", err.Error())
 		return nil
 	}
-	urlPageIDSubscriptions, err := GetSubscriptionsByURLPageID(d.URL, d.PageID)
+	urlPageIDSubscriptions, err := GetSubscriptionsByURLPageID(url, pageID)
 	if err != nil {
 		config.Mattermost.LogError("Unable to get subscribed channels.", "Error", err.Error())
 		return nil

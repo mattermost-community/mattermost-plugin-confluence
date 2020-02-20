@@ -43,7 +43,7 @@ func handleEditChannelSubscription(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 	if err := service.EditSubscription(subscription); err != nil {
-		config.Mattermost.LogError( err.Error())
+		config.Mattermost.LogError(err.Error())
 		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
 	}
