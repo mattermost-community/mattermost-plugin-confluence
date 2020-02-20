@@ -20,13 +20,6 @@ const (
 	confluenceCloudCommentDeleteMessage = "A comment was deleted from the [%s](%s) page."
 )
 
-type ConfluenceEvent interface {
-	GetNotificationPost(string) *model.Post
-	GetURL() string
-	GetSpaceKey() string
-	GetPageID() string
-}
-
 type ConfluenceCloudEvent struct {
 	UserAccountID string   `json:"userAccountId"`
 	AccountType   string   `json:"accountType"`
