@@ -37,8 +37,8 @@ var eventDisplayName = map[string]string{
 }
 
 type Subscription interface {
-	Add(s *Subscriptions)
-	Remove(s *Subscriptions)
+	Add(*Subscriptions)
+	Remove(*Subscriptions)
 	Edit(s *Subscriptions)
 	Name() string
 	GetFormattedSubscription() string

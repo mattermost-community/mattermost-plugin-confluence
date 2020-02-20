@@ -59,3 +59,17 @@ func SplitArgs(s string) ([]string, error) {
 
 	return cleanedArgs[0:count], nil
 }
+
+func Deduplicate(a []string) []string {
+	check := make(map[string]int)
+	result := make([]string, 0)
+	for _, val := range a {
+		check[val] = 1
+	}
+
+	for key := range check {
+		result = append(result, key)
+	}
+
+	return result
+}
