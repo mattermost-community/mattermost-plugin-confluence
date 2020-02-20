@@ -253,21 +253,24 @@ func SubscriptionsFromJson(bytes []byte) (*Subscriptions, error) {
 }
 
 func FormattedSubscriptionList(channelSubscriptions StringSubscription) string {
-	var pageSubscriptions, spaceSubscription, list string
+	var pageSubscriptions, spaceSubscriptions, list string
 	pageSubscriptionsHeader := fmt.Sprintf("| Alias | Base Url | Page Id | Events|\n| :----|:--------| :--------| :-----|")
 	spaceSubscriptionsHeader := fmt.Sprintf("| Alias | Base Url | Space Key | Events|\n| :----|:--------| :--------| :-----|")
 	for _, sub := range channelSubscriptions {
 		if sub.Name() == SubscriptionTypePage {
 			pageSubscriptions += sub.GetFormattedSubscription()
 		} else if sub.Name() == SubscriptionTypeSpace {
-			spaceSubscription += sub.GetFormattedSubscription()
+			spaceSubscriptions += sub.GetFormattedSubscription()
 		}
 	}
-	if spaceSubscription != "" {
-		list = spaceSubscriptionsHeader + spaceSubscription + "\n"
+	if spaceSubscriptions != "" {
+		list = "#### Space Subscriptions \n" + spaceSubscriptionsHeader + spaceSubscriptions
+	}
+	if spaceSubscriptions != "" && pageSubscriptions != "" {
+		list += "\n\n"
 	}
 	if pageSubscriptions != "" {
-		list += pageSubscriptionsHeader + pageSubscriptions
+		list += "#### Page Subscriptions \n" + pageSubscriptionsHeader + pageSubscriptions
 	}
 	return list
 }

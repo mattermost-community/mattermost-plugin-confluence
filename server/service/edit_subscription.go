@@ -7,8 +7,6 @@ import (
 	"github.com/Brightscout/mattermost-plugin-confluence/server/store"
 )
 
-const subscriptionEditSuccess = "Subscription updated successfully."
-
 func EditSubscription(subscription serializer.Subscription) error {
 	key := store.GetSubscriptionKey()
 	err := store.AtomicModify(key, func(initialBytes []byte) ([]byte, error) {
