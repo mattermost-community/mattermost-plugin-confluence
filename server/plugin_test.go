@@ -48,33 +48,6 @@ func TestExecuteCommand(t *testing.T) {
 			commandArgs:      &model.CommandArgs{Command: "/confluence", UserId: "abcdabcdabcdabcd", ChannelId: "testtesttesttest"},
 			ephemeralMessage: helpText,
 		},
-		"list command": {
-			commandArgs: &model.CommandArgs{Command: "/confluence list", UserId: "abcdabcdabcdabcd", ChannelId: "testtesttesttest"},
-			patchFunctionCalls: func() {
-				channelSubscriptions := map[string]serializer.Subscription{
-					"test": {
-						Alias:     "test",
-						BaseURL:   "https://test.com",
-						SpaceKey:  "TS",
-						ChannelID: "testtesttesttest",
-						Events:    []string{serializer.CommentRemovedEvent, serializer.CommentUpdatedEvent},
-					},
-				}
-				monkey.Patch(service.GetChannelSubscriptions, func(channelID string) (map[string]serializer.Subscription, string, error) {
-					return channelSubscriptions, "testSub", nil
-				})
-			},
-			ephemeralMessage: "| Alias | Base Url | Space Key | Events|\n| :----|:--------| :--------| :-----|\n|test|https://test.com|TS|Comment Remove, Comment Update|",
-		},
-		"list command empty list": {
-			commandArgs: &model.CommandArgs{Command: "/confluence list", UserId: "abcdabcdabcdabcd", ChannelId: "testtesttesttest"},
-			patchFunctionCalls: func() {
-				monkey.Patch(service.GetChannelSubscriptions, func(channelID string) (map[string]serializer.Subscription, string, error) {
-					return map[string]serializer.Subscription{}, "testSub", nil
-				})
-			},
-			ephemeralMessage: noChannelSubscription,
-		},
 		"help command": {
 			commandArgs:      &model.CommandArgs{Command: "/confluence help", UserId: "abcdabcdabcdabcd", ChannelId: "testtesttesttest"},
 			ephemeralMessage: helpText,

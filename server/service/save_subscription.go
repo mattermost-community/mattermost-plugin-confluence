@@ -34,6 +34,9 @@ func SaveSubscription(subscription serializer.Subscription) error {
 }
 
 func ValidatePageSubscription(s serializer.PageSubscription) (int, error) {
+	if err := s.IsValid(); err != nil {
+		return http.StatusBadRequest, err
+	}
 	subs, gErr := GetSubscriptions()
 	if gErr != nil {
 		return http.StatusInternalServerError, errors.New(generalSaveError)
@@ -53,6 +56,9 @@ func ValidatePageSubscription(s serializer.PageSubscription) (int, error) {
 }
 
 func ValidateSpaceSubscription(s serializer.SpaceSubscription) (int, error) {
+	if err := s.IsValid(); err != nil {
+		return http.StatusBadRequest, err
+	}
 	subs, gErr := GetSubscriptions()
 	if gErr != nil {
 		return http.StatusInternalServerError, errors.New(generalSaveError)

@@ -16,17 +16,17 @@ export default class Client {
     }
 
     saveChannelSubscription = (channelSubscription) => {
-        const url = `${this.pluginApiUrl}/subscription?type=${channelSubscription.subscriptionType}`;
+        const url = `${this.pluginApiUrl}/${channelSubscription.channelID}/subscription/${channelSubscription.subscriptionType}`;
         return this.doPost(url, channelSubscription);
     };
 
     editChannelSubscription = (channelSubscription) => {
-        const url = `${this.pluginApiUrl}/subscription?type=${channelSubscription.subscriptionType}`;
+        const url = `${this.pluginApiUrl}/${channelSubscription.channelID}/subscription/${channelSubscription.subscriptionType}`;
         return this.doPut(url, channelSubscription);
     };
 
     getChannelSubscription = (channelID, alias) => {
-        const url = `${this.pluginApiUrl}/subscription?channelID=${channelID}&alias=${alias}`;
+        const url = `${this.pluginApiUrl}/${channelID}/subscription?alias=${alias}`;
         return this.doGet(url);
     };
 

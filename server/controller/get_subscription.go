@@ -2,21 +2,23 @@ package controller
 
 import (
 	"encoding/json"
-	"fmt"
 	"net/http"
+
+	"github.com/gorilla/mux"
 
 	"github.com/Brightscout/mattermost-plugin-confluence/server/service"
 )
 
 var getChannelSubscription = &Endpoint{
 	RequiresAuth: true,
-	Path:         "/subscription",
+	Path:         "/{channelID:[A-Za-z0-9]+}/subscription",
 	Method:       http.MethodGet,
 	Execute:      handleGetChannelSubscription,
 }
 
 func handleGetChannelSubscription(w http.ResponseWriter, r *http.Request) {
-	channelID := r.FormValue("channelID")
+	params := mux.Vars(r)
+	channelID := params["channelID"]
 	alias := r.FormValue("alias")
 	subscription, errCode, err := service.GetChannelSubscription(channelID, alias)
 	if err != nil {
@@ -24,7 +26,6 @@ func handleGetChannelSubscription(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	b, _ := json.Marshal(subscription)
-	fmt.Println("body=", string(b))
 	w.Header().Set("Content-Type", "application/json")
 	_, _ = w.Write([]byte(string(b)))
 }

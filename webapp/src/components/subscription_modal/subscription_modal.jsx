@@ -179,7 +179,7 @@ export default class SubscriptionModal extends React.PureComponent {
                 <ConfluenceField
                     formGroupStyle={getStyle.typeValue}
                     formControlStyle={getStyle.typeFormControl}
-                    label={'Page Id'}
+                    label={'Page ID'}
                     type={'text'}
                     fieldType={'input'}
                     required={true}

@@ -3,6 +3,7 @@ package serializer
 import (
 	"encoding/json"
 	"fmt"
+	"io"
 	url2 "net/url"
 	"reflect"
 	"strings"
@@ -39,7 +40,7 @@ var eventDisplayName = map[string]string{
 type Subscription interface {
 	Add(*Subscriptions)
 	Remove(*Subscriptions)
-	Edit(s *Subscriptions)
+	Edit(*Subscriptions)
 	Name() string
 	GetFormattedSubscription() string
 	IsValid() error
@@ -273,4 +274,16 @@ func FormattedSubscriptionList(channelSubscriptions StringSubscription) string {
 		list += "#### Page Subscriptions \n" + pageSubscriptionsHeader + pageSubscriptions
 	}
 	return list
+}
+
+func PageSubscriptionFromJSON(data io.Reader) (PageSubscription,error) {
+	var ps PageSubscription
+	err := json.NewDecoder(data).Decode(&ps)
+	return ps, err
+}
+
+func SpaceSubscriptionFromJSON(data io.Reader) (SpaceSubscription,error) {
+	var ps SpaceSubscription
+	err := json.NewDecoder(data).Decode(&ps)
+	return ps, err
 }

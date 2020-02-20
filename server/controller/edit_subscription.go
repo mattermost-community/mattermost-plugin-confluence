@@ -1,9 +1,9 @@
 package controller
 
 import (
-	"encoding/json"
 	"net/http"
 
+	"github.com/gorilla/mux"
 	"github.com/mattermost/mattermost-server/model"
 
 	"github.com/Brightscout/mattermost-plugin-confluence/server/config"
@@ -13,7 +13,7 @@ import (
 
 var editChannelSubscription = &Endpoint{
 	RequiresAuth: true,
-	Path:         "/subscription",
+	Path:         "/{channelID:[A-Za-z0-9]+}/subscription/{type:[A-Za-z_]+}",
 	Method:       http.MethodPut,
 	Execute:      handleEditChannelSubscription,
 }
@@ -21,40 +21,31 @@ var editChannelSubscription = &Endpoint{
 const subscriptionEditSuccess = "Your subscription has been edited successfully."
 
 func handleEditChannelSubscription(w http.ResponseWriter, r *http.Request) {
-	body := json.NewDecoder(r.Body)
-	subscriptionType := r.FormValue("type")
+	params := mux.Vars(r)
+	channelID := params["channelID"]
+	subscriptionType := params["type"]
 	userID := r.Header.Get(config.HeaderMattermostUserID)
+	var subscription serializer.Subscription
+	var err error
 	if subscriptionType == serializer.SubscriptionTypeSpace {
-		subscription := serializer.SpaceSubscription{}
-		if err := body.Decode(&subscription); err != nil {
+		subscription, err = serializer.SpaceSubscriptionFromJSON(r.Body)
+		if err != nil {
 			config.Mattermost.LogError("Error decoding request body.", "Error", err.Error())
 			http.Error(w, "Could not decode request body", http.StatusBadRequest)
-			return
-		}
-		if errCode, err := editSubscription(subscription, subscription.ChannelID, userID); err != nil {
-			config.Mattermost.LogError(err.Error())
-			http.Error(w, err.Error(), errCode)
 			return
 		}
 	} else if subscriptionType == serializer.SubscriptionTypePage {
-		subscription := serializer.PageSubscription{}
-		if err := body.Decode(&subscription); err != nil {
+		subscription, err = serializer.PageSubscriptionFromJSON(r.Body)
+		if err != nil {
 			config.Mattermost.LogError("Error decoding request body.", "Error", err.Error())
 			http.Error(w, "Could not decode request body", http.StatusBadRequest)
 			return
 		}
-		if errCode, err := editSubscription(subscription, subscription.ChannelID, userID); err != nil {
-			config.Mattermost.LogError(err.Error())
-			http.Error(w, err.Error(), errCode)
-			return
-		}
 	}
-	ReturnStatusOK(w)
-}
-
-func editSubscription(subscription serializer.Subscription, channelID, userID string) (int, error) {
 	if err := service.EditSubscription(subscription); err != nil {
-		return http.StatusInternalServerError, err
+		config.Mattermost.LogError( err.Error())
+		http.Error(w, err.Error(), http.StatusBadRequest)
+		return
 	}
 	post := &model.Post{
 		UserId:    config.BotUserID,
@@ -62,6 +53,5 @@ func editSubscription(subscription serializer.Subscription, channelID, userID st
 		Message:   subscriptionEditSuccess,
 	}
 	_ = config.Mattermost.SendEphemeralPost(userID, post)
-
-	return http.StatusOK, nil
+	ReturnStatusOK(w)
 }
