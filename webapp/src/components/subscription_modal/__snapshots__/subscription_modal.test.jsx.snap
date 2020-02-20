@@ -46,6 +46,8 @@ exports[`components/ChannelSettingsModal subscription modal snapshot test 1`] = 
       <ConfluenceField
         addValidation={[Function]}
         fieldType="input"
+        formControlStyle={Object {}}
+        formGroupStyle={Object {}}
         label="Alias"
         onChange={[Function]}
         placeholder="Enter an alias for this subscription."
@@ -58,6 +60,8 @@ exports[`components/ChannelSettingsModal subscription modal snapshot test 1`] = 
       <ConfluenceField
         addValidation={[Function]}
         fieldType="input"
+        formControlStyle={Object {}}
+        formGroupStyle={Object {}}
         label="Confluence Base URL"
         onChange={[Function]}
         placeholder="Enter the Confluence Base URL."
@@ -67,21 +71,79 @@ exports[`components/ChannelSettingsModal subscription modal snapshot test 1`] = 
         type="text"
         value=""
       />
-      <ConfluenceField
-        addValidation={[Function]}
-        fieldType="input"
-        label="Space Key"
-        onChange={[Function]}
-        placeholder="Enter the Confluence Space Key."
-        readOnly={false}
-        removeValidation={[Function]}
-        required={true}
-        type="text"
-        value=""
-      />
+      <div
+        style={
+          Object {
+            "display": "flex",
+          }
+        }
+      >
+        <ConfluenceField
+          addValidation={[Function]}
+          fieldType="dropDown"
+          formControlStyle={Object {}}
+          formGroupStyle={
+            Object {
+              "flex": "1",
+              "marginRight": "20px",
+            }
+          }
+          isMulti={false}
+          isSearchable={false}
+          label="Subscribe To"
+          name="type"
+          onChange={[Function]}
+          options={
+            Array [
+              Object {
+                "label": "Space",
+                "value": "space_subscription",
+              },
+              Object {
+                "label": "Page",
+                "value": "page_subscription",
+              },
+            ]
+          }
+          readOnly={false}
+          removeValidation={[Function]}
+          required={true}
+          theme={Object {}}
+          value={
+            Object {
+              "label": "Space",
+              "value": "space_subscription",
+            }
+          }
+        />
+        <ConfluenceField
+          addValidation={[Function]}
+          fieldType="input"
+          formControlStyle={
+            Object {
+              "height": "38px",
+            }
+          }
+          formGroupStyle={
+            Object {
+              "flex": "1",
+            }
+          }
+          label="Space Key"
+          onChange={[Function]}
+          placeholder="Enter the Confluence Space Key."
+          readOnly={false}
+          removeValidation={[Function]}
+          required={true}
+          type="text"
+          value=""
+        />
+      </div>
       <ConfluenceField
         addValidation={[Function]}
         fieldType="dropDown"
+        formControlStyle={Object {}}
+        formGroupStyle={Object {}}
         isMulti={true}
         label="Events"
         name="events"
