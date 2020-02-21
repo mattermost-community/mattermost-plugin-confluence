@@ -13,6 +13,7 @@ import (
 
 	"github.com/Brightscout/mattermost-plugin-confluence/server/config"
 	"github.com/Brightscout/mattermost-plugin-confluence/server/service"
+	"github.com/Brightscout/mattermost-plugin-confluence/server/util"
 )
 
 const (
@@ -22,7 +23,7 @@ const (
 		"* `/confluence subscribe` - Subscribe the current channel to notifications from Confluence.\n" +
 		"* `/confluence unsubscribe \"<alias>\"` - Unsubscribe the current channel from notifications associated with the given alias.\n" +
 		"* `/confluence list` - List all subscriptions for the current channel.\n" +
-		"* `/confluence edit \"<alias>\"` - Edit the subscription settings associated with the given alias."
+		"* `/confluence edit \"<alias>\"` - Edit the subscription settings associated with the given alias.\n"
 	invalidCommand = "Invalid command parameters. Please use `/confluence help` for more information."
 )
 
@@ -38,9 +39,8 @@ func TestExecuteCommand(t *testing.T) {
 	mockAPI := baseMock()
 
 	for name, val := range map[string]struct {
-		commandArgs        *model.CommandArgs
-		patchFunctionCalls func()
-		ephemeralMessage   string
+		commandArgs      *model.CommandArgs
+		ephemeralMessage string
 	}{
 		"empty command ": {
 			commandArgs:      &model.CommandArgs{Command: "/confluence", UserId: "abcdabcdabcdabcd", ChannelId: "testtesttesttest"},
@@ -51,12 +51,7 @@ func TestExecuteCommand(t *testing.T) {
 			ephemeralMessage: helpText,
 		},
 		"unsubscribe command ": {
-			commandArgs: &model.CommandArgs{Command: "/confluence unsubscribe \"abc\"", UserId: "abcdabcdabcdabcd", ChannelId: "testtesttesttest"},
-			patchFunctionCalls: func() {
-				monkey.Patch(service.DeleteSubscription, func(channelID, alias string) error {
-					return nil
-				})
-			},
+			commandArgs:      &model.CommandArgs{Command: "/confluence unsubscribe \"abc\"", UserId: "abcdabcdabcdabcd", ChannelId: "testtesttesttest"},
 			ephemeralMessage: fmt.Sprintf(subscriptionDeleteSuccess, "abc"),
 		},
 		"unsubscribe command no alias": {
@@ -74,9 +69,12 @@ func TestExecuteCommand(t *testing.T) {
 				post := args.Get(1).(*model.Post)
 				assert.Equal(t, val.ephemeralMessage, post.Message)
 			}).Once().Return(&model.Post{})
-			if val.patchFunctionCalls != nil {
-				val.patchFunctionCalls()
-			}
+			monkey.Patch(service.DeleteSubscription, func(channelID, alias string) error {
+				return nil
+			})
+			monkey.Patch(util.IsSystemAdmin, func(userID string) bool {
+				return false
+			})
 			res, err := p.ExecuteCommand(&plugin.Context{}, val.commandArgs)
 			assert.Nil(t, err)
 			assert.NotNil(t, res)
