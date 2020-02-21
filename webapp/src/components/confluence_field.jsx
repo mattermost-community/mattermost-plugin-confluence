@@ -20,7 +20,15 @@ export default class ConfluenceField extends React.PureComponent {
         removeValidation: PropTypes.func.isRequired,
         theme: PropTypes.object,
         fieldType: PropTypes.string.isRequired,
-        readOnly: PropTypes.bool.isRequired,
+        readOnly: PropTypes.bool,
+        formGroupStyle: PropTypes.object,
+        formControlStyle: PropTypes.object,
+    };
+
+    static defaultProps = {
+        readOnly: false,
+        formGroupStyle: {},
+        formControlStyle: {},
     };
 
     constructor(props) {
@@ -64,7 +72,7 @@ export default class ConfluenceField extends React.PureComponent {
 
     render() {
         const {
-            required, fieldType, theme, label,
+            required, fieldType, theme, label, formGroupStyle, formControlStyle,
         } = this.props;
         const requiredErrorMsg = 'This field is required.';
         let requiredError = null;
@@ -79,6 +87,7 @@ export default class ConfluenceField extends React.PureComponent {
         if (fieldType === 'input') {
             field = (
                 <FormControl
+                    style={formControlStyle}
                     {...this.props}
                     onChange={this.handleChange}
                 />
@@ -95,7 +104,7 @@ export default class ConfluenceField extends React.PureComponent {
             );
         }
         return (
-            <FormGroup>
+            <FormGroup style={formGroupStyle}>
                 <ControlLabel>{label}</ControlLabel>
                 {required &&
                 <span

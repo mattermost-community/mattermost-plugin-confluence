@@ -24,7 +24,7 @@ func handleConfluenceServerWebhook(w http.ResponseWriter, r *http.Request) {
 	}
 
 	event := serializer.ConfluenceServerEventFromJSON(r.Body)
-	service.SendConfluenceServerNotifications(event)
+	go service.SendConfluenceNotifications(event, event.Event)
 
 	w.Header().Set("Content-Type", "application/json")
 	ReturnStatusOK(w)

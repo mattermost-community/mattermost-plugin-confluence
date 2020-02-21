@@ -1,9 +1,8 @@
 package service
 
 import (
+	"encoding/json"
 	"fmt"
-
-	"github.com/pkg/errors"
 
 	"github.com/Brightscout/mattermost-plugin-confluence/server/serializer"
 	"github.com/Brightscout/mattermost-plugin-confluence/server/store"
@@ -15,31 +14,26 @@ const (
 )
 
 func DeleteSubscription(channelID, alias string) error {
-	channelSubscriptions, cKey, gErr := GetChannelSubscriptions(channelID)
+	subs, gErr := GetSubscriptions()
 	if gErr != nil {
-		return errors.New(fmt.Sprintf(generalDeleteError, alias))
+		return fmt.Errorf(generalDeleteError, alias)
 	}
-	if subscription, ok := channelSubscriptions[alias]; ok {
-		if err := deleteSubscriptionUtil(subscription, channelSubscriptions, cKey, alias); err != nil {
-			return errors.New(fmt.Sprintf(generalDeleteError, alias))
+	if channelSubscriptions, valid := subs.ByChannelID[channelID]; valid {
+		if subscription, ok := channelSubscriptions[alias]; ok {
+			aErr := store.AtomicModify(store.GetSubscriptionKey(), func(initialBytes []byte) ([]byte, error) {
+				subscriptions, err := serializer.SubscriptionsFromJSON(initialBytes)
+				if err != nil {
+					return nil, err
+				}
+				subscription.Remove(subscriptions)
+				modifiedBytes, marshalErr := json.Marshal(subscriptions)
+				if marshalErr != nil {
+					return nil, marshalErr
+				}
+				return modifiedBytes, nil
+			})
+			return aErr
 		}
-		return nil
 	}
-	return errors.New(fmt.Sprintf(subscriptionNotFound, alias))
-}
-
-func deleteSubscriptionUtil(subscription serializer.Subscription, channelSubscriptions map[string]serializer.Subscription, cKey, alias string) error {
-	keySubscriptions, key, gErr := GetURLSpaceKeyCombinationSubscriptions(subscription.BaseURL, subscription.SpaceKey)
-	if gErr != nil {
-		return gErr
-	}
-	delete(keySubscriptions, subscription.ChannelID)
-	delete(channelSubscriptions, alias)
-	if err := store.Set(key, keySubscriptions); err != nil {
-		return err
-	}
-	if err := store.Set(cKey, channelSubscriptions); err != nil {
-		return err
-	}
-	return nil
+	return fmt.Errorf(subscriptionNotFound, alias)
 }

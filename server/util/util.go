@@ -57,7 +57,7 @@ func SplitArgs(s string) ([]string, error) {
 
 	for _, arg := range args {
 		if arg != "" {
-			cleanedArgs[count] = arg
+			cleanedArgs[count] = strings.TrimSpace(arg)
 			count++
 		}
 	}
@@ -96,4 +96,18 @@ func IsSystemAdmin(userID string) bool {
 		return false
 	}
 	return user.IsInRole(model.SYSTEM_ADMIN_ROLE_ID)
+}
+
+func Deduplicate(a []string) []string {
+	check := make(map[string]int)
+	result := make([]string, 0)
+	for _, val := range a {
+		check[val] = 1
+	}
+
+	for key := range check {
+		result = append(result, key)
+	}
+
+	return result
 }

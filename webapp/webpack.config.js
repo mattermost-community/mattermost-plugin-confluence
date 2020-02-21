@@ -1,4 +1,6 @@
-const path = require('path');
+const exec = require('child_process').exec;
+
+var path = require('path');
 
 module.exports = {
     entry: [
@@ -49,7 +51,14 @@ module.exports = {
             {
                 test: /.(bmp|gif|jpe?g|png|svg)$/,
                 exclude: /node_modules/,
-                loader: 'url-loader',
+                use: [
+                    {
+                        loader: 'url-loader',
+                        options: {
+                            limit: 8192,
+                        },
+                    },
+                ],
             },
         ],
     },
@@ -71,4 +80,20 @@ module.exports = {
         hints: 'warning',
     },
     target: 'web',
+    plugins: [
+        {
+            apply: (compiler) => {
+                compiler.hooks.afterEmit.tap('AfterEmitPlugin', () => {
+                    exec('cd .. && make reset', (err, stdout, stderr) => {
+                        if (stdout) {
+                            process.stdout.write(stdout);
+                        }
+                        if (stderr) {
+                            process.stderr.write(stderr);
+                        }
+                    });
+                });
+            },
+        },
+    ],
 };

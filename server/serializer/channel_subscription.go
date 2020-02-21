@@ -3,29 +3,20 @@ package serializer
 import (
 	"encoding/json"
 	"fmt"
-	url2 "net/url"
-	"strings"
-
-	"github.com/pkg/errors"
+	"reflect"
 )
 
-type Subscription struct {
-	Alias     string   `json:"alias"`
-	BaseURL   string   `json:"baseURL"`
-	SpaceKey  string   `json:"spaceKey"`
-	Events    []string `json:"events"`
-	ChannelID string   `json:"channelID"`
-}
-
 const (
-	CommentCreatedEvent = "comment_created"
-	CommentUpdatedEvent = "comment_updated"
-	CommentRemovedEvent = "comment_removed"
-	PageCreatedEvent    = "page_created"
-	PageUpdatedEvent    = "page_updated"
-	PageTrashedEvent    = "page_trashed"
-	PageRestoredEvent   = "page_restored"
-	PageRemovedEvent    = "page_removed"
+	CommentCreatedEvent   = "comment_created"
+	CommentUpdatedEvent   = "comment_updated"
+	CommentRemovedEvent   = "comment_removed"
+	PageCreatedEvent      = "page_created"
+	PageUpdatedEvent      = "page_updated"
+	PageTrashedEvent      = "page_trashed"
+	PageRestoredEvent     = "page_restored"
+	PageRemovedEvent      = "page_removed"
+	SubscriptionTypeSpace = "space_subscription"
+	SubscriptionTypePage  = "page_subscription"
 )
 
 var eventDisplayName = map[string]string{
@@ -39,39 +30,123 @@ var eventDisplayName = map[string]string{
 	PageRemovedEvent:    "Page Remove",
 }
 
-func (s *Subscription) IsValid() error {
-	// TODO : Clean subscription data
-	if s.Alias == "" {
-		return errors.New("alias can not be empty")
+type Subscription interface {
+	Add(*Subscriptions)
+	Remove(*Subscriptions)
+	Edit(*Subscriptions)
+	Name() string
+	GetFormattedSubscription() string
+	IsValid() error
+}
+
+type BaseSubscription struct {
+	Alias     string   `json:"alias"`
+	BaseURL   string   `json:"baseURL"`
+	Events    []string `json:"events"`
+	ChannelID string   `json:"channelID"`
+	Type      string   `json:"subscriptionType"`
+}
+
+type StringSubscription map[string]Subscription
+type StringArrayMap map[string][]string
+
+type Subscriptions struct {
+	ByChannelID   map[string]StringSubscription
+	ByURLPagID    map[string]StringArrayMap
+	ByURLSpaceKey map[string]StringArrayMap
+}
+
+func NewSubscriptions() *Subscriptions {
+	return &Subscriptions{
+		ByChannelID:   map[string]StringSubscription{},
+		ByURLPagID:    map[string]StringArrayMap{},
+		ByURLSpaceKey: map[string]StringArrayMap{},
 	}
-	if s.BaseURL == "" {
-		return errors.New("base url can not be empty")
+}
+
+func (s *StringSubscription) UnmarshalJSON(data []byte) error {
+	m := make(map[string]interface{})
+	if err := json.Unmarshal(data, &m); err != nil {
+		return err
 	}
-	if _, err := url2.Parse(s.BaseURL); err != nil {
-		return errors.New("enter a valid url")
+
+	result := make(StringSubscription)
+	for k, v := range m {
+		bytes, err := json.Marshal(v)
+		if err != nil {
+			return err
+		}
+		value, err := UnmarshalCustomSubscription(bytes, "subscriptionType", map[string]reflect.Type{
+			SubscriptionTypePage:  reflect.TypeOf(PageSubscription{}),
+			SubscriptionTypeSpace: reflect.TypeOf(SpaceSubscription{}),
+		})
+		if err != nil {
+			return err
+		}
+		result[k] = value.(Subscription)
 	}
-	if s.SpaceKey == "" {
-		return errors.New("space key can not be empty")
-	}
+
+	*s = result
 	return nil
 }
 
-func FormattedSubscriptionList(channelSubscriptions map[string]Subscription) string {
-	list := fmt.Sprintf("| Alias | Base Url | Space Key | Events|\n| :----|:--------| :--------| :-----|")
-	for _, subscription := range channelSubscriptions {
-		var events []string
-		for _, event := range subscription.Events {
-			events = append(events, eventDisplayName[event])
-		}
-		list += fmt.Sprintf("\n|%s|%s|%s|%s|", subscription.Alias, subscription.BaseURL, subscription.SpaceKey, strings.Join(events, ", "))
+// UnmarshalCustomSubscription returns subscription from bytes.
+func UnmarshalCustomSubscription(data []byte, typeJSONField string, customTypes map[string]reflect.Type) (interface{}, error) {
+	m := make(map[string]interface{})
+	if err := json.Unmarshal(data, &m); err != nil {
+		return nil, err
 	}
-	return list
+
+	typeName := m[typeJSONField].(string)
+	var value Subscription
+	if ty, found := customTypes[typeName]; found {
+		value = reflect.New(ty).Interface().(Subscription)
+	}
+
+	valueBytes, err := json.Marshal(m)
+	if err != nil {
+		return nil, err
+	}
+
+	if err = json.Unmarshal(valueBytes, &value); err != nil {
+		return nil, err
+	}
+
+	return value, nil
 }
 
-func (s *Subscription) ToJSON() string {
-	b, err := json.Marshal(s)
-	if err != nil {
-		return ""
+func SubscriptionsFromJSON(bytes []byte) (*Subscriptions, error) {
+	var subs *Subscriptions
+	if len(bytes) != 0 {
+		unmarshalErr := json.Unmarshal(bytes, &subs)
+		if unmarshalErr != nil {
+			return nil, unmarshalErr
+		}
+	} else {
+		subs = NewSubscriptions()
 	}
-	return string(b)
+	return subs, nil
+}
+
+func FormattedSubscriptionList(channelSubscriptions StringSubscription) string {
+	var pageSubscriptions, spaceSubscriptions, list string
+	pageSubscriptionsHeader := fmt.Sprintf("| Alias | Base Url | Page Id | Events|\n| :----|:--------| :--------| :-----|")
+	spaceSubscriptionsHeader := fmt.Sprintf("| Alias | Base Url | Space Key | Events|\n| :----|:--------| :--------| :-----|")
+	for _, sub := range channelSubscriptions {
+		if sub.Name() == SubscriptionTypePage {
+			pageSubscriptions += sub.GetFormattedSubscription()
+		} else if sub.Name() == SubscriptionTypeSpace {
+			spaceSubscriptions += sub.GetFormattedSubscription()
+		}
+	}
+	if spaceSubscriptions != "" {
+		list = "#### Space Subscriptions \n" + spaceSubscriptionsHeader + spaceSubscriptions
+	}
+	if spaceSubscriptions != "" && pageSubscriptions != "" {
+		list += "\n\n"
+	}
+	if pageSubscriptions != "" {
+		list += "#### Page Subscriptions \n" + pageSubscriptionsHeader + pageSubscriptions
+	}
+	return list
 }

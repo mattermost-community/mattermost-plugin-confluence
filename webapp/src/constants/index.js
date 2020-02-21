@@ -36,6 +36,17 @@ const CONFLUENCE_EVENTS = [
     },
 ];
 
+const SUBSCRIPTION_TYPE = [
+    {
+        value: 'space_subscription',
+        label: 'Space',
+    },
+    {
+        value: 'page_subscription',
+        label: 'Page',
+    },
+];
+
 const MATTERMOST_CSRF_COOKIE = 'MMCSRF';
 const OPEN_EDIT_SUBSCRIPTION_MODAL_WEBSOCKET_EVENT = `custom_${PLUGIN_NAME}_open_edit_subscription_modal`;
 const SPECIFY_ALIAS = 'Please specify alias.';
@@ -47,4 +58,5 @@ export default {
     OPEN_EDIT_SUBSCRIPTION_MODAL_WEBSOCKET_EVENT,
     PLUGIN_NAME,
     SPECIFY_ALIAS,
+    SUBSCRIPTION_TYPE,
 };
