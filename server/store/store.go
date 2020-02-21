@@ -2,7 +2,6 @@ package store
 
 import (
 	"bytes"
-	"encoding/json"
 	"fmt"
 	url2 "net/url"
 	"time"
@@ -16,36 +15,6 @@ import (
 
 const ConfluenceSubscriptionKeyPrefix = "confluence_subs"
 
-func Set(key string, data interface{}) error {
-	bytes, err := json.Marshal(data)
-	if err != nil {
-		return err
-	}
-
-	if appErr := config.Mattermost.KVSet(util.GetKeyHash(key), bytes); appErr != nil {
-		return errors.New(appErr.Error())
-	}
-	return nil
-}
-
-func Get(key string, data interface{}) error {
-	bytes, appErr := config.Mattermost.KVGet(util.GetKeyHash(key))
-	if appErr != nil {
-		return errors.New(appErr.Error())
-	}
-
-	if bytes == nil {
-		return nil
-	}
-
-	err := json.Unmarshal(bytes, data)
-	if err != nil {
-		return err
-	}
-
-	return nil
-}
-
 func GetURLSpaceKeyCombinationKey(url, spaceKey string) string {
 	u, _ := url2.Parse(url)
 	return fmt.Sprintf("%s/%s/%s", ConfluenceSubscriptionKeyPrefix, u.Hostname(), spaceKey)
@@ -56,14 +25,11 @@ func GetURLPageIDCombinationKey(url, pageID string) string {
 	return fmt.Sprintf("%s/%s/%s", ConfluenceSubscriptionKeyPrefix, u.Hostname(), pageID)
 }
 
-func GetChannelSubscriptionKey(channelID string) string {
-	return fmt.Sprintf("%s/%s", ConfluenceSubscriptionKeyPrefix, channelID)
-}
-
 func GetSubscriptionKey() string {
 	return util.GetKeyHash(ConfluenceSubscriptionKeyPrefix)
 }
 
+// from https://github.com/mattermost/mattermost-plugin-jira/blob/master/server/subscribe.go#L625
 func AtomicModify(key string, modify func(initialValue []byte) ([]byte, error)) error {
 	readModify := func() ([]byte, []byte, error) {
 		initialBytes, appErr := config.Mattermost.KVGet(key)

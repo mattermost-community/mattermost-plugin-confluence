@@ -1,8 +1,6 @@
-// Copyright (c) 2015-present Mattermost, Inc. All Rights Reserved.
-// See LICENSE.txt for license information.
-
 import {changeOpacity} from 'mattermost-redux/utils/theme_utils';
 
+// from https://github.com/mattermost/mattermost-plugin-jira/blob/master/webapp/src/utils/styles.js#L6
 export const getStyleForReactSelect = (theme) => {
     if (!theme) {
         return null;
