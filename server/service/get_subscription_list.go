@@ -31,7 +31,7 @@ func GetSubscriptionsByChannelID(channelID string) (serializer.StringSubscriptio
 	return subscriptions.ByChannelID[channelID], nil
 }
 
-func GetSubscriptionsByURLSpaceKey(url, spaceKey string) (map[string][]string, error) {
+func GetSubscriptionsByURLSpaceKey(url, spaceKey string) (serializer.StringArrayMap, error) {
 	key := store.GetURLSpaceKeyCombinationKey(url, spaceKey)
 	subscriptions, err := GetSubscriptions()
 	if err != nil {
@@ -40,7 +40,7 @@ func GetSubscriptionsByURLSpaceKey(url, spaceKey string) (map[string][]string, e
 	return subscriptions.ByURLSpaceKey[key], nil
 }
 
-func GetSubscriptionsByURLPageID(url, pageID string) (map[string][]string, error) {
+func GetSubscriptionsByURLPageID(url, pageID string) (serializer.StringArrayMap, error) {
 	key := store.GetURLPageIDCombinationKey(url, pageID)
 	subscriptions, err := GetSubscriptions()
 	if err != nil {

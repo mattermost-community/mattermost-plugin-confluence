@@ -47,8 +47,8 @@ func ValidatePageSubscription(s serializer.PageSubscription) (int, error) {
 		}
 	}
 	key := store.GetURLPageIDCombinationKey(s.BaseURL, s.PageID)
-	if urlSpaceKeySubscriptions, valid := subs.ByURLPagID[key]; valid {
-		if _, ok := urlSpaceKeySubscriptions[s.ChannelID]; ok {
+	if urlPageIDSubscriptions, valid := subs.ByURLPagID[key]; valid {
+		if _, ok := urlPageIDSubscriptions[s.ChannelID]; ok {
 			return http.StatusBadRequest, errors.New(urlPageIdAlreadyExist)
 		}
 	}
@@ -68,7 +68,7 @@ func ValidateSpaceSubscription(s serializer.SpaceSubscription) (int, error) {
 			return http.StatusBadRequest, errors.New(aliasAlreadyExist)
 		}
 	}
-	key := store.GetURLPageIDCombinationKey(s.BaseURL, s.SpaceKey)
+	key := store.GetURLSpaceKeyCombinationKey(s.BaseURL, s.SpaceKey)
 	if urlSpaceKeySubscriptions, valid := subs.ByURLSpaceKey[key]; valid {
 		if _, ok := urlSpaceKeySubscriptions[s.ChannelID]; ok {
 			return http.StatusBadRequest, errors.New(urlSpaceKeyAlreadyExist)

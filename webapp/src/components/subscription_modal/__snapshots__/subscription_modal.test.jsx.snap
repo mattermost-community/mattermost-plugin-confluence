@@ -88,6 +88,7 @@ exports[`components/ChannelSettingsModal subscription modal snapshot test 1`] = 
               "marginRight": "20px",
             }
           }
+          isDisabled={false}
           isMulti={false}
           isSearchable={false}
           label="Subscribe To"
