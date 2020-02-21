@@ -35,6 +35,32 @@ const (
 		"* `/confluence install server` - Connect Mattermost to a Confluence Server or Data Center instance.\n"
 
 	invalidCommand = "Invalid command parameters. Please use `/confluence help` for more information."
+	installOnlySystemAdmin = "`/confluence install` can only be run by a system administrator."
+)
+
+const (
+	installServerHelp = `
+To configure the plugin, create a new app in your Confluence instance following these steps:
+1. Navigate to **Settings > Apps > Manage Apps**.
+  - For older versions of Confluence, navigate to **Administration > Applications > Add-ons > Manage add-ons**.
+2. Click **Settings** at bottom of page, enable development mode, and apply this change.
+  - Enabling development mode allows you to install apps that are not from the Atlassian Marketplace.
+3. Click **Upload app**.
+4. Chose 'From my computer' and upload the **Mattermost for Confluence OBR** file.
+5. Wait for the app to install.
+6. Use the 'configure' button to open the **Mattermost Configuration** page.
+7. Enter the following URL as the **Webhook URL** and click on Save.
+%s
+`
+	installCloudHelp =  `
+To finish the configuration, add a new app in your Confluence instance following these steps:
+1. Navigate to **Settings > Apps > Manage Apps**.
+2. Click **Settings** at bottom of page, enable development mode, and apply this change.
+  - Enabling development mode allows you to install apps that are not from the Atlassian Marketplace.
+3. Click **Upload app**.
+4. In the **From this URL field**, enter: %s
+5. Wait for the app to install. Once completed, you should see an "Installed and ready to go!" message.
+`
 )
 
 var ConfluenceCommandHandler = Handler{
@@ -90,45 +116,23 @@ func (ch Handler) Handle(context *model.CommandArgs, args ...string) *model.Comm
 
 func showInstallCloudHelp(context *model.CommandArgs, args ...string) *model.CommandResponse {
 	if !util.IsSystemAdmin(context.UserId) {
-		postCommandResponse(context, "`/confluence install` can only be run by a system administrator.")
+		postCommandResponse(context, installOnlySystemAdmin)
 		return &model.CommandResponse{}
 	}
-	const addResponseFormat = `
-To finish the configuration, add a new app in your Confluence instance following these steps:
-1. Navigate to **Settings > Apps > Manage Apps**.
-2. Click **Settings** at bottom of page, enable development mode, and apply this change.
-  - Enabling development mode allows you to install apps that are not from the Atlassian Marketplace.
-3. Click **Upload app**.
-4. In the **From this URL field**, enter: %s
-5. Wait for the app to install. Once completed, you should see an "Installed and ready to go!" message.
-`
 
 	cloudURL := util.GetPluginURL() + util.GetAtlassianConnectURLPath()
-	postCommandResponse(context, fmt.Sprintf(addResponseFormat, cloudURL))
+	postCommandResponse(context, fmt.Sprintf(installCloudHelp, cloudURL))
 	return &model.CommandResponse{}
 }
 
 func showInstallServerHelp(context *model.CommandArgs, args ...string) *model.CommandResponse {
 	if !util.IsSystemAdmin(context.UserId) {
-		postCommandResponse(context, "`/confluence install` can only be run by a system administrator.")
+		postCommandResponse(context, installOnlySystemAdmin)
 		return &model.CommandResponse{}
 	}
-	const addResponseFormat = `
-To configure the plugin, create a new app in your Confluence instance following these steps:
-1. Navigate to **Settings > Apps > Manage Apps**.
-  - For older versions of Confluence, navigate to **Administration > Applications > Add-ons > Manage add-ons**.
-2. Click **Settings** at bottom of page, enable development mode, and apply this change.
-  - Enabling development mode allows you to install apps that are not from the Atlassian Marketplace.
-3. Click **Upload app**.
-4. Chose 'From my computer' and upload the **Mattermost for Confluence OBR** file.
-5. Wait for the app to install.
-6. Use the 'configure' button to open the **Mattermost Configuration** page.
-7. Enter the following URL as the **Webhook URL** and click on Save.
-%s
-`
 
 	serverURL := util.GetPluginURL() + util.GetConfluenceServerWebhookURLPath()
-	postCommandResponse(context, fmt.Sprintf(addResponseFormat, serverURL))
+	postCommandResponse(context, fmt.Sprintf(installServerHelp, serverURL))
 	return &model.CommandResponse{}
 }
 
