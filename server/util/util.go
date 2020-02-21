@@ -4,8 +4,13 @@ import (
 	"crypto/sha256"
 	"encoding/base64"
 	"errors"
+	"net/url"
 	"regexp"
 	"strings"
+
+	"github.com/mattermost/mattermost-server/model"
+
+	"github.com/Brightscout/mattermost-plugin-confluence/server/config"
 )
 
 // GetKeyHash can be used to create a hash from a string
@@ -58,6 +63,43 @@ func SplitArgs(s string) ([]string, error) {
 	}
 
 	return cleanedArgs[0:count], nil
+}
+
+func GetPluginKey() string {
+	var regexpNonAlnum = regexp.MustCompile("[^a-zA-Z0-9]+")
+	return "mattermost_" + regexpNonAlnum.ReplaceAllString(GetSiteURL(), "_")
+}
+
+func GetPluginURLPath() string {
+	return "/plugins/" + config.PluginName + "/api/v1"
+}
+
+func GetPluginURL() string {
+	return strings.TrimRight(GetSiteURL(), "/") + GetPluginURLPath()
+}
+
+func GetSiteURL() string {
+	ptr := config.Mattermost.GetConfig().ServiceSettings.SiteURL
+	if ptr == nil {
+		return ""
+	}
+	return *ptr
+}
+
+func GetAtlassianConnectURLPath() string {
+	return "/atlassian-connect.json?secret=" + url.QueryEscape(config.GetConfig().Secret)
+}
+
+func GetConfluenceServerWebhookURLPath() string {
+	return "/server/webhook?secret=" + url.QueryEscape(config.GetConfig().Secret)
+}
+
+func IsSystemAdmin(userID string) bool {
+	user, appErr := config.Mattermost.GetUser(userID)
+	if appErr != nil {
+		return false
+	}
+	return user.IsInRole(model.SYSTEM_ADMIN_ROLE_ID)
 }
 
 func Deduplicate(a []string) []string {

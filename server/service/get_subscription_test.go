@@ -35,10 +35,10 @@ func TestGetChannelSubscription(t *testing.T) {
 		t.Run(name, func(t *testing.T) {
 			defer monkey.UnpatchAll()
 			subscriptions := serializer.Subscriptions{
-				ByChannelID: map[string]serializer.StringSubscription {
-					"testtesttesttest" : {
-						"test":  serializer.SpaceSubscription{
-							SpaceKey:  "TS",
+				ByChannelID: map[string]serializer.StringSubscription{
+					"testtesttesttest": {
+						"test": serializer.SpaceSubscription{
+							SpaceKey: "TS",
 							BaseSubscription: serializer.BaseSubscription{
 								Alias:     "test",
 								BaseURL:   "https://test.com",
@@ -47,9 +47,9 @@ func TestGetChannelSubscription(t *testing.T) {
 							},
 						},
 					},
-					"testtesttesttes1" : {
-						"test":  serializer.PageSubscription{
-							PageID:  "1234",
+					"testtesttesttes1": {
+						"test": serializer.PageSubscription{
+							PageID: "1234",
 							BaseSubscription: serializer.BaseSubscription{
 								Alias:     "test",
 								BaseURL:   "https://test.com",
@@ -70,7 +70,7 @@ func TestGetChannelSubscription(t *testing.T) {
 					},
 				},
 			}
-			monkey.Patch(GetSubscriptions, func()(serializer.Subscriptions, error) {
+			monkey.Patch(GetSubscriptions, func() (serializer.Subscriptions, error) {
 				return subscriptions, nil
 			})
 			subscription, errCode, err := GetChannelSubscription(val.channelID, val.alias)

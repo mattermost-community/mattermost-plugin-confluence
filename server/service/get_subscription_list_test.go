@@ -13,13 +13,13 @@ import (
 func TestGetSubscriptionsByChannelID(t *testing.T) {
 	for name, val := range map[string]struct {
 		channelID string
-		expected serializer.StringSubscription
+		expected  serializer.StringSubscription
 	}{
 		"single subscription": {
 			channelID: "testtesttesttest",
 			expected: serializer.StringSubscription{
-				"test":  serializer.SpaceSubscription{
-					SpaceKey:  "TS",
+				"test": serializer.SpaceSubscription{
+					SpaceKey: "TS",
 					BaseSubscription: serializer.BaseSubscription{
 						Alias:     "test",
 						BaseURL:   "https://test.com",
@@ -32,8 +32,8 @@ func TestGetSubscriptionsByChannelID(t *testing.T) {
 		"multiple subscription": {
 			channelID: "testtesttesttes1",
 			expected: serializer.StringSubscription{
-				"test":  serializer.PageSubscription{
-					PageID:  "1234",
+				"test": serializer.PageSubscription{
+					PageID: "1234",
 					BaseSubscription: serializer.BaseSubscription{
 						Alias:     "test",
 						BaseURL:   "https://test.com",
@@ -41,8 +41,8 @@ func TestGetSubscriptionsByChannelID(t *testing.T) {
 						Events:    []string{serializer.CommentCreatedEvent, serializer.CommentUpdatedEvent},
 					},
 				},
-				"tes1":  serializer.SpaceSubscription{
-					SpaceKey:  "TS",
+				"tes1": serializer.SpaceSubscription{
+					SpaceKey: "TS",
 					BaseSubscription: serializer.BaseSubscription{
 						Alias:     "test",
 						BaseURL:   "https://test.com",
@@ -54,16 +54,16 @@ func TestGetSubscriptionsByChannelID(t *testing.T) {
 		},
 		"no subscription": {
 			channelID: "testtsettest1234",
-			expected: serializer.StringSubscription(nil),
+			expected:  serializer.StringSubscription(nil),
 		},
 	} {
 		t.Run(name, func(t *testing.T) {
 			defer monkey.UnpatchAll()
 			subscriptions := serializer.Subscriptions{
-				ByChannelID: map[string]serializer.StringSubscription {
-					"testtesttesttest" : {
-						"test":  serializer.SpaceSubscription{
-							SpaceKey:  "TS",
+				ByChannelID: map[string]serializer.StringSubscription{
+					"testtesttesttest": {
+						"test": serializer.SpaceSubscription{
+							SpaceKey: "TS",
 							BaseSubscription: serializer.BaseSubscription{
 								Alias:     "test",
 								BaseURL:   "https://test.com",
@@ -72,9 +72,9 @@ func TestGetSubscriptionsByChannelID(t *testing.T) {
 							},
 						},
 					},
-					"testtesttesttes1" : {
-						"test":  serializer.PageSubscription{
-							PageID:  "1234",
+					"testtesttesttes1": {
+						"test": serializer.PageSubscription{
+							PageID: "1234",
 							BaseSubscription: serializer.BaseSubscription{
 								Alias:     "test",
 								BaseURL:   "https://test.com",
@@ -82,8 +82,8 @@ func TestGetSubscriptionsByChannelID(t *testing.T) {
 								Events:    []string{serializer.CommentCreatedEvent, serializer.CommentUpdatedEvent},
 							},
 						},
-						"tes1":  serializer.SpaceSubscription{
-							SpaceKey:  "TS",
+						"tes1": serializer.SpaceSubscription{
+							SpaceKey: "TS",
 							BaseSubscription: serializer.BaseSubscription{
 								Alias:     "test",
 								BaseURL:   "https://test.com",
@@ -105,7 +105,7 @@ func TestGetSubscriptionsByChannelID(t *testing.T) {
 					},
 				},
 			}
-			monkey.Patch(GetSubscriptions, func()(serializer.Subscriptions, error) {
+			monkey.Patch(GetSubscriptions, func() (serializer.Subscriptions, error) {
 				return subscriptions, nil
 			})
 			sub, err := GetSubscriptionsByChannelID(val.channelID)
@@ -145,10 +145,10 @@ func TestGetSubscriptionsByURLPageID(t *testing.T) {
 		t.Run(name, func(t *testing.T) {
 			defer monkey.UnpatchAll()
 			subscriptions := serializer.Subscriptions{
-				ByChannelID: map[string]serializer.StringSubscription {
-					"testtesttesttest" : {
-						"test":  serializer.SpaceSubscription{
-							SpaceKey:  "TS",
+				ByChannelID: map[string]serializer.StringSubscription{
+					"testtesttesttest": {
+						"test": serializer.SpaceSubscription{
+							SpaceKey: "TS",
 							BaseSubscription: serializer.BaseSubscription{
 								Alias:     "test",
 								BaseURL:   "https://test.com",
@@ -156,8 +156,8 @@ func TestGetSubscriptionsByURLPageID(t *testing.T) {
 								Events:    []string{serializer.CommentRemovedEvent, serializer.CommentUpdatedEvent},
 							},
 						},
-						"abc":  serializer.PageSubscription{
-							PageID:  "12345",
+						"abc": serializer.PageSubscription{
+							PageID: "12345",
 							BaseSubscription: serializer.BaseSubscription{
 								Alias:     "abc",
 								BaseURL:   "https://test.com",
@@ -166,9 +166,9 @@ func TestGetSubscriptionsByURLPageID(t *testing.T) {
 							},
 						},
 					},
-					"testtesttesttes1" : {
-						"test":  serializer.PageSubscription{
-							PageID:  "1234",
+					"testtesttesttes1": {
+						"test": serializer.PageSubscription{
+							PageID: "1234",
 							BaseSubscription: serializer.BaseSubscription{
 								Alias:     "test",
 								BaseURL:   "https://test.com",
@@ -176,8 +176,8 @@ func TestGetSubscriptionsByURLPageID(t *testing.T) {
 								Events:    []string{serializer.CommentCreatedEvent, serializer.CommentUpdatedEvent},
 							},
 						},
-						"xyz":  serializer.PageSubscription{
-							PageID:  "12345",
+						"xyz": serializer.PageSubscription{
+							PageID: "12345",
 							BaseSubscription: serializer.BaseSubscription{
 								Alias:     "xyz",
 								BaseURL:   "https://test.com",
@@ -185,8 +185,8 @@ func TestGetSubscriptionsByURLPageID(t *testing.T) {
 								Events:    []string{serializer.CommentCreatedEvent, serializer.CommentUpdatedEvent},
 							},
 						},
-						"tes1":  serializer.SpaceSubscription{
-							SpaceKey:  "TS",
+						"tes1": serializer.SpaceSubscription{
+							SpaceKey: "TS",
 							BaseSubscription: serializer.BaseSubscription{
 								Alias:     "tes1",
 								BaseURL:   "https://test.com",
@@ -212,7 +212,7 @@ func TestGetSubscriptionsByURLPageID(t *testing.T) {
 					},
 				},
 			}
-			monkey.Patch(GetSubscriptions, func()(serializer.Subscriptions, error) {
+			monkey.Patch(GetSubscriptions, func() (serializer.Subscriptions, error) {
 				return subscriptions, nil
 			})
 			sub, err := GetSubscriptionsByURLPageID(val.url, val.pageID)
@@ -225,18 +225,18 @@ func TestGetSubscriptionsByURLPageID(t *testing.T) {
 func TestGetSubscriptionsByURLSpaceKey(t *testing.T) {
 	for name, val := range map[string]struct {
 		url      string
-		spaceKey   string
+		spaceKey string
 		expected serializer.StringArrayMap
 	}{
 		"single subscription": {
-			url:    "https://test.com",
+			url:      "https://test.com",
 			spaceKey: "TS1",
 			expected: serializer.StringArrayMap{
 				"testtesttesttes1": {serializer.CommentRemovedEvent, serializer.CommentUpdatedEvent},
 			},
 		},
 		"multiple subscription": {
-			url:    "https://test.com",
+			url:      "https://test.com",
 			spaceKey: "TS",
 			expected: serializer.StringArrayMap{
 				"testtesttesttest": {serializer.CommentRemovedEvent, serializer.CommentUpdatedEvent},
@@ -245,17 +245,17 @@ func TestGetSubscriptionsByURLSpaceKey(t *testing.T) {
 		},
 		"no subscription": {
 			url:      "https://test.com",
-			spaceKey:   "ggh",
+			spaceKey: "ggh",
 			expected: serializer.StringArrayMap(nil),
 		},
 	} {
 		t.Run(name, func(t *testing.T) {
 			defer monkey.UnpatchAll()
 			subscriptions := serializer.Subscriptions{
-				ByChannelID: map[string]serializer.StringSubscription {
-					"testtesttesttest" : {
-						"test":  serializer.SpaceSubscription{
-							SpaceKey:  "TS",
+				ByChannelID: map[string]serializer.StringSubscription{
+					"testtesttesttest": {
+						"test": serializer.SpaceSubscription{
+							SpaceKey: "TS",
 							BaseSubscription: serializer.BaseSubscription{
 								Alias:     "test",
 								BaseURL:   "https://test.com",
@@ -263,8 +263,8 @@ func TestGetSubscriptionsByURLSpaceKey(t *testing.T) {
 								Events:    []string{serializer.CommentRemovedEvent, serializer.CommentUpdatedEvent},
 							},
 						},
-						"abc":  serializer.PageSubscription{
-							PageID:  "12345",
+						"abc": serializer.PageSubscription{
+							PageID: "12345",
 							BaseSubscription: serializer.BaseSubscription{
 								Alias:     "abc",
 								BaseURL:   "https://test.com",
@@ -273,9 +273,9 @@ func TestGetSubscriptionsByURLSpaceKey(t *testing.T) {
 							},
 						},
 					},
-					"testtesttesttes1" : {
-						"test":  serializer.PageSubscription{
-							PageID:  "1234",
+					"testtesttesttes1": {
+						"test": serializer.PageSubscription{
+							PageID: "1234",
 							BaseSubscription: serializer.BaseSubscription{
 								Alias:     "test",
 								BaseURL:   "https://test.com",
@@ -283,8 +283,8 @@ func TestGetSubscriptionsByURLSpaceKey(t *testing.T) {
 								Events:    []string{serializer.CommentCreatedEvent, serializer.CommentUpdatedEvent},
 							},
 						},
-						"xyz":  serializer.PageSubscription{
-							PageID:  "12345",
+						"xyz": serializer.PageSubscription{
+							PageID: "12345",
 							BaseSubscription: serializer.BaseSubscription{
 								Alias:     "xyz",
 								BaseURL:   "https://test.com",
@@ -292,8 +292,8 @@ func TestGetSubscriptionsByURLSpaceKey(t *testing.T) {
 								Events:    []string{serializer.CommentCreatedEvent, serializer.CommentUpdatedEvent},
 							},
 						},
-						"tes1":  serializer.SpaceSubscription{
-							SpaceKey:  "TS",
+						"tes1": serializer.SpaceSubscription{
+							SpaceKey: "TS",
 							BaseSubscription: serializer.BaseSubscription{
 								Alias:     "tes1",
 								BaseURL:   "https://test.com",
@@ -301,8 +301,8 @@ func TestGetSubscriptionsByURLSpaceKey(t *testing.T) {
 								Events:    []string{serializer.CommentRemovedEvent, serializer.CommentUpdatedEvent},
 							},
 						},
-						"tesa":  serializer.SpaceSubscription{
-							SpaceKey:  "TS1",
+						"tesa": serializer.SpaceSubscription{
+							SpaceKey: "TS1",
 							BaseSubscription: serializer.BaseSubscription{
 								Alias:     "tesa",
 								BaseURL:   "https://test.com",
@@ -331,7 +331,7 @@ func TestGetSubscriptionsByURLSpaceKey(t *testing.T) {
 					},
 				},
 			}
-			monkey.Patch(GetSubscriptions, func()(serializer.Subscriptions, error) {
+			monkey.Patch(GetSubscriptions, func() (serializer.Subscriptions, error) {
 				return subscriptions, nil
 			})
 			sub, err := GetSubscriptionsByURLSpaceKey(val.url, val.spaceKey)

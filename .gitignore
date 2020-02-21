@@ -75,4 +75,4 @@ vendor/
 coverage.txt
 
 # webapp test cases
-build/test-results.xml
+webapp/build/test-results.xml
