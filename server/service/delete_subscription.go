@@ -2,7 +2,6 @@ package service
 
 import (
 	"encoding/json"
-	"errors"
 	"fmt"
 
 	"github.com/Brightscout/mattermost-plugin-confluence/server/serializer"
@@ -17,12 +16,12 @@ const (
 func DeleteSubscription(channelID, alias string) error {
 	subs, gErr := GetSubscriptions()
 	if gErr != nil {
-		return errors.New(fmt.Sprintf(generalDeleteError, alias))
+		return fmt.Errorf(generalDeleteError, alias)
 	}
 	if channelSubscriptions, valid := subs.ByChannelID[channelID]; valid {
 		if subscription, ok := channelSubscriptions[alias]; ok {
 			aErr := store.AtomicModify(store.GetSubscriptionKey(), func(initialBytes []byte) ([]byte, error) {
-				subscriptions, err := serializer.SubscriptionsFromJson(initialBytes)
+				subscriptions, err := serializer.SubscriptionsFromJSON(initialBytes)
 				if err != nil {
 					return nil, err
 				}
@@ -36,5 +35,5 @@ func DeleteSubscription(channelID, alias string) error {
 			return aErr
 		}
 	}
-	return errors.New(fmt.Sprintf(subscriptionNotFound, alias))
+	return fmt.Errorf(subscriptionNotFound, alias)
 }

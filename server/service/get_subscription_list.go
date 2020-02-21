@@ -16,7 +16,7 @@ func GetSubscriptions() (serializer.Subscriptions, error) {
 	if appErr != nil {
 		return serializer.Subscriptions{}, errors.New(getChannelSubscriptionsError)
 	}
-	subscriptions, err := serializer.SubscriptionsFromJson(initialBytes)
+	subscriptions, err := serializer.SubscriptionsFromJSON(initialBytes)
 	if err != nil {
 		return serializer.Subscriptions{}, errors.New(getChannelSubscriptionsError)
 	}

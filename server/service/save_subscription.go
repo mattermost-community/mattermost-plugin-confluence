@@ -13,13 +13,13 @@ const (
 	generalSaveError        = "An error occurred attempting to save a subscription."
 	aliasAlreadyExist       = "A subscription with the same alias already exists."
 	urlSpaceKeyAlreadyExist = "A subscription with the same url and space key already exists."
-	urlPageIdAlreadyExist   = "A subscription with the same url and page id already exists."
+	urlPageIDAlreadyExist   = "A subscription with the same url and page id already exists."
 )
 
 func SaveSubscription(subscription serializer.Subscription) error {
 	key := store.GetSubscriptionKey()
 	err := store.AtomicModify(key, func(initialBytes []byte) ([]byte, error) {
-		subscriptions, err := serializer.SubscriptionsFromJson(initialBytes)
+		subscriptions, err := serializer.SubscriptionsFromJSON(initialBytes)
 		if err != nil {
 			return nil, err
 		}
@@ -49,7 +49,7 @@ func ValidatePageSubscription(s serializer.PageSubscription) (int, error) {
 	key := store.GetURLPageIDCombinationKey(s.BaseURL, s.PageID)
 	if urlPageIDSubscriptions, valid := subs.ByURLPagID[key]; valid {
 		if _, ok := urlPageIDSubscriptions[s.ChannelID]; ok {
-			return http.StatusBadRequest, errors.New(urlPageIdAlreadyExist)
+			return http.StatusBadRequest, errors.New(urlPageIDAlreadyExist)
 		}
 	}
 	return http.StatusOK, nil

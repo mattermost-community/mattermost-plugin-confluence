@@ -91,13 +91,13 @@ func (s *StringSubscription) UnmarshalJSON(data []byte) error {
 }
 
 // UnmarshalCustomSubscription returns subscription from bytes.
-func UnmarshalCustomSubscription(data []byte, typeJsonField string, customTypes map[string]reflect.Type) (interface{}, error) {
+func UnmarshalCustomSubscription(data []byte, typeJSONField string, customTypes map[string]reflect.Type) (interface{}, error) {
 	m := make(map[string]interface{})
 	if err := json.Unmarshal(data, &m); err != nil {
 		return nil, err
 	}
 
-	typeName := m[typeJsonField].(string)
+	typeName := m[typeJSONField].(string)
 	var value Subscription
 	if ty, found := customTypes[typeName]; found {
 		value = reflect.New(ty).Interface().(Subscription)
@@ -115,7 +115,7 @@ func UnmarshalCustomSubscription(data []byte, typeJsonField string, customTypes 
 	return value, nil
 }
 
-func SubscriptionsFromJson(bytes []byte) (*Subscriptions, error) {
+func SubscriptionsFromJSON(bytes []byte) (*Subscriptions, error) {
 	var subs *Subscriptions
 	if len(bytes) != 0 {
 		unmarshalErr := json.Unmarshal(bytes, &subs)

@@ -340,5 +340,8 @@ func (e ConfluenceServerEvent) GetSpaceKey() string {
 }
 
 func (e ConfluenceServerEvent) GetPageID() string {
-	return  e.Page.ID
+	if e.Page != nil {
+		return e.Page.ID
+	}
+	return ""
 }

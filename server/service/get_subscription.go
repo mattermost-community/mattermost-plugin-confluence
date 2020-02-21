@@ -17,7 +17,7 @@ func GetChannelSubscription(channelID, alias string) (serializer.Subscription, i
 	}
 	subscription, found := channelSubscriptions[alias]
 	if !found {
-		return nil, http.StatusBadRequest, errors.New(fmt.Sprintf(subscriptionNotFound, alias))
+		return nil, http.StatusBadRequest, fmt.Errorf(subscriptionNotFound, alias)
 	}
 	return subscription, http.StatusOK, nil
 }

@@ -149,7 +149,7 @@ func TestSavePageSubscription(t *testing.T) {
 				},
 			},
 			statusCode:   http.StatusBadRequest,
-			errorMessage: urlPageIdAlreadyExist,
+			errorMessage: urlPageIDAlreadyExist,
 		},
 		"subscription unique base url": {
 			newSubscription: serializer.PageSubscription{
