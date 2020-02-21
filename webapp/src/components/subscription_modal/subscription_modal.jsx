@@ -60,7 +60,7 @@ export default class SubscriptionModal extends React.PureComponent {
                 spaceKey,
                 pageID,
                 events: Constants.CONFLUENCE_EVENTS.filter((option) => events.includes(option.value)),
-                subscriptionType: pageID ? Constants.CONFLUENCE_EVENTS[1] : Constants.CONFLUENCE_EVENTS[0],
+                subscriptionType: pageID ? Constants.SUBSCRIPTION_TYPE[1] : Constants.SUBSCRIPTION_TYPE[0],
             });
         }
     };
@@ -127,8 +127,8 @@ export default class SubscriptionModal extends React.PureComponent {
             subscriptionType: subscriptionType.value,
             alias: alias.trim(),
             baseURL: baseURL.trim().toLowerCase(),
-            spaceKey: spaceKey.trim(),
-            pageID: pageID.trim(),
+            spaceKey: spaceKey ? spaceKey.trim() : '',
+            pageID: pageID ? pageID.trim() : '',
             channelID: currentChannelID,
             events: events ? events.map((event) => event.value) : [],
         };
@@ -179,7 +179,7 @@ export default class SubscriptionModal extends React.PureComponent {
                 <ConfluenceField
                     formGroupStyle={getStyle.typeValue}
                     formControlStyle={getStyle.typeFormControl}
-                    label={'Page Id'}
+                    label={'Page ID'}
                     type={'text'}
                     fieldType={'input'}
                     required={true}
@@ -198,6 +198,7 @@ export default class SubscriptionModal extends React.PureComponent {
                     formGroupStyle={getStyle.subscriptionType}
                     isSearchable={false}
                     isMulti={false}
+                    isDisabled={editSubscription}
                     label={'Subscribe To'}
                     name={'type'}
                     fieldType={'dropDown'}

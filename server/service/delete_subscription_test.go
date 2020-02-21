@@ -5,11 +5,10 @@ import (
 	"testing"
 
 	"bou.ke/monkey"
-	"github.com/stretchr/testify/mock"
-
 	"github.com/stretchr/testify/assert"
 
 	"github.com/Brightscout/mattermost-plugin-confluence/server/serializer"
+	"github.com/Brightscout/mattermost-plugin-confluence/server/store"
 )
 
 func TestDeleteSubscription(t *testing.T) {
@@ -18,16 +17,33 @@ func TestDeleteSubscription(t *testing.T) {
 		alias     string
 		apiCalls  func(t *testing.T, channelID, alias string)
 	}{
-		"subscription delete success": {
-			channelID: "testtestesttest",
+		"space subscription delete success": {
+			channelID: "testtesttesttest",
 			alias:     "test",
 			apiCalls: func(t *testing.T, channelID, alias string) {
 				err := DeleteSubscription(channelID, alias)
 				assert.Nil(t, err)
 			},
 		},
-		"subscription not found": {
+		"page subscription delete success": {
+			channelID: "testtesttesttes1",
+			alias:     "test",
+			apiCalls: func(t *testing.T, channelID, alias string) {
+				err := DeleteSubscription(channelID, alias)
+				assert.Nil(t, err)
+			},
+		},
+		"subscription not found with alias": {
 			channelID: "testtestesttest",
+			alias:     "test1",
+			apiCalls: func(t *testing.T, channelID, alias string) {
+				err := DeleteSubscription(channelID, alias)
+				assert.NotNil(t, err)
+				assert.Equal(t, fmt.Sprintf(subscriptionNotFound, alias), err.Error())
+			},
+		},
+		"no subscription for the channel": {
+			channelID: "testtestesttesx",
 			alias:     "test1",
 			apiCalls: func(t *testing.T, channelID, alias string) {
 				err := DeleteSubscription(channelID, alias)
@@ -38,26 +54,48 @@ func TestDeleteSubscription(t *testing.T) {
 	} {
 		t.Run(name, func(t *testing.T) {
 			defer monkey.UnpatchAll()
-			mockAPI := baseMock()
-			channelSubscriptions := map[string]serializer.Subscription{
-				"test": {
-					Alias:     "test",
-					BaseURL:   "https://test.com",
-					SpaceKey:  "TS",
-					ChannelID: "testtesttesttest",
-					Events:    []string{serializer.CommentRemovedEvent, serializer.CommentUpdatedEvent},
+			subscriptions := serializer.Subscriptions{
+				ByChannelID: map[string]serializer.StringSubscription {
+					"testtesttesttest" : {
+						"test":  serializer.SpaceSubscription{
+							SpaceKey:  "TS",
+							BaseSubscription: serializer.BaseSubscription{
+								Alias:     "test",
+								BaseURL:   "https://test.com",
+								ChannelID: "testtesttesttest",
+								Events:    []string{serializer.CommentRemovedEvent, serializer.CommentUpdatedEvent},
+							},
+						},
+					},
+					"testtesttesttes1" : {
+						"test":  serializer.PageSubscription{
+							PageID:  "1234",
+							BaseSubscription: serializer.BaseSubscription{
+								Alias:     "test",
+								BaseURL:   "https://test.com",
+								ChannelID: "testtesttesttest",
+								Events:    []string{serializer.CommentCreatedEvent, serializer.CommentUpdatedEvent},
+							},
+						},
+					},
+				},
+				ByURLSpaceKey: map[string]serializer.StringArrayMap{
+					"testKey": {
+						"testtesttesttest": {serializer.CommentRemovedEvent, serializer.CommentUpdatedEvent},
+					},
+				},
+				ByURLPagID: map[string]serializer.StringArrayMap{
+					"testKey1": {
+						"testtesttesttes1": {serializer.CommentCreatedEvent, serializer.CommentUpdatedEvent},
+					},
 				},
 			}
-			urlSpaceKeyCombinationSubscriptions := map[string][]string{
-				"testtesttesttest": {serializer.CommentRemovedEvent, serializer.CommentUpdatedEvent},
-			}
-			monkey.Patch(GetChannelSubscriptions, func(channelID string) (map[string]serializer.Subscription, string, error) {
-				return channelSubscriptions, "testSub", nil
+			monkey.Patch(GetSubscriptions, func()(serializer.Subscriptions, error) {
+				return subscriptions, nil
 			})
-			monkey.Patch(GetURLSpaceKeyCombinationSubscriptions, func(baseURL, spaceKey string) (map[string][]string, string, error) {
-				return urlSpaceKeyCombinationSubscriptions, "testSub", nil
+			monkey.Patch(store.AtomicModify, func(key string, modify func(initialValue []byte) ([]byte, error)) error {
+				return nil
 			})
-			mockAPI.On("KVSet", mock.AnythingOfType("string"), mock.Anything).Return(nil)
 			val.apiCalls(t, val.channelID, val.alias)
 		})
 	}

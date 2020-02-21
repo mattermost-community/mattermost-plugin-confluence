@@ -19,6 +19,8 @@ export const subscriptionEditModal = (state = {}, action) => {
             baseURL: action.data.baseURL,
             spaceKey: action.data.spaceKey,
             events: action.data.events,
+            pageID: action.data.pageID,
+            subscriptionType: action.data.subscriptionType,
         };
     case Constants.ACTION_TYPES.CLOSE_SUBSCRIPTION_MODAL:
         return {};

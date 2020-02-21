@@ -6,13 +6,28 @@ import (
 	"io"
 	"strings"
 
+	"github.com/mattermost/mattermost-server/model"
+
 	"github.com/Brightscout/mattermost-plugin-confluence/server/config"
 )
 
 const (
-	ConfluenceContentTypePage     = "page"
-	ConfluenceContentTypeBlogPost = "blogpost"
-	ConfluenceContentTypeComment  = "comment"
+	ConfluenceContentTypePage                     = "page"
+	ConfluenceContentTypeBlogPost                 = "blogpost"
+	ConfluenceContentTypeComment                  = "comment"
+	confluenceServerPageCreatedMessage            = "%s published a new page in %s."
+	confluenceServerPageCreatedWithoutBodyMessage = "%s published a new page %s in %s."
+	confluenceServerPageUpdatedMessage            = "%s updated %s in %s."
+	confluenceServerPageTrashedMessage            = "%s trashed %s in %s."
+	confluenceServerPageRestoredMessage           = "%s restored %s in %s."
+	confluenceServerPageRemovedMessage            = "%s removed **%s** in %s."
+
+	confluenceServerCommentCreatedMessage      = "%s commented on %s in %s."
+	confluenceServerEmptyCommentCreatedMessage = "%s [commented](%s) on %s in %s."
+	confluenceServerCommentReplyCreatedMessage = "%s replied to a comment on %s in %s."
+	confluenceServerCommentUpdatedMessage      = "%s updated a comment on %s in %s."
+	confluenceServerEmptyCommentUpdatedMessage = "%s updated a [comment](%s) on %s in %s."
+	confluenceServerCommentRemovedMessage      = "%s removed a comment on %s in %s."
 )
 
 type ConfluenceServerUser struct {
@@ -213,4 +228,120 @@ func (e *ConfluenceServerEvent) GetCommentPageOrBlogDisplayName(withLink bool) s
 		commentedOn = e.GetBlogDisplayName(withLink)
 	}
 	return commentedOn
+}
+
+func (e ConfluenceServerEvent) GetNotificationPost(eventType string) *model.Post {
+	var attachment *model.SlackAttachment
+	post := &model.Post{
+		UserId: config.BotUserID,
+	}
+
+	switch e.Event {
+	case PageCreatedEvent:
+		message := fmt.Sprintf(confluenceServerPageCreatedMessage, e.GetUserDisplayName(true), e.GetSpaceDisplayName(true))
+		if strings.TrimSpace(e.Page.Excerpt) != "" {
+			attachment = &model.SlackAttachment{
+				Fallback:  message,
+				Pretext:   message,
+				Title:     e.Page.Title,
+				TitleLink: e.Page.TinyURL,
+				Text:      fmt.Sprintf("%s\n\n[**View in Confluence**](%s)", strings.TrimSpace(e.Page.Excerpt), e.Page.TinyURL),
+			}
+		} else {
+			post.Message = fmt.Sprintf(confluenceServerPageCreatedWithoutBodyMessage, e.GetUserDisplayName(true), e.GetPageDisplayName(true), e.GetSpaceDisplayName(true))
+		}
+
+	case PageUpdatedEvent:
+		message := fmt.Sprintf(confluenceServerPageUpdatedMessage, e.GetUserDisplayName(true), e.GetPageDisplayName(true), e.GetSpaceDisplayName(true))
+		if strings.TrimSpace(e.VersionComment) != "" {
+			attachment = &model.SlackAttachment{
+				Fallback: message,
+				Pretext:  message,
+				Text:     fmt.Sprintf("**What’s Changed?**\n> %s\n\n[**View in Confluence**](%s)", strings.TrimSpace(e.VersionComment), e.Page.TinyURL),
+			}
+		} else {
+			post.Message = message
+		}
+
+	case PageTrashedEvent:
+		post.Message = fmt.Sprintf(confluenceServerPageTrashedMessage, e.GetUserDisplayName(true), e.GetPageDisplayName(true), e.GetSpaceDisplayName(true))
+
+	case PageRestoredEvent:
+		post.Message = fmt.Sprintf(confluenceServerPageRestoredMessage, e.GetUserDisplayName(true), e.GetPageDisplayName(true), e.GetSpaceDisplayName(true))
+
+	case PageRemovedEvent:
+		// No link for page since the page was removed
+		post.Message = fmt.Sprintf(confluenceServerPageRemovedMessage, e.GetUserDisplayName(true), e.GetPageDisplayName(false), e.GetSpaceDisplayName(true))
+
+	case CommentCreatedEvent:
+		message := fmt.Sprintf(confluenceServerCommentCreatedMessage, e.GetUserDisplayName(true), e.GetCommentPageOrBlogDisplayName(true), e.GetSpaceDisplayName(true))
+
+		text := ""
+		if strings.TrimSpace(e.Comment.Excerpt) != "" {
+			text += fmt.Sprintf("**%s wrote:**\n> %s\n\n", e.GetUserFirstName(), strings.TrimSpace(e.Comment.Excerpt))
+		}
+		if e.Comment.ParentComment != nil && strings.TrimSpace(e.Comment.ParentComment.Excerpt) != "" {
+			message = fmt.Sprintf(confluenceServerCommentReplyCreatedMessage, e.GetUserDisplayName(true), e.GetCommentPageOrBlogDisplayName(true), e.GetSpaceDisplayName(true))
+			text += fmt.Sprintf("**In Reply to:**\n> %s\n", strings.TrimSpace(e.Comment.ParentComment.Excerpt))
+		}
+
+		if text != "" {
+			attachment = &model.SlackAttachment{
+				Fallback: message,
+				Pretext:  message,
+				Text:     fmt.Sprintf("%s\n\n[**View in Confluence**](%s)", text, e.Comment.URL),
+			}
+		} else {
+			post.Message = fmt.Sprintf(confluenceServerEmptyCommentCreatedMessage, e.GetUserDisplayName(true), e.Comment.URL, e.GetCommentPageOrBlogDisplayName(true), e.GetSpaceDisplayName(true))
+		}
+
+	case CommentUpdatedEvent:
+		message := fmt.Sprintf(confluenceServerCommentUpdatedMessage, e.GetUserDisplayName(true), e.GetCommentPageOrBlogDisplayName(true), e.GetSpaceDisplayName(true))
+		if strings.TrimSpace(e.Comment.Excerpt) != "" {
+			attachment = &model.SlackAttachment{
+				Fallback: message,
+				Pretext:  message,
+				Text:     fmt.Sprintf("**Updated Comment:**\n> %s\n\n[**View in Confluence**](%s)", strings.TrimSpace(e.Comment.Excerpt), e.Comment.URL),
+			}
+		} else {
+			post.Message = fmt.Sprintf(confluenceServerEmptyCommentUpdatedMessage, e.GetUserDisplayName(true), e.Comment.URL, e.GetCommentPageOrBlogDisplayName(true), e.GetSpaceDisplayName(true))
+		}
+
+	case CommentRemovedEvent:
+		// No link since the comment was removed.
+		message := fmt.Sprintf(confluenceServerCommentRemovedMessage, e.GetUserDisplayName(true), e.GetCommentPageOrBlogDisplayName(true), e.GetSpaceDisplayName(true))
+		if strings.TrimSpace(e.Comment.Excerpt) != "" {
+			attachment = &model.SlackAttachment{
+				Fallback: message,
+				Pretext:  message,
+				Text:     fmt.Sprintf("**Deleted Comment:**\n> %s", strings.TrimSpace(e.Comment.Excerpt)),
+			}
+		} else {
+			post.Message = message
+		}
+
+	default:
+		return nil
+	}
+
+	if attachment != nil {
+		model.ParseSlackAttachment(post, []*model.SlackAttachment{attachment})
+	}
+
+	return post
+}
+
+func (e ConfluenceServerEvent) GetURL() string {
+	return e.BaseURL
+}
+
+func (e ConfluenceServerEvent) GetSpaceKey() string {
+	return e.Space.Key
+}
+
+func (e ConfluenceServerEvent) GetPageID() string {
+	if e.Page != nil {
+		return e.Page.ID
+	}
+	return ""
 }

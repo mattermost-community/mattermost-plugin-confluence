@@ -27,7 +27,7 @@ func handleConfluenceCloudWebhook(w http.ResponseWriter, r *http.Request) {
 
 	params := mux.Vars(r)
 	event := serializer.ConfluenceCloudEventFromJSON(r.Body)
-	service.SendConfluenceCloudNotification(event, params["event"])
+	go service.SendConfluenceNotifications(event, params["event"])
 
 	w.Header().Set("Content-Type", "application/json")
 	ReturnStatusOK(w)

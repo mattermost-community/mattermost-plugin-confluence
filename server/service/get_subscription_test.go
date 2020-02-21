@@ -6,7 +6,6 @@ import (
 	"testing"
 
 	"bou.ke/monkey"
-	"github.com/stretchr/testify/mock"
 
 	"github.com/stretchr/testify/assert"
 
@@ -35,27 +34,45 @@ func TestGetChannelSubscription(t *testing.T) {
 	} {
 		t.Run(name, func(t *testing.T) {
 			defer monkey.UnpatchAll()
-			mockAPI := baseMock()
-			channelSubscriptions := map[string]serializer.Subscription{
-				"test": {
-					Alias:     "test",
-					BaseURL:   "https://test.com",
-					SpaceKey:  "TS",
-					ChannelID: "testtesttesttest",
-					Events:    []string{serializer.CommentRemovedEvent, serializer.CommentUpdatedEvent},
+			subscriptions := serializer.Subscriptions{
+				ByChannelID: map[string]serializer.StringSubscription {
+					"testtesttesttest" : {
+						"test":  serializer.SpaceSubscription{
+							SpaceKey:  "TS",
+							BaseSubscription: serializer.BaseSubscription{
+								Alias:     "test",
+								BaseURL:   "https://test.com",
+								ChannelID: "testtesttesttest",
+								Events:    []string{serializer.CommentRemovedEvent, serializer.CommentUpdatedEvent},
+							},
+						},
+					},
+					"testtesttesttes1" : {
+						"test":  serializer.PageSubscription{
+							PageID:  "1234",
+							BaseSubscription: serializer.BaseSubscription{
+								Alias:     "test",
+								BaseURL:   "https://test.com",
+								ChannelID: "testtesttesttest",
+								Events:    []string{serializer.CommentCreatedEvent, serializer.CommentUpdatedEvent},
+							},
+						},
+					},
 				},
-				"test1": {
-					Alias:     "test1",
-					BaseURL:   "https://test1.com",
-					SpaceKey:  "TS1",
-					ChannelID: "testtesttesttest",
-					Events:    []string{serializer.CommentRemovedEvent, serializer.CommentUpdatedEvent},
+				ByURLSpaceKey: map[string]serializer.StringArrayMap{
+					"confluence_subs/test.com/TS": {
+						"testtesttesttest": {serializer.CommentRemovedEvent, serializer.CommentUpdatedEvent},
+					},
+				},
+				ByURLPagID: map[string]serializer.StringArrayMap{
+					"confluence_subs/test.com/1234": {
+						"testtesttesttes1": {serializer.CommentCreatedEvent, serializer.CommentUpdatedEvent},
+					},
 				},
 			}
-			monkey.Patch(GetChannelSubscriptions, func(channelID string) (map[string]serializer.Subscription, string, error) {
-				return channelSubscriptions, "testSub", nil
+			monkey.Patch(GetSubscriptions, func()(serializer.Subscriptions, error) {
+				return subscriptions, nil
 			})
-			mockAPI.On("KVSet", mock.AnythingOfType("string"), mock.Anything).Return(nil)
 			subscription, errCode, err := GetChannelSubscription(val.channelID, val.alias)
 			assert.Equal(t, val.statusCode, errCode)
 			if err != nil {
@@ -63,7 +80,7 @@ func TestGetChannelSubscription(t *testing.T) {
 				return
 			}
 			assert.NotNil(t, subscription)
-			assert.Equal(t, subscription.Alias, val.alias)
+			assert.Equal(t, subscription.(serializer.SpaceSubscription).Alias, val.alias)
 		})
 	}
 }

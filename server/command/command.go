@@ -94,7 +94,7 @@ func deleteSubscription(context *model.CommandArgs, args ...string) *model.Comma
 }
 
 func listChannelSubscription(context *model.CommandArgs, args ...string) *model.CommandResponse {
-	channelSubscriptions, _, gErr := service.GetChannelSubscriptions(context.ChannelId)
+	channelSubscriptions, gErr := service.GetSubscriptionsByChannelID(context.ChannelId)
 	if gErr != nil {
 		postCommandResponse(context, gErr.Error())
 		return &model.CommandResponse{}

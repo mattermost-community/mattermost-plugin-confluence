@@ -1,9 +1,9 @@
 package controller
 
 import (
-	"encoding/json"
 	"net/http"
 
+	"github.com/gorilla/mux"
 	"github.com/mattermost/mattermost-server/model"
 
 	"github.com/Brightscout/mattermost-plugin-confluence/server/config"
@@ -15,39 +15,53 @@ const subscriptionSaveSuccess = "Your subscription has been saved."
 
 var saveChannelSubscription = &Endpoint{
 	RequiresAuth: true,
-	Path:         "/subscription",
+	Path:         "/{channelID:[A-Za-z0-9]+}/subscription/{type:[A-Za-z_]+}",
 	Method:       http.MethodPost,
-	Execute:      handleSaveChannelSubscription,
+	Execute:      handleSaveSubscription,
 }
 
-func handleSaveChannelSubscription(w http.ResponseWriter, r *http.Request) {
-	body := json.NewDecoder(r.Body)
-	subscription := serializer.Subscription{}
-	if err := body.Decode(&subscription); err != nil {
-		config.Mattermost.LogError("Error decoding request body.", "Error", err.Error())
-		http.Error(w, "Could not decode request body", http.StatusBadRequest)
-		return
-	}
-
-	if err := subscription.IsValid(); err != nil {
-		config.Mattermost.LogError(err.Error(), "channelID", subscription.ChannelID)
-		http.Error(w, err.Error(), http.StatusBadRequest)
-		return
-	}
-
-	if errCode, err := service.SaveNewSubscription(subscription); err != nil {
-		config.Mattermost.LogError(err.Error(), "channelID", subscription.ChannelID)
-		http.Error(w, err.Error(), errCode)
-		return
-	}
-
+func handleSaveSubscription(w http.ResponseWriter, r *http.Request) {
+	params := mux.Vars(r)
+	channelID := params["channelID"]
+	subscriptionType := params["type"]
 	userID := r.Header.Get(config.HeaderMattermostUserID)
+	var subscription serializer.Subscription
+	var err error
+	if subscriptionType == serializer.SubscriptionTypeSpace {
+		subscription, err = serializer.SpaceSubscriptionFromJSON(r.Body)
+		if err != nil {
+			config.Mattermost.LogError("Error decoding request body.", "Error", err.Error())
+			http.Error(w, "Could not decode request body", http.StatusBadRequest)
+			return
+		}
+		if errCode, vsErr := service.ValidateSpaceSubscription(subscription.(serializer.SpaceSubscription)); vsErr != nil {
+			config.Mattermost.LogError(vsErr.Error())
+			http.Error(w, vsErr.Error(), errCode)
+			return
+		}
+	} else if subscriptionType == serializer.SubscriptionTypePage {
+		subscription, err = serializer.PageSubscriptionFromJSON(r.Body)
+		if err != nil {
+			config.Mattermost.LogError("Error decoding request body.", "Error", err.Error())
+			http.Error(w, "Could not decode request body", http.StatusBadRequest)
+			return
+		}
+		if errCode, psErr := service.ValidatePageSubscription(subscription.(serializer.PageSubscription)); psErr != nil {
+			config.Mattermost.LogError(psErr.Error())
+			http.Error(w, psErr.Error(), errCode)
+			return
+		}
+	}
+	if sErr := service.SaveSubscription(subscription); sErr != nil {
+		config.Mattermost.LogError(sErr.Error())
+		http.Error(w, sErr.Error(), http.StatusBadRequest)
+		return
+	}
 	post := &model.Post{
 		UserId:    config.BotUserID,
-		ChannelId: subscription.ChannelID,
+		ChannelId: channelID,
 		Message:   subscriptionSaveSuccess,
 	}
 	_ = config.Mattermost.SendEphemeralPost(userID, post)
-
 	ReturnStatusOK(w)
 }
