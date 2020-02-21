@@ -24,9 +24,9 @@ func TestGetNotificationsChannelIDs(t *testing.T) {
 	for name, val := range map[string]struct {
 		baseURL                             string
 		spaceKey                            string
-		pageID								string
+		pageID                              string
 		event                               string
-		expected						    int
+		expected                            int
 		urlSpaceKeyCombinationSubscriptions serializer.StringArrayMap
 		urlPageIDCombinationSubscriptions   serializer.StringArrayMap
 	}{
@@ -64,7 +64,7 @@ func TestGetNotificationsChannelIDs(t *testing.T) {
 				"testtesttesttest": {serializer.CommentCreatedEvent, serializer.CommentRemovedEvent, serializer.CommentUpdatedEvent},
 			},
 			urlPageIDCombinationSubscriptions: serializer.StringArrayMap{},
-			expected: 1,
+			expected:                          1,
 		},
 		"multiple notification": {
 			baseURL:  "https://test.com",
@@ -93,7 +93,7 @@ func TestGetNotificationsChannelIDs(t *testing.T) {
 				"testtesttesttest": {serializer.CommentCreatedEvent, serializer.CommentUpdatedEvent},
 				"testtesttest1234": {serializer.CommentRemovedEvent, serializer.CommentUpdatedEvent},
 			},
-			expected:0,
+			expected: 0,
 		},
 		"multiple subscription single notification": {
 			baseURL:  "https://test.com",
@@ -104,7 +104,7 @@ func TestGetNotificationsChannelIDs(t *testing.T) {
 				"testtesttest1234": {serializer.CommentRemovedEvent, serializer.CommentUpdatedEvent},
 			},
 			urlPageIDCombinationSubscriptions: serializer.StringArrayMap{},
-			expected: 1,
+			expected:                          1,
 		},
 	} {
 		t.Run(name, func(t *testing.T) {
@@ -128,7 +128,7 @@ func TestGetNotificationsChannelIDs(t *testing.T) {
 			monkey.Patch(GetSubscriptionsByURLPageID, func(url, pageID string) (serializer.StringArrayMap, error) {
 				return val.urlPageIDCombinationSubscriptions, nil
 			})
-			channelIDs := getNotificationChannelIDs(val.baseURL, val.spaceKey,  val.pageID, val.event)
+			channelIDs := getNotificationChannelIDs(val.baseURL, val.spaceKey, val.pageID, val.event)
 			assert.Equal(t, val.expected, len(channelIDs))
 		})
 	}

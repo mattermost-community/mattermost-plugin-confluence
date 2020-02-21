@@ -12,13 +12,13 @@ import (
 
 func TestSaveSpaceSubscription(t *testing.T) {
 	for name, val := range map[string]struct {
-		newSubscription                     serializer.SpaceSubscription
-		statusCode                          int
-		errorMessage                        string
+		newSubscription serializer.SpaceSubscription
+		statusCode      int
+		errorMessage    string
 	}{
 		"alias already exist": {
 			newSubscription: serializer.SpaceSubscription{
-				SpaceKey:  "TS",
+				SpaceKey: "TS",
 				BaseSubscription: serializer.BaseSubscription{
 					Alias:     "test",
 					BaseURL:   "https://test.com",
@@ -31,7 +31,7 @@ func TestSaveSpaceSubscription(t *testing.T) {
 		},
 		"url space key combination already exist": {
 			newSubscription: serializer.SpaceSubscription{
-				SpaceKey:  "TS",
+				SpaceKey: "TS",
 				BaseSubscription: serializer.BaseSubscription{
 					Alias:     "tes2",
 					BaseURL:   "https://test.com",
@@ -44,7 +44,7 @@ func TestSaveSpaceSubscription(t *testing.T) {
 		},
 		"subscription unique base url": {
 			newSubscription: serializer.SpaceSubscription{
-				SpaceKey:  "TS",
+				SpaceKey: "TS",
 				BaseSubscription: serializer.BaseSubscription{
 					Alias:     "tes2",
 					BaseURL:   "https://test1.com",
@@ -57,7 +57,7 @@ func TestSaveSpaceSubscription(t *testing.T) {
 		},
 		"subscription unique space key": {
 			newSubscription: serializer.SpaceSubscription{
-				SpaceKey:  "TS1",
+				SpaceKey: "TS1",
 				BaseSubscription: serializer.BaseSubscription{
 					Alias:     "tes2",
 					BaseURL:   "https://test.com",
@@ -72,10 +72,10 @@ func TestSaveSpaceSubscription(t *testing.T) {
 		t.Run(name, func(t *testing.T) {
 			defer monkey.UnpatchAll()
 			subscriptions := serializer.Subscriptions{
-				ByChannelID: map[string]serializer.StringSubscription {
-					"testtesttesttest" : {
-						"test":  serializer.SpaceSubscription{
-							SpaceKey:  "TS",
+				ByChannelID: map[string]serializer.StringSubscription{
+					"testtesttesttest": {
+						"test": serializer.SpaceSubscription{
+							SpaceKey: "TS",
 							BaseSubscription: serializer.BaseSubscription{
 								Alias:     "test",
 								BaseURL:   "https://test.com",
@@ -84,9 +84,9 @@ func TestSaveSpaceSubscription(t *testing.T) {
 							},
 						},
 					},
-					"testtesttesttes1" : {
-						"test":  serializer.PageSubscription{
-							PageID:  "1234",
+					"testtesttesttes1": {
+						"test": serializer.PageSubscription{
+							PageID: "1234",
 							BaseSubscription: serializer.BaseSubscription{
 								Alias:     "test",
 								BaseURL:   "https://test.com",
@@ -107,7 +107,7 @@ func TestSaveSpaceSubscription(t *testing.T) {
 					},
 				},
 			}
-			monkey.Patch(GetSubscriptions, func()(serializer.Subscriptions, error) {
+			monkey.Patch(GetSubscriptions, func() (serializer.Subscriptions, error) {
 				return subscriptions, nil
 			})
 			errCode, err := ValidateSpaceSubscription(val.newSubscription)
@@ -121,13 +121,13 @@ func TestSaveSpaceSubscription(t *testing.T) {
 
 func TestSavePageSubscription(t *testing.T) {
 	for name, val := range map[string]struct {
-		newSubscription                     serializer.PageSubscription
-		statusCode                          int
-		errorMessage                        string
+		newSubscription serializer.PageSubscription
+		statusCode      int
+		errorMessage    string
 	}{
 		"alias already exist": {
 			newSubscription: serializer.PageSubscription{
-				PageID:  "1234",
+				PageID: "1234",
 				BaseSubscription: serializer.BaseSubscription{
 					Alias:     "test",
 					BaseURL:   "https://test.com",
@@ -140,7 +140,7 @@ func TestSavePageSubscription(t *testing.T) {
 		},
 		"url page id combination already exist": {
 			newSubscription: serializer.PageSubscription{
-				PageID:  "1234",
+				PageID: "1234",
 				BaseSubscription: serializer.BaseSubscription{
 					Alias:     "tes2",
 					BaseURL:   "https://test.com",
@@ -153,7 +153,7 @@ func TestSavePageSubscription(t *testing.T) {
 		},
 		"subscription unique base url": {
 			newSubscription: serializer.PageSubscription{
-				PageID:  "TS",
+				PageID: "TS",
 				BaseSubscription: serializer.BaseSubscription{
 					Alias:     "tes2",
 					BaseURL:   "https://test1.com",
@@ -166,7 +166,7 @@ func TestSavePageSubscription(t *testing.T) {
 		},
 		"subscription unique space key": {
 			newSubscription: serializer.PageSubscription{
-				PageID:  "12345",
+				PageID: "12345",
 				BaseSubscription: serializer.BaseSubscription{
 					Alias:     "tes2",
 					BaseURL:   "https://test.com",
@@ -181,10 +181,10 @@ func TestSavePageSubscription(t *testing.T) {
 		t.Run(name, func(t *testing.T) {
 			defer monkey.UnpatchAll()
 			subscriptions := serializer.Subscriptions{
-				ByChannelID: map[string]serializer.StringSubscription {
-					"testtesttesttest" : {
-						"test":  serializer.SpaceSubscription{
-							SpaceKey:  "TS",
+				ByChannelID: map[string]serializer.StringSubscription{
+					"testtesttesttest": {
+						"test": serializer.SpaceSubscription{
+							SpaceKey: "TS",
 							BaseSubscription: serializer.BaseSubscription{
 								Alias:     "test",
 								BaseURL:   "https://test.com",
@@ -193,9 +193,9 @@ func TestSavePageSubscription(t *testing.T) {
 							},
 						},
 					},
-					"testtesttesttes1" : {
-						"test":  serializer.PageSubscription{
-							PageID:  "1234",
+					"testtesttesttes1": {
+						"test": serializer.PageSubscription{
+							PageID: "1234",
 							BaseSubscription: serializer.BaseSubscription{
 								Alias:     "test",
 								BaseURL:   "https://test.com",
@@ -216,7 +216,7 @@ func TestSavePageSubscription(t *testing.T) {
 					},
 				},
 			}
-			monkey.Patch(GetSubscriptions, func()(serializer.Subscriptions, error) {
+			monkey.Patch(GetSubscriptions, func() (serializer.Subscriptions, error) {
 				return subscriptions, nil
 			})
 			errCode, err := ValidatePageSubscription(val.newSubscription)

@@ -34,7 +34,7 @@ const (
 		"* `/confluence install cloud` - Connect Mattermost to a Confluence Cloud instance.\n" +
 		"* `/confluence install server` - Connect Mattermost to a Confluence Server or Data Center instance.\n"
 
-	invalidCommand = "Invalid command parameters. Please use `/confluence help` for more information."
+	invalidCommand         = "Invalid command parameters. Please use `/confluence help` for more information."
 	installOnlySystemAdmin = "`/confluence install` can only be run by a system administrator."
 )
 
@@ -52,7 +52,7 @@ To configure the plugin, create a new app in your Confluence instance following 
 7. Enter the following URL as the **Webhook URL** and click on Save.
 %s
 `
-	installCloudHelp =  `
+	installCloudHelp = `
 To finish the configuration, add a new app in your Confluence instance following these steps:
 1. Navigate to **Settings > Apps > Manage Apps**.
 2. Click **Settings** at bottom of page, enable development mode, and apply this change.
