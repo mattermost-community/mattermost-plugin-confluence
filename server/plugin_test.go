@@ -12,14 +12,12 @@ import (
 	"github.com/stretchr/testify/mock"
 
 	"github.com/Brightscout/mattermost-plugin-confluence/server/config"
-	"github.com/Brightscout/mattermost-plugin-confluence/server/serializer"
 	"github.com/Brightscout/mattermost-plugin-confluence/server/service"
 )
 
 const (
 	specifyAlias              = "Please specify an alias."
 	subscriptionDeleteSuccess = "**%s** has been deleted."
-	noChannelSubscription     = "No subscriptions found for this channel."
 	helpText                  = "###### Mattermost Confluence Plugin - Slash Command Help\n\n" +
 		"* `/confluence subscribe` - Subscribe the current channel to notifications from Confluence.\n" +
 		"* `/confluence unsubscribe \"<alias>\"` - Unsubscribe the current channel from notifications associated with the given alias.\n" +
@@ -51,42 +49,6 @@ func TestExecuteCommand(t *testing.T) {
 		"help command": {
 			commandArgs:      &model.CommandArgs{Command: "/confluence help", UserId: "abcdabcdabcdabcd", ChannelId: "testtesttesttest"},
 			ephemeralMessage: helpText,
-		},
-		"list command": {
-			commandArgs: &model.CommandArgs{Command: "/confluence list", UserId: "abcdabcdabcdabcd", ChannelId: "testtesttesttest"},
-			patchFunctionCalls: func() {
-				monkey.Patch(service.GetSubscriptionsByChannelID, func(string) (serializer.StringSubscription, error) {
-					return serializer.StringSubscription{
-						"test": serializer.SpaceSubscription{
-							SpaceKey:  "TS",
-							BaseSubscription: serializer.BaseSubscription{
-								Alias:     "test",
-								BaseURL:   "https://test.com",
-								ChannelID: "testtesttesttest",
-								Events:    []string{serializer.CommentRemovedEvent, serializer.CommentUpdatedEvent},
-							},
-						},
-						"test1": serializer.PageSubscription{
-							PageID:  "1234",
-							BaseSubscription: serializer.BaseSubscription{
-								Alias:     "test",
-								BaseURL:   "https://test.com",
-								ChannelID: "testtesttesttest",
-								Events:    []string{serializer.CommentRemovedEvent, serializer.CommentUpdatedEvent},
-							},
-						},
-					}, nil
-				})
-			},
-			ephemeralMessage: "#### Space Subscriptions "+
-				              "\n| Alias | Base Url | Space Key | Events|"+
-							  "\n| :----|:--------| :--------| :-----|"+
-							  "\n|test|https://test.com|TS|Comment Remove, Comment Update|"+
-
-							  "\n\n#### Page Subscriptions "+
-							  "\n| Alias | Base Url | Page Id | Events|"+
-							  "\n| :----|:--------| :--------| :-----|"+
-							  "\n|test|https://test.com|1234|Comment Remove, Comment Update|",
 		},
 		"unsubscribe command ": {
 			commandArgs: &model.CommandArgs{Command: "/confluence unsubscribe \"abc\"", UserId: "abcdabcdabcdabcd", ChannelId: "testtesttesttest"},
