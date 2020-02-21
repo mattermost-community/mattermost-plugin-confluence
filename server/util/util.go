@@ -90,6 +90,10 @@ func GetAtlassianConnectURLPath() string {
 	return "/atlassian-connect.json?secret=" + url.QueryEscape(config.GetConfig().Secret)
 }
 
+func GetConfluenceServerWebhookURLPath() string {
+	return "/server/webhook?secret=" + url.QueryEscape(config.GetConfig().Secret)
+}
+
 func IsSystemAdmin(userID string) bool {
 	user, appErr := config.Mattermost.GetUser(userID)
 	if appErr != nil {
