@@ -5,9 +5,9 @@ import (
 
 	"github.com/gorilla/mux"
 
-	"github.com/Brightscout/mattermost-plugin-confluence/server/config"
-	"github.com/Brightscout/mattermost-plugin-confluence/server/serializer"
-	"github.com/Brightscout/mattermost-plugin-confluence/server/service"
+	"github.com/mattermost/mattermost-plugin-confluence/server/config"
+	"github.com/mattermost/mattermost-plugin-confluence/server/serializer"
+	"github.com/mattermost/mattermost-plugin-confluence/server/service"
 )
 
 var confluenceCloudWebhook = &Endpoint{

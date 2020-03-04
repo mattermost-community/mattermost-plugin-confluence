@@ -11,8 +11,8 @@ import (
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
 
-	"github.com/Brightscout/mattermost-plugin-confluence/server/config"
-	"github.com/Brightscout/mattermost-plugin-confluence/server/service"
+	"github.com/mattermost/mattermost-plugin-confluence/server/config"
+	"github.com/mattermost/mattermost-plugin-confluence/server/service"
 )
 
 const (

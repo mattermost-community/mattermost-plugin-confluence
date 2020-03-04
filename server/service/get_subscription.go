@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"net/http"
 
-	"github.com/Brightscout/mattermost-plugin-confluence/server/serializer"
+	"github.com/mattermost/mattermost-plugin-confluence/server/serializer"
 )
 
 const generalError = "Some error occurred. Please try again after sometime."

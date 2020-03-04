@@ -8,7 +8,7 @@ import (
 	url2 "net/url"
 	"strings"
 
-	"github.com/Brightscout/mattermost-plugin-confluence/server/store"
+	"github.com/mattermost/mattermost-plugin-confluence/server/store"
 )
 
 type SpaceSubscription struct {

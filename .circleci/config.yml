@@ -3,7 +3,7 @@ jobs:
   build:
     docker:
       - image: circleci/golang:1.13-node
-    working_directory: /go/src/github.com/Brightscout/mattermost-plugin-confluence
+    working_directory: /go/src/github.com/mattermost/mattermost-plugin-confluence
     steps:
       - checkout
       - restore_cache:
@@ -27,7 +27,7 @@ jobs:
   release:
     docker:
       - image: cibuilds/github:0.12
-    working_directory: /go/src/github.com/Brightscout/mattermost-plugin-confluence
+    working_directory: /go/src/github.com/mattermost/mattermost-plugin-confluence
     steps:
       - checkout
       - attach_workspace:

@@ -1,4 +1,4 @@
-module github.com/Brightscout/mattermost-plugin-confluence
+module github.com/mattermost/mattermost-plugin-confluence
 
 go 1.13
 

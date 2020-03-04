@@ -6,10 +6,10 @@ import (
 
 	"github.com/mattermost/mattermost-server/model"
 
-	"github.com/Brightscout/mattermost-plugin-confluence/server/config"
-	"github.com/Brightscout/mattermost-plugin-confluence/server/serializer"
-	"github.com/Brightscout/mattermost-plugin-confluence/server/service"
-	"github.com/Brightscout/mattermost-plugin-confluence/server/util"
+	"github.com/mattermost/mattermost-plugin-confluence/server/config"
+	"github.com/mattermost/mattermost-plugin-confluence/server/serializer"
+	"github.com/mattermost/mattermost-plugin-confluence/server/service"
+	"github.com/mattermost/mattermost-plugin-confluence/server/util"
 )
 
 type HandlerFunc func(context *model.CommandArgs, args ...string) *model.CommandResponse

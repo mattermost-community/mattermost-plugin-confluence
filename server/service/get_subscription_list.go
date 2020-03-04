@@ -3,9 +3,9 @@ package service
 import (
 	"github.com/pkg/errors"
 
-	"github.com/Brightscout/mattermost-plugin-confluence/server/config"
-	"github.com/Brightscout/mattermost-plugin-confluence/server/serializer"
-	"github.com/Brightscout/mattermost-plugin-confluence/server/store"
+	"github.com/mattermost/mattermost-plugin-confluence/server/config"
+	"github.com/mattermost/mattermost-plugin-confluence/server/serializer"
+	"github.com/mattermost/mattermost-plugin-confluence/server/store"
 )
 
 const getChannelSubscriptionsError = " Error getting channel subscriptions."

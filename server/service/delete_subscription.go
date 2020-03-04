@@ -4,8 +4,8 @@ import (
 	"encoding/json"
 	"fmt"
 
-	"github.com/Brightscout/mattermost-plugin-confluence/server/serializer"
-	"github.com/Brightscout/mattermost-plugin-confluence/server/store"
+	"github.com/mattermost/mattermost-plugin-confluence/server/serializer"
+	"github.com/mattermost/mattermost-plugin-confluence/server/store"
 )
 
 const (
