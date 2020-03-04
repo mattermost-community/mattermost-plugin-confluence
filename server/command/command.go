@@ -40,26 +40,22 @@ const (
 
 const (
 	installServerHelp = `
-To configure the plugin, create a new app in your Confluence instance following these steps:
-1. Navigate to **Settings > Apps > Manage Apps**.
-  - For older versions of Confluence, navigate to **Administration > Applications > Add-ons > Manage add-ons**.
-2. Click **Settings** at bottom of page, enable development mode, and apply this change.
-  - Enabling development mode allows you to install apps that are not from the Atlassian Marketplace.
-3. Click **Upload app**.
-4. Chose 'From my computer' and upload the **Mattermost for Confluence OBR** file.
-5. Wait for the app to install.
-6. Use the 'configure' button to open the **Mattermost Configuration** page.
-7. Enter the following URL as the **Webhook URL** and click on Save.
-%s
+To configure the plugin, create a new app in your Confluence Server following these steps:
+1. Navigate to **Settings > Apps > Manage Apps**. For older versions of Confluence, navigate to **Administration > Applications > Add-ons > Manage add-ons**.
+2. Choose **Settings** at the bottom of the page, enable development mode, and apply the change. Development mode allows you to install apps from outside of the Atlassian Marketplace.
+3. Press **Upload app**.
+4. Choose **From my computer** and upload the Mattermost for Confluence OBR file.
+5. Once the app is installed, press **Configure** to open the configuration page.
+6. In the **Webhook URL** field, enter: %s
+7. Press **Save** to finish the setup.
 `
 	installCloudHelp = `
-To finish the configuration, add a new app in your Confluence instance following these steps:
+To finish the configuration, add a new app in your Confluence Cloud instance following these steps:
 1. Navigate to **Settings > Apps > Manage Apps**.
-2. Click **Settings** at bottom of page, enable development mode, and apply this change.
-  - Enabling development mode allows you to install apps that are not from the Atlassian Marketplace.
-3. Click **Upload app**.
-4. In the **From this URL field**, enter: %s
-5. Wait for the app to install. Once completed, you should see an "Installed and ready to go!" message.
+2. Choose **Settings** at the bottom of the page, enable development mode, and apply the change. Development mode allows you to install apps from outside of the Atlassian Marketplace.
+3. Press **Upload App**.
+4. In **From this URL**, enter: %s
+5. Once installed, you will see the "Installed and ready to go!" message.
 `
 )
 
