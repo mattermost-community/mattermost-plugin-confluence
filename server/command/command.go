@@ -46,8 +46,8 @@ To configure the plugin, create a new app in your Confluence Server following th
 3. Press **Upload app**.
 4. Choose **From my computer** and upload the Mattermost for Confluence OBR file.
 5. Once the app is installed, press **Configure** to open the configuration page.
-7. In the **Webhook URL** field, enter: %s
-8. Press **Save** to finish the setup.
+6. In the **Webhook URL** field, enter: %s
+7. Press **Save** to finish the setup.
 `
 	installCloudHelp = `
 To finish the configuration, add a new app in your Confluence Cloud instance following these steps:
