@@ -52,7 +52,6 @@ func (ss SpaceSubscription) GetFormattedSubscription() string {
 }
 
 func (ss SpaceSubscription) IsValid() error {
-	// TODO : Clean subscription data
 	if ss.Alias == "" {
 		return errors.New("alias can not be empty")
 	}
@@ -65,6 +64,9 @@ func (ss SpaceSubscription) IsValid() error {
 	if ss.SpaceKey == "" {
 		return errors.New("space key can not be empty")
 	}
+	if ss.ChannelID == "" {
+		return errors.New("channel id can not be empty")
+	}
 	return nil
 }
 
@@ -72,4 +74,22 @@ func SpaceSubscriptionFromJSON(data io.Reader) (SpaceSubscription, error) {
 	var ps SpaceSubscription
 	err := json.NewDecoder(data).Decode(&ps)
 	return ps, err
+}
+
+func (ss SpaceSubscription) ValidateSubscription(subs *Subscriptions) error {
+	if err := ss.IsValid(); err != nil {
+		return err
+	}
+	if channelSubscriptions, valid := subs.ByChannelID[ss.ChannelID]; valid {
+		if _, ok := channelSubscriptions[ss.Alias]; ok {
+			return errors.New(aliasAlreadyExist)
+		}
+	}
+	key := store.GetURLSpaceKeyCombinationKey(ss.BaseURL, ss.SpaceKey)
+	if urlSpaceKeySubscriptions, valid := subs.ByURLSpaceKey[key]; valid {
+		if _, ok := urlSpaceKeySubscriptions[ss.ChannelID]; ok {
+			return errors.New(urlSpaceKeyAlreadyExist)
+		}
+	}
+	return nil
 }

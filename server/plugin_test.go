@@ -13,7 +13,6 @@ import (
 
 	"github.com/Brightscout/mattermost-plugin-confluence/server/config"
 	"github.com/Brightscout/mattermost-plugin-confluence/server/service"
-	"github.com/Brightscout/mattermost-plugin-confluence/server/util"
 )
 
 const (
@@ -41,6 +40,7 @@ func TestExecuteCommand(t *testing.T) {
 	for name, val := range map[string]struct {
 		commandArgs      *model.CommandArgs
 		ephemeralMessage string
+		patchAPICalls    func()
 	}{
 		"empty command ": {
 			commandArgs:      &model.CommandArgs{Command: "/confluence", UserId: "abcdabcdabcdabcd", ChannelId: "testtesttesttest"},
@@ -53,6 +53,11 @@ func TestExecuteCommand(t *testing.T) {
 		"unsubscribe command ": {
 			commandArgs:      &model.CommandArgs{Command: "/confluence unsubscribe \"abc\"", UserId: "abcdabcdabcdabcd", ChannelId: "testtesttesttest"},
 			ephemeralMessage: fmt.Sprintf(subscriptionDeleteSuccess, "abc"),
+			patchAPICalls: func() {
+				monkey.Patch(service.DeleteSubscription, func(channelID, alias string) error {
+					return nil
+				})
+			},
 		},
 		"unsubscribe command no alias": {
 			commandArgs:      &model.CommandArgs{Command: "/confluence unsubscribe", UserId: "abcdabcdabcdabcd", ChannelId: "testtesttesttest"},
@@ -69,12 +74,10 @@ func TestExecuteCommand(t *testing.T) {
 				post := args.Get(1).(*model.Post)
 				assert.Equal(t, val.ephemeralMessage, post.Message)
 			}).Once().Return(&model.Post{})
-			monkey.Patch(service.DeleteSubscription, func(channelID, alias string) error {
-				return nil
-			})
-			monkey.Patch(util.IsSystemAdmin, func(userID string) bool {
-				return false
-			})
+			mockAPI.On("GetUser", mock.AnythingOfType("string")).Return(&model.User{Id: "123", Roles: ""}, nil)
+			if val.patchAPICalls != nil {
+				val.patchAPICalls()
+			}
 			res, err := p.ExecuteCommand(&plugin.Context{}, val.commandArgs)
 			assert.Nil(t, err)
 			assert.NotNil(t, res)

@@ -17,6 +17,10 @@ const (
 	PageRemovedEvent      = "page_removed"
 	SubscriptionTypeSpace = "space_subscription"
 	SubscriptionTypePage  = "page_subscription"
+
+	aliasAlreadyExist       = "A subscription with the same alias already exists."
+	urlSpaceKeyAlreadyExist = "A subscription with the same url and space key already exists."
+	urlPageIDAlreadyExist   = "A subscription with the same url and page id already exists."
 )
 
 var eventDisplayName = map[string]string{
@@ -37,6 +41,7 @@ type Subscription interface {
 	Name() string
 	GetFormattedSubscription() string
 	IsValid() error
+	ValidateSubscription(*Subscriptions) error
 }
 
 type BaseSubscription struct {
