@@ -7,8 +7,8 @@ import (
 	"path"
 	"path/filepath"
 
-	"github.com/Brightscout/mattermost-plugin-confluence/server/config"
-	"github.com/Brightscout/mattermost-plugin-confluence/server/util"
+	"github.com/mattermost/mattermost-plugin-confluence/server/config"
+	"github.com/mattermost/mattermost-plugin-confluence/server/util"
 )
 
 var atlassianConnectJSON = &Endpoint{

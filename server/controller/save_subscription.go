@@ -6,9 +6,9 @@ import (
 	"github.com/gorilla/mux"
 	"github.com/mattermost/mattermost-server/model"
 
-	"github.com/Brightscout/mattermost-plugin-confluence/server/config"
-	"github.com/Brightscout/mattermost-plugin-confluence/server/serializer"
-	"github.com/Brightscout/mattermost-plugin-confluence/server/service"
+	"github.com/mattermost/mattermost-plugin-confluence/server/config"
+	"github.com/mattermost/mattermost-plugin-confluence/server/serializer"
+	"github.com/mattermost/mattermost-plugin-confluence/server/service"
 )
 
 const subscriptionSaveSuccess = "Your subscription has been saved."
@@ -34,11 +34,6 @@ func handleSaveSubscription(w http.ResponseWriter, r *http.Request) {
 			http.Error(w, "Could not decode request body", http.StatusBadRequest)
 			return
 		}
-		if errCode, vsErr := service.ValidateSpaceSubscription(subscription.(serializer.SpaceSubscription)); vsErr != nil {
-			config.Mattermost.LogError(vsErr.Error())
-			http.Error(w, vsErr.Error(), errCode)
-			return
-		}
 	} else if subscriptionType == serializer.SubscriptionTypePage {
 		subscription, err = serializer.PageSubscriptionFromJSON(r.Body)
 		if err != nil {
@@ -46,15 +41,10 @@ func handleSaveSubscription(w http.ResponseWriter, r *http.Request) {
 			http.Error(w, "Could not decode request body", http.StatusBadRequest)
 			return
 		}
-		if errCode, psErr := service.ValidatePageSubscription(subscription.(serializer.PageSubscription)); psErr != nil {
-			config.Mattermost.LogError(psErr.Error())
-			http.Error(w, psErr.Error(), errCode)
-			return
-		}
 	}
-	if sErr := service.SaveSubscription(subscription); sErr != nil {
+	if statusCode, sErr := service.SaveSubscription(subscription); sErr != nil {
 		config.Mattermost.LogError(sErr.Error())
-		http.Error(w, sErr.Error(), http.StatusBadRequest)
+		http.Error(w, sErr.Error(), statusCode)
 		return
 	}
 	post := &model.Post{

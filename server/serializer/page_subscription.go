@@ -8,7 +8,7 @@ import (
 	url2 "net/url"
 	"strings"
 
-	"github.com/Brightscout/mattermost-plugin-confluence/server/store"
+	"github.com/mattermost/mattermost-plugin-confluence/server/store"
 )
 
 type PageSubscription struct {
@@ -52,7 +52,6 @@ func (ps PageSubscription) GetFormattedSubscription() string {
 }
 
 func (ps PageSubscription) IsValid() error {
-	// TODO : Clean subscription data
 	if ps.Alias == "" {
 		return errors.New("alias can not be empty")
 	}
@@ -65,6 +64,9 @@ func (ps PageSubscription) IsValid() error {
 	if ps.PageID == "" {
 		return errors.New("page id can not be empty")
 	}
+	if ps.ChannelID == "" {
+		return errors.New("channel id can not be empty")
+	}
 	return nil
 }
 
@@ -72,4 +74,22 @@ func PageSubscriptionFromJSON(data io.Reader) (PageSubscription, error) {
 	var ps PageSubscription
 	err := json.NewDecoder(data).Decode(&ps)
 	return ps, err
+}
+
+func (ps PageSubscription) ValidateSubscription(subs *Subscriptions) error {
+	if err := ps.IsValid(); err != nil {
+		return err
+	}
+	if channelSubscriptions, valid := subs.ByChannelID[ps.ChannelID]; valid {
+		if _, ok := channelSubscriptions[ps.Alias]; ok {
+			return errors.New(aliasAlreadyExist)
+		}
+	}
+	key := store.GetURLPageIDCombinationKey(ps.BaseURL, ps.PageID)
+	if urlPageIDSubscriptions, valid := subs.ByURLPagID[key]; valid {
+		if _, ok := urlPageIDSubscriptions[ps.ChannelID]; ok {
+			return errors.New(urlPageIDAlreadyExist)
+		}
+	}
+	return nil
 }

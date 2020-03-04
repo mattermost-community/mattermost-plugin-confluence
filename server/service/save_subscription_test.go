@@ -7,7 +7,8 @@ import (
 	"bou.ke/monkey"
 	"github.com/stretchr/testify/assert"
 
-	"github.com/Brightscout/mattermost-plugin-confluence/server/serializer"
+	"github.com/mattermost/mattermost-plugin-confluence/server/serializer"
+	"github.com/mattermost/mattermost-plugin-confluence/server/store"
 )
 
 func TestSaveSpaceSubscription(t *testing.T) {
@@ -110,8 +111,11 @@ func TestSaveSpaceSubscription(t *testing.T) {
 			monkey.Patch(GetSubscriptions, func() (serializer.Subscriptions, error) {
 				return subscriptions, nil
 			})
-			errCode, err := ValidateSpaceSubscription(val.newSubscription)
-			assert.Equal(t, val.statusCode, errCode)
+			monkey.Patch(store.AtomicModify, func(key string, modify func(initialValue []byte) ([]byte, error)) error {
+				return nil
+			})
+			statusCode, err := SaveSubscription(val.newSubscription)
+			assert.Equal(t, val.statusCode, statusCode)
 			if err != nil {
 				assert.Equal(t, val.errorMessage, err.Error())
 			}
@@ -219,7 +223,10 @@ func TestSavePageSubscription(t *testing.T) {
 			monkey.Patch(GetSubscriptions, func() (serializer.Subscriptions, error) {
 				return subscriptions, nil
 			})
-			errCode, err := ValidatePageSubscription(val.newSubscription)
+			monkey.Patch(store.AtomicModify, func(key string, modify func(initialValue []byte) ([]byte, error)) error {
+				return nil
+			})
+			errCode, err := SaveSubscription(val.newSubscription)
 			assert.Equal(t, val.statusCode, errCode)
 			if err != nil {
 				assert.Equal(t, val.errorMessage, err.Error())

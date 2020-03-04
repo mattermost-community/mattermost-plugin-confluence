@@ -1,4 +1,4 @@
-# Mattermost Plugin Confluence [![CircleCI branch](https://img.shields.io/circleci/project/github/Brightscout/mattermost-plugin-confluence/master.svg)](https://circleci.com/gh/Brightscout/mattermost-plugin-confluence)
+# Mattermost Plugin Confluence [![CircleCI branch](https://img.shields.io/circleci/project/github/mattermost/mattermost-plugin-confluence/master.svg)](https://circleci.com/gh/mattermost/mattermost-plugin-confluence)
 
 A Mattermost plugin for Confluence. Supports Confluence Cloud, Server and Data Center versions.
 
@@ -25,7 +25,7 @@ Set up CircleCI to run the build job for each branch and build-and-release for e
 
 ## Installation
 
-1. Go to the [releases page of this GitHub repository](https://github.com/Brightscout/mattermost-plugin-confluence/releases/latest) and download the latest release for your Mattermost server.
+1. Go to the [releases page of this GitHub repository](https://github.com/mattermost/mattermost-plugin-confluence/releases/latest) and download the latest release for your Mattermost server.
 2. Upload this file in the Mattermost **System Console > Plugins > Management** page to install the plugin. To learn more about how to upload a plugin, [see the documentation](https://docs.mattermost.com/administration/plugins.html#plugin-uploads).
 3. You can configure the Plugin from **System Console > Plugins > Confluence**.
 

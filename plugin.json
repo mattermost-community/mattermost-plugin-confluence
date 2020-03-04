@@ -1,8 +1,8 @@
 {
   "id": "com.mattermost.confluence",
   "name": "Confluence",
-  "description": "",
-  "version": "0.1.0",
+  "description": "Atlassian Confluence plugin for Mattermost.",
+  "version": "1.1.0",
   "min_server_version": "5.12.0",
   "server": {
     "executables": {

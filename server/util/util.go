@@ -10,7 +10,7 @@ import (
 
 	"github.com/mattermost/mattermost-server/model"
 
-	"github.com/Brightscout/mattermost-plugin-confluence/server/config"
+	"github.com/mattermost/mattermost-plugin-confluence/server/config"
 )
 
 // GetKeyHash can be used to create a hash from a string
