@@ -32,6 +32,7 @@ func (p *Plugin) OnActivate() error {
 
 	if err := p.setUpBotUser(); err != nil {
 		config.Mattermost.LogError("Failed to create a bot user", "Error", err.Error())
+		return err
 	}
 
 	if err := p.OnConfigurationChange(); err != nil {
