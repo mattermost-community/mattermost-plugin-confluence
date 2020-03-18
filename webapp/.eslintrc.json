@@ -4,8 +4,8 @@
     "es6": true
   },
   "extends": [
-    "./node_modules/eslint-config-mattermost/.eslintrc.json",
-    "./node_modules/eslint-config-mattermost/.eslintrc-react.json"
+    "./node_modules/eslint-plugin-mattermost/.eslintrc.json",
+    "./node_modules/eslint-plugin-mattermost/.eslintrc-react.json"
   ],
   "globals": {
     "Atomics": "readonly",
