@@ -1,4 +1,10 @@
-# Mattermost Plugin Confluence [![CircleCI branch](https://img.shields.io/circleci/project/github/mattermost/mattermost-plugin-confluence/master.svg)](https://circleci.com/gh/mattermost/mattermost-plugin-confluence)
+# Mattermost Plugin Confluence
+
+[![CircleCI branch](https://img.shields.io/circleci/project/github/mattermost/mattermost-plugin-confluence/master.svg)](https://circleci.com/gh/mattermost/mattermost-plugin-confluence)
+
+
+**Maintainer:** [@jfrerich](https://github.com/jfrerich)
+**Co-Maintainer:** [@levb](https://github.com/levb)
 
 A Mattermost plugin for Confluence. Supports Confluence Cloud, Server and Data Center versions.
 
