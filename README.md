@@ -1,14 +1,18 @@
-# Mattermost Plugin Confluence
+# Mattermost Plugin for Confluence [![CircleCI branch](https://img.shields.io/circleci/project/github/mattermost/mattermost-plugin-confluence/master.svg)](https://circleci.com/gh/mattermost/mattermost-plugin-confluence)
 
-[![CircleCI branch](https://img.shields.io/circleci/project/github/mattermost/mattermost-plugin-confluence/master.svg)](https://circleci.com/gh/mattermost/mattermost-plugin-confluence)
 
+A Mattermost plugin for Confluence. Supports Confluence Cloud, Server and Data Center versions. This plugin helps your teams collaborate and keep in sync as Confluence Pages and Spaces get updated.  Comments and activity can be pushed into specific Mattermost channels for full visibility. 
+
+# Documentation 
+
+Installation and Usage instructions are located here: https://mattermost.gitbook.io/plugin-confluence/
+
+# Development 
+
+### Maintainers 
 
 **Maintainer:** [@jfrerich](https://github.com/jfrerich)
 **Co-Maintainer:** [@levb](https://github.com/levb)
-
-A Mattermost plugin for Confluence. Supports Confluence Cloud, Server and Data Center versions.
-
-## Installation and setup
 
 ### Platform & tools
 
@@ -28,13 +32,3 @@ Set up CircleCI to run the build job for each branch and build-and-release for e
 4. To manage GitHub releases using CircleCI, you need to add your github personal access token to your project's environment variables.
    - Follow the instructions [here](https://help.github.com/en/articles/creating-a-personal-access-token-for-the-command-line) to create a personal access token. For CircleCI releases, you would need the `repo` scope.
    - Add the environment variable to your project as `GITHUB_TOKEN` by following the instructions [here](https://circleci.com/docs/2.0/env-vars/#setting-an-environment-variable-in-a-project).
-
-## Installation
-
-1. Go to the [releases page of this GitHub repository](https://github.com/mattermost/mattermost-plugin-confluence/releases/latest) and download the latest release for your Mattermost server.
-2. Upload this file in the Mattermost **System Console > Plugins > Management** page to install the plugin. To learn more about how to upload a plugin, [see the documentation](https://docs.mattermost.com/administration/plugins.html#plugin-uploads).
-3. You can configure the Plugin from **System Console > Plugins > Confluence**.
-
-## Configuration
-
-- **Secret**: The generated Webhook Secret for use in Conlfuence Webhook Configuration.
