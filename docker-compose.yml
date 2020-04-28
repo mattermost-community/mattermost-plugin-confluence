@@ -1,0 +1,7 @@
+version: '3'
+services:
+  confluence:
+    image: atlassian/confluence-server
+    ports:
+      -  "8090:8090"
+      -  "8091:8091"
