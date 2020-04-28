@@ -12,10 +12,10 @@ import (
 )
 
 var editChannelSubscription = &Endpoint{
-	RequiresAuth: true,
-	Path:         "/{channelID:[A-Za-z0-9]+}/subscription/{type:[A-Za-z_]+}",
-	Method:       http.MethodPut,
-	Execute:      handleEditChannelSubscription,
+	RequiresAdmin: true,
+	Path:          "/{channelID:[A-Za-z0-9]+}/subscription/{type:[A-Za-z_]+}",
+	Method:        http.MethodPut,
+	Execute:       handleEditChannelSubscription,
 }
 
 const subscriptionEditSuccess = "Your subscription has been edited successfully."
