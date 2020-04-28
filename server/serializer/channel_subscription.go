@@ -18,7 +18,7 @@ const (
 	SubscriptionTypeSpace = "space_subscription"
 	SubscriptionTypePage  = "page_subscription"
 
-	aliasAlreadyExist       = "A subscription with the same alias already exists."
+	aliasAlreadyExist       = "A subscription with the same name already exists."
 	urlSpaceKeyAlreadyExist = "A subscription with the same url and space key already exists."
 	urlPageIDAlreadyExist   = "A subscription with the same url and page id already exists."
 )
@@ -135,8 +135,8 @@ func SubscriptionsFromJSON(bytes []byte) (*Subscriptions, error) {
 
 func FormattedSubscriptionList(channelSubscriptions StringSubscription) string {
 	var pageSubscriptions, spaceSubscriptions, list string
-	pageSubscriptionsHeader := fmt.Sprintf("| Alias | Base Url | Page Id | Events|\n| :----|:--------| :--------| :-----|")
-	spaceSubscriptionsHeader := fmt.Sprintf("| Alias | Base Url | Space Key | Events|\n| :----|:--------| :--------| :-----|")
+	pageSubscriptionsHeader := fmt.Sprintf("| Name | Base Url | Page Id | Events|\n| :----|:--------| :--------| :-----|")
+	spaceSubscriptionsHeader := fmt.Sprintf("| Name | Base Url | Space Key | Events|\n| :----|:--------| :--------| :-----|")
 	for _, sub := range channelSubscriptions {
 		if sub.Name() == SubscriptionTypePage {
 			pageSubscriptions += sub.GetFormattedSubscription()

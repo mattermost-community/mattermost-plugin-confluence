@@ -53,7 +53,7 @@ func (ps PageSubscription) GetFormattedSubscription() string {
 
 func (ps PageSubscription) IsValid() error {
 	if ps.Alias == "" {
-		return errors.New("alias can not be empty")
+		return errors.New("subscription name can not be empty")
 	}
 	if ps.BaseURL == "" {
 		return errors.New("base url can not be empty")

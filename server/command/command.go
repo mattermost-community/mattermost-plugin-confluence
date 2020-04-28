@@ -20,14 +20,14 @@ type Handler struct {
 }
 
 const (
-	specifyAlias              = "Please specify an alias."
-	subscriptionDeleteSuccess = "**%s** has been deleted."
+	specifyAlias              = "Please specify a subscription name."
+	subscriptionDeleteSuccess = "Subscription **%s** has been deleted."
 	noChannelSubscription     = "No subscriptions found for this channel."
 	commonHelpText            = "###### Mattermost Confluence Plugin - Slash Command Help\n\n" +
 		"* `/confluence subscribe` - Subscribe the current channel to notifications from Confluence.\n" +
-		"* `/confluence unsubscribe \"<alias>\"` - Unsubscribe the current channel from notifications associated with the given alias.\n" +
+		"* `/confluence unsubscribe \"<name>\"` - Unsubscribe the current channel from notifications associated with the given subscription name.\n" +
 		"* `/confluence list` - List all subscriptions for the current channel.\n" +
-		"* `/confluence edit \"<alias>\"` - Edit the subscription settings associated with the given alias.\n"
+		"* `/confluence edit \"<name>\"` - Edit the subscription settings associated with the given subscription name.\n"
 
 	sysAdminHelpText = "\n###### For System Administrators:\n" +
 		"Setup Instructions:\n" +
@@ -76,7 +76,7 @@ func GetCommand() *model.Command {
 		DisplayName:      "Confluence",
 		Description:      "Integration with Confluence.",
 		AutoComplete:     true,
-		AutoCompleteDesc: "Available commands: subscribe, list, unsubscribe \"<alias>\", edit \"<alias>\", install cloud/server, help.",
+		AutoCompleteDesc: "Available commands: subscribe, list, unsubscribe \"<name>\", edit \"<name>\", install cloud/server, help.",
 		AutoCompleteHint: "[command]",
 	}
 }
@@ -138,7 +138,7 @@ func deleteSubscription(context *model.CommandArgs, args ...string) *model.Comma
 		return &model.CommandResponse{}
 	}
 	alias := args[0]
-	if err := service.DeleteSubscription(context.ChannelId, args[0]); err != nil {
+	if err := service.DeleteSubscription(context.ChannelId, alias); err != nil {
 		postCommandResponse(context, err.Error())
 		return &model.CommandResponse{}
 	}

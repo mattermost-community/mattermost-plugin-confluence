@@ -49,7 +49,7 @@ const SUBSCRIPTION_TYPE = [
 
 const MATTERMOST_CSRF_COOKIE = 'MMCSRF';
 const OPEN_EDIT_SUBSCRIPTION_MODAL_WEBSOCKET_EVENT = `custom_${PLUGIN_NAME}_open_edit_subscription_modal`;
-const SPECIFY_ALIAS = 'Please specify alias.';
+const SPECIFY_ALIAS = 'Please specify a name for the subscription.';
 
 export default {
     ACTION_TYPES,
