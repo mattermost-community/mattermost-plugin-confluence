@@ -1,4 +1,3 @@
-import {getConfig} from 'mattermost-redux/selectors/entities/general';
 import {getCurrentUser} from 'mattermost-redux/selectors/entities/users';
 
 import {openSubscriptionModal, getChannelSubscription} from '../actions';
