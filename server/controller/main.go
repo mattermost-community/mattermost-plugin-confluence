@@ -82,7 +82,7 @@ func Authenticated(w http.ResponseWriter, r *http.Request) bool {
 		return false
 	}
 
-	return true
+	return util.IsSystemAdmin(userID)
 }
 
 func ReturnStatusOK(w http.ResponseWriter) {
