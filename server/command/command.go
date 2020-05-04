@@ -34,7 +34,7 @@ const (
 		"* `/confluence install cloud` - Connect Mattermost to a Confluence Cloud instance.\n" +
 		"* `/confluence install server` - Connect Mattermost to a Confluence Server or Data Center instance.\n"
 
-	invalidCommand         = "Invalid command parameters. Please use `/confluence help` for more information."
+	invalidCommand         = "Invalid command."
 	installOnlySystemAdmin = "`/confluence install` can only be run by a system administrator."
 )
 
@@ -65,7 +65,7 @@ var ConfluenceCommandHandler = Handler{
 		"unsubscribe":    deleteSubscription,
 		"install/cloud":  showInstallCloudHelp,
 		"install/server": showInstallServerHelp,
-		"help":           confluenceHelp,
+		"help":           confluenceHelpCommand,
 	},
 	defaultHandler: executeConfluenceDefault,
 }
@@ -82,9 +82,12 @@ func GetCommand() *model.Command {
 }
 
 func executeConfluenceDefault(context *model.CommandArgs, args ...string) *model.CommandResponse {
+	out := invalidCommand + "\n\n"
+	out += getFullHelpText(context, args...)
+
 	return &model.CommandResponse{
 		ResponseType: model.COMMAND_RESPONSE_TYPE_EPHEMERAL,
-		Text:         invalidCommand,
+		Text:         out,
 	}
 }
 
@@ -162,12 +165,17 @@ func listChannelSubscription(context *model.CommandArgs, args ...string) *model.
 	return &model.CommandResponse{}
 }
 
-func confluenceHelp(context *model.CommandArgs, args ...string) *model.CommandResponse {
+func confluenceHelpCommand(context *model.CommandArgs, args ...string) *model.CommandResponse {
+	helpText := getFullHelpText(context, args...)
+
+	postCommandResponse(context, helpText)
+	return &model.CommandResponse{}
+}
+
+func getFullHelpText(context *model.CommandArgs, args ...string) string {
 	helpText := commonHelpText
 	if util.IsSystemAdmin(context.UserId) {
 		helpText += sysAdminHelpText
 	}
-
-	postCommandResponse(context, helpText)
-	return &model.CommandResponse{}
+	return helpText
 }
