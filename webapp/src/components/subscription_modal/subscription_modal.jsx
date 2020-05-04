@@ -240,7 +240,7 @@ export default class SubscriptionModal extends React.PureComponent {
                 <Modal.Body>
                     <div>
                         <ConfluenceField
-                            label={'Alias'}
+                            label={'Name'}
                             type={'text'}
                             fieldType={'input'}
                             required={true}
