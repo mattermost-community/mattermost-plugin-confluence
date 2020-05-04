@@ -26,7 +26,7 @@ export default class Hooks {
 
         const state = this.store.getState();
         const user = getCurrentUser(state);
-        if (!user.roles.includes(Constants.PERMISSIONS_SYSTEM_ADMIN)) {
+        if (!user.roles.includes(Constants.SYSTEM_ADMIN_ROLE)) {
             this.store.dispatch(sendEphemeralPost(Constants.COMMAND_ADMIN_ONLY, contextArgs.channel_id, user.id));
             return Promise.resolve({});
         }
