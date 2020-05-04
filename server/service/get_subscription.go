@@ -15,7 +15,7 @@ func GetChannelSubscription(channelID, alias string) (serializer.Subscription, i
 	if gErr != nil {
 		return nil, http.StatusInternalServerError, errors.New(generalError)
 	}
-	subscription, found := channelSubscriptions[alias]
+	subscription, found := channelSubscriptions.GetInsensitiveCase(alias)
 	if !found {
 		return nil, http.StatusBadRequest, fmt.Errorf(subscriptionNotFound, alias)
 	}
