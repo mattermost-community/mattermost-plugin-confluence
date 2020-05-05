@@ -19,7 +19,7 @@ func DeleteSubscription(channelID, alias string) error {
 		return fmt.Errorf(generalDeleteError, alias)
 	}
 	if channelSubscriptions, valid := subs.ByChannelID[channelID]; valid {
-		if subscription, ok := channelSubscriptions[alias]; ok {
+		if subscription, ok := channelSubscriptions.GetInsensitiveCase(alias); ok {
 			aErr := store.AtomicModify(store.GetSubscriptionKey(), func(initialBytes []byte) ([]byte, error) {
 				subscriptions, err := serializer.SubscriptionsFromJSON(initialBytes)
 				if err != nil {

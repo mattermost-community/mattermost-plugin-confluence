@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"reflect"
+	"strings"
 )
 
 const (
@@ -154,4 +155,15 @@ func FormattedSubscriptionList(channelSubscriptions StringSubscription) string {
 		list += "#### Page Subscriptions \n" + pageSubscriptionsHeader + pageSubscriptions
 	}
 	return list
+}
+
+func (s StringSubscription) GetInsensitiveCase(key string) (Subscription, bool) {
+	key = strings.ToLower(key)
+	for k, v := range s {
+		k = strings.ToLower(k)
+		if key == k {
+			return v, true
+		}
+	}
+	return nil, false
 }

@@ -140,7 +140,7 @@ func deleteSubscription(context *model.CommandArgs, args ...string) *model.Comma
 		postCommandResponse(context, specifyAlias)
 		return &model.CommandResponse{}
 	}
-	alias := args[0]
+	alias := strings.Join(args, " ")
 	if err := service.DeleteSubscription(context.ChannelId, alias); err != nil {
 		postCommandResponse(context, err.Error())
 		return &model.CommandResponse{}
