@@ -1,3 +1,5 @@
+import {getCurrentUser} from 'mattermost-redux/selectors/entities/users';
+
 import {openSubscriptionModal, getChannelSubscription} from '../actions';
 
 import {splitArgs} from '../utils';
@@ -14,17 +16,31 @@ export default class Hooks {
         if (message) {
             commandTrimmed = message.trim();
         }
-        const userID = this.store.getState().entities.users.currentUserId;
+
+        if (!commandTrimmed.startsWith('/confluence')) {
+            return Promise.resolve({
+                message,
+                args: contextArgs,
+            });
+        }
+
+        const state = this.store.getState();
+        const user = getCurrentUser(state);
+        if (!user.roles.includes(Constants.SYSTEM_ADMIN_ROLE)) {
+            this.store.dispatch(sendEphemeralPost(Constants.COMMAND_ADMIN_ONLY, contextArgs.channel_id, user.id));
+            return Promise.resolve({});
+        }
+
         if (commandTrimmed && commandTrimmed === '/confluence subscribe') {
             this.store.dispatch(openSubscriptionModal());
             return Promise.resolve({});
         } else if (commandTrimmed && commandTrimmed.startsWith('/confluence edit')) {
             const args = splitArgs(commandTrimmed);
             if (args.length < 3) { // eslint-disable-line
-                this.store.dispatch(sendEphemeralPost(Constants.SPECIFY_ALIAS, contextArgs.channel_id, userID));
+                this.store.dispatch(sendEphemeralPost(Constants.SPECIFY_ALIAS, contextArgs.channel_id, user.id));
             } else {
                 const alias = args.slice(2).join(' ');
-                this.store.dispatch(getChannelSubscription(contextArgs.channel_id, alias, userID));
+                this.store.dispatch(getChannelSubscription(contextArgs.channel_id, alias, user.id));
             }
             return Promise.resolve({});
         }

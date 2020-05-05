@@ -14,10 +14,10 @@ import (
 const subscriptionSaveSuccess = "Your subscription has been saved."
 
 var saveChannelSubscription = &Endpoint{
-	RequiresAuth: true,
-	Path:         "/{channelID:[A-Za-z0-9]+}/subscription/{type:[A-Za-z_]+}",
-	Method:       http.MethodPost,
-	Execute:      handleSaveSubscription,
+	RequiresAdmin: true,
+	Path:          "/{channelID:[A-Za-z0-9]+}/subscription/{type:[A-Za-z_]+}",
+	Method:        http.MethodPost,
+	Execute:       handleSaveSubscription,
 }
 
 func handleSaveSubscription(w http.ResponseWriter, r *http.Request) {

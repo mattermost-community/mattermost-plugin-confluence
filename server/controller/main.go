@@ -15,10 +15,10 @@ import (
 )
 
 type Endpoint struct {
-	Path         string
-	Method       string
-	Execute      func(w http.ResponseWriter, r *http.Request)
-	RequiresAuth bool
+	Path          string
+	Method        string
+	Execute       func(w http.ResponseWriter, r *http.Request)
+	RequiresAdmin bool
 }
 
 // Endpoints is a map of endpoint key to endpoint object
@@ -45,8 +45,8 @@ func InitAPI() *mux.Router {
 	s := r.PathPrefix("/api/v1").Subrouter()
 	for _, endpoint := range Endpoints {
 		handler := endpoint.Execute
-		if endpoint.RequiresAuth {
-			handler = handleAuthRequired(endpoint)
+		if endpoint.RequiresAdmin {
+			handler = handleAdminRequired(endpoint)
 		}
 		s.HandleFunc(endpoint.Path, handler).Methods(endpoint.Method)
 	}
@@ -66,23 +66,23 @@ func handleStaticFiles(r *mux.Router) {
 	r.PathPrefix("/static/").Handler(http.StripPrefix("/static/", http.FileServer(http.Dir(filepath.Join(bundlePath, "assets")))))
 }
 
-func handleAuthRequired(endpoint *Endpoint) func(w http.ResponseWriter, r *http.Request) {
+func handleAdminRequired(endpoint *Endpoint) func(w http.ResponseWriter, r *http.Request) {
 	return func(w http.ResponseWriter, r *http.Request) {
-		if Authenticated(w, r) {
+		if IsAdmin(w, r) {
 			endpoint.Execute(w, r)
 		}
 	}
 }
 
-// Authenticated verifies if provided request is performed by a logged-in Mattermost user.
-func Authenticated(w http.ResponseWriter, r *http.Request) bool {
+// IsAdmin verifies if provided request is performed by a logged-in Mattermost user.
+func IsAdmin(w http.ResponseWriter, r *http.Request) bool {
 	userID := r.Header.Get(config.HeaderMattermostUserID)
 	if userID == "" {
 		http.Error(w, "Unauthorized", http.StatusUnauthorized)
 		return false
 	}
 
-	return true
+	return util.IsSystemAdmin(userID)
 }
 
 func ReturnStatusOK(w http.ResponseWriter) {

@@ -23,7 +23,12 @@ const (
 		"* `/confluence unsubscribe \"<alias>\"` - Unsubscribe the current channel from notifications associated with the given alias.\n" +
 		"* `/confluence list` - List all subscriptions for the current channel.\n" +
 		"* `/confluence edit \"<alias>\"` - Edit the subscription settings associated with the given alias.\n"
-	invalidCommand = "Invalid command parameters. Please use `/confluence help` for more information."
+	sysAdminHelpText = "\n###### For System Administrators:\n" +
+		"Setup Instructions:\n" +
+		"* `/confluence install cloud` - Connect Mattermost to a Confluence Cloud instance.\n" +
+		"* `/confluence install server` - Connect Mattermost to a Confluence Server or Data Center instance.\n"
+	invalidCommand          = "Invalid command parameters. Please use `/confluence help` for more information."
+	commandsOnlySystemAdmin = "`/confluence` commands can only be run by a system administrator."
 )
 
 func baseMock() *plugintest.API {
@@ -35,24 +40,27 @@ func baseMock() *plugintest.API {
 
 func TestExecuteCommand(t *testing.T) {
 	p := Plugin{}
-	mockAPI := baseMock()
 
 	for name, val := range map[string]struct {
 		commandArgs      *model.CommandArgs
 		ephemeralMessage string
+		isAdmin          bool
 		patchAPICalls    func()
 	}{
 		"empty command ": {
 			commandArgs:      &model.CommandArgs{Command: "/confluence", UserId: "abcdabcdabcdabcd", ChannelId: "testtesttesttest"},
-			ephemeralMessage: helpText,
+			ephemeralMessage: helpText + sysAdminHelpText,
+			isAdmin:          true,
 		},
 		"help command": {
 			commandArgs:      &model.CommandArgs{Command: "/confluence help", UserId: "abcdabcdabcdabcd", ChannelId: "testtesttesttest"},
-			ephemeralMessage: helpText,
+			ephemeralMessage: helpText + sysAdminHelpText,
+			isAdmin:          true,
 		},
 		"unsubscribe command ": {
 			commandArgs:      &model.CommandArgs{Command: "/confluence unsubscribe \"abc\"", UserId: "abcdabcdabcdabcd", ChannelId: "testtesttesttest"},
 			ephemeralMessage: fmt.Sprintf(subscriptionDeleteSuccess, "abc"),
+			isAdmin:          true,
 			patchAPICalls: func() {
 				monkey.Patch(service.DeleteSubscription, func(channelID, alias string) error {
 					return nil
@@ -62,22 +70,37 @@ func TestExecuteCommand(t *testing.T) {
 		"unsubscribe command no alias": {
 			commandArgs:      &model.CommandArgs{Command: "/confluence unsubscribe", UserId: "abcdabcdabcdabcd", ChannelId: "testtesttesttest"},
 			ephemeralMessage: specifyAlias,
+			isAdmin:          true,
 		},
 		"invalid command": {
 			commandArgs:      &model.CommandArgs{Command: "/confluence xyz", UserId: "abcdabcdabcdabcd", ChannelId: "testtesttesttest"},
 			ephemeralMessage: invalidCommand,
+			isAdmin:          true,
+		},
+		"admin restricted": {
+			commandArgs:      &model.CommandArgs{Command: "/confluence unsubscribe \"abc\"", UserId: "abcdabcdabcdabcd", ChannelId: "testtesttesttest"},
+			ephemeralMessage: commandsOnlySystemAdmin,
+			isAdmin:          false,
 		},
 	} {
 		t.Run(name, func(t *testing.T) {
 			defer monkey.UnpatchAll()
+			mockAPI := baseMock()
+
 			mockAPI.On("SendEphemeralPost", mock.AnythingOfType("string"), mock.AnythingOfType("*model.Post")).Run(func(args mock.Arguments) {
 				post := args.Get(1).(*model.Post)
 				assert.Equal(t, val.ephemeralMessage, post.Message)
 			}).Once().Return(&model.Post{})
-			mockAPI.On("GetUser", mock.AnythingOfType("string")).Return(&model.User{Id: "123", Roles: ""}, nil)
+
+			roles := "system_user"
+			if val.isAdmin {
+				roles += " system_admin"
+			}
+			mockAPI.On("GetUser", mock.AnythingOfType("string")).Return(&model.User{Id: "123", Roles: roles}, nil)
 			if val.patchAPICalls != nil {
 				val.patchAPICalls()
 			}
+
 			res, err := p.ExecuteCommand(&plugin.Context{}, val.commandArgs)
 			assert.Nil(t, err)
 			assert.NotNil(t, res)
