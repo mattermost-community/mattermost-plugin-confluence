@@ -51,6 +51,9 @@ const MATTERMOST_CSRF_COOKIE = 'MMCSRF';
 const OPEN_EDIT_SUBSCRIPTION_MODAL_WEBSOCKET_EVENT = `custom_${PLUGIN_NAME}_open_edit_subscription_modal`;
 const SPECIFY_ALIAS = 'Please specify a name for the subscription.';
 
+const COMMAND_ADMIN_ONLY = '`/confluence` commands can only be run by a system administrator.';
+const SYSTEM_ADMIN_ROLE = 'system_admin';
+
 export default {
     ACTION_TYPES,
     CONFLUENCE_EVENTS,
@@ -58,5 +61,7 @@ export default {
     OPEN_EDIT_SUBSCRIPTION_MODAL_WEBSOCKET_EVENT,
     PLUGIN_NAME,
     SPECIFY_ALIAS,
+    COMMAND_ADMIN_ONLY,
+    SYSTEM_ADMIN_ROLE,
     SUBSCRIPTION_TYPE,
 };

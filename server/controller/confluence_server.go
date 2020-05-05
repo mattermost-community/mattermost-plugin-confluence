@@ -9,10 +9,10 @@ import (
 )
 
 var confluenceServerWebhook = &Endpoint{
-	Path:         "/server/webhook",
-	Method:       http.MethodPost,
-	Execute:      handleConfluenceServerWebhook,
-	RequiresAuth: false,
+	Path:          "/server/webhook",
+	Method:        http.MethodPost,
+	Execute:       handleConfluenceServerWebhook,
+	RequiresAdmin: false,
 }
 
 func handleConfluenceServerWebhook(w http.ResponseWriter, r *http.Request) {

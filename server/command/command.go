@@ -34,8 +34,9 @@ const (
 		"* `/confluence install cloud` - Connect Mattermost to a Confluence Cloud instance.\n" +
 		"* `/confluence install server` - Connect Mattermost to a Confluence Server or Data Center instance.\n"
 
-	invalidCommand         = "Invalid command."
-	installOnlySystemAdmin = "`/confluence install` can only be run by a system administrator."
+	invalidCommand          = "Invalid command."
+	installOnlySystemAdmin  = "`/confluence install` can only be run by a system administrator."
+	commandsOnlySystemAdmin = "`/confluence` commands can only be run by a system administrator."
 )
 
 const (
@@ -101,6 +102,11 @@ func postCommandResponse(context *model.CommandArgs, text string) {
 }
 
 func (ch Handler) Handle(context *model.CommandArgs, args ...string) *model.CommandResponse {
+	if !util.IsSystemAdmin(context.UserId) {
+		postCommandResponse(context, commandsOnlySystemAdmin)
+		return &model.CommandResponse{}
+	}
+
 	if len(args) == 0 {
 		return ch.handlers["help"](context, "")
 	}
