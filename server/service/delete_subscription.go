@@ -9,8 +9,8 @@ import (
 )
 
 const (
-	generalDeleteError   = "Error occurred while deleting subscription with alias **%s**."
-	subscriptionNotFound = "Subscription with alias **%s** not found."
+	generalDeleteError   = "Error occurred while deleting subscription with name **%s**."
+	subscriptionNotFound = "Subscription with name **%s** not found."
 )
 
 func DeleteSubscription(channelID, alias string) error {

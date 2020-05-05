@@ -240,12 +240,12 @@ export default class SubscriptionModal extends React.PureComponent {
                 <Modal.Body>
                     <div>
                         <ConfluenceField
-                            label={'Alias'}
+                            label={'Name'}
                             type={'text'}
                             fieldType={'input'}
                             required={true}
                             readOnly={editSubscription}
-                            placeholder={'Enter an alias for this subscription.'}
+                            placeholder={'Enter a name for this subscription.'}
                             value={this.state.alias}
                             addValidation={this.validator.addValidation}
                             removeValidation={this.validator.removeValidation}

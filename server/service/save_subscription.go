@@ -11,7 +11,7 @@ import (
 
 const (
 	generalSaveError        = "An error occurred attempting to save a subscription."
-	aliasAlreadyExist       = "A subscription with the same alias already exists."
+	aliasAlreadyExist       = "A subscription with the same name already exists."
 	urlSpaceKeyAlreadyExist = "A subscription with the same url and space key already exists."
 	urlPageIDAlreadyExist   = "A subscription with the same url and page id already exists."
 )

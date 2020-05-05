@@ -53,7 +53,7 @@ func (ss SpaceSubscription) GetFormattedSubscription() string {
 
 func (ss SpaceSubscription) IsValid() error {
 	if ss.Alias == "" {
-		return errors.New("alias can not be empty")
+		return errors.New("subscription name can not be empty")
 	}
 	if ss.BaseURL == "" {
 		return errors.New("base url can not be empty")
