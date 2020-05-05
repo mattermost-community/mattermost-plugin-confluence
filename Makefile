@@ -249,6 +249,25 @@ endif
 .PHONY: dist
 dist: .distclean apply server webapp bundle
 
+## Installs the plugin to a (development) server.
+.PHONY: deploy
+deploy: dist
+## It uses the API if appropriate environment variables are defined,
+## or copying the files directly to a sibling mattermost-server directory.
+ifneq ($(and $(MM_SERVICESETTINGS_SITEURL),$(MM_ADMIN_USERNAME),$(MM_ADMIN_PASSWORD),$(CURL)),)
+	@echo "Installing plugin via API"
+	$(eval TOKEN := $(shell curl -i --post301 --location $(MM_SERVICESETTINGS_SITEURL) -X POST $(MM_SERVICESETTINGS_SITEURL)/api/v4/users/login -d '{"login_id": "$(MM_ADMIN_USERNAME)", "password": "$(MM_ADMIN_PASSWORD)"}' | grep Token | cut -f2 -d' ' 2> /dev/null))
+	@curl -s --post301 --location $(MM_SERVICESETTINGS_SITEURL) -H "Authorization: Bearer $(TOKEN)" -X POST $(MM_SERVICESETTINGS_SITEURL)/api/v4/plugins -F "plugin=@dist/$(BUNDLE_NAME)" -F "force=true" > /dev/null && \
+		curl -s --post301 --location $(MM_SERVICESETTINGS_SITEURL) -H "Authorization: Bearer $(TOKEN)" -X POST $(MM_SERVICESETTINGS_SITEURL)/api/v4/plugins/$(PLUGIN_ID)/enable > /dev/null && \
+		echo "OK." || echo "Sorry, something went wrong."
+else ifneq ($(wildcard ../mattermost-server/.*),)
+	@echo "Installing plugin via filesystem. Server restart and manual plugin enabling required"
+	mkdir -p ../mattermost-server/plugins
+	tar -C ../mattermost-server/plugins -zxvf dist/$(BUNDLE_NAME)
+else
+	@echo "No supported deployment method available. Install plugin manually."
+endif
+
 ## Builds and bundles the plugin in debug mode (if it exists).
 .PHONY: debug-dist
 debug-dist: .distclean apply server webapp-debug bundle

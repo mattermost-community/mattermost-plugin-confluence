@@ -39,7 +39,8 @@ export default class Hooks {
             if (args.length < 3) { // eslint-disable-line
                 this.store.dispatch(sendEphemeralPost(Constants.SPECIFY_ALIAS, contextArgs.channel_id, user.id));
             } else {
-                this.store.dispatch(getChannelSubscription(contextArgs.channel_id, args[2], user.id));
+                const alias = args.slice(2).join(' ');
+                this.store.dispatch(getChannelSubscription(contextArgs.channel_id, alias, user.id));
             }
             return Promise.resolve({});
         }
