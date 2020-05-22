@@ -88,7 +88,7 @@ func (p *Plugin) setUpBotUser() error {
 		return err
 	}
 
-	profileImage, err := ioutil.ReadFile(filepath.Join(bundlePath, "assets", "logo.png"))
+	profileImage, err := ioutil.ReadFile(filepath.Join(bundlePath, "assets", "icon.png"))
 	if err != nil {
 		return err
 	}
