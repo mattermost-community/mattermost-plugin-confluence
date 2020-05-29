@@ -3,42 +3,7 @@ version: 2.1
 orbs:
   plugin-ci: mattermost/plugin-ci@volatile
 
-jobs:
-  build:
-    docker:
-      - image: circleci/golang:1.13-node
-    working_directory: /go/src/github.com/mattermost/mattermost-plugin-confluence
-    steps:
-      - checkout
-      - restore_cache:
-          key: go-mod-v1-{{ checksum "go.sum" }}
-      - type: shell
-        name: 'Checks the code style, tests, builds and bundles the plugin.'
-        command: make all
-        environment:
-          TERM: dumb
-      - save_cache:
-          key: go-mod-v1-{{ checksum "go.sum" }}
-          paths:
-            - "/go/pkg/mod"
-      - store_artifacts:
-          path: ./dist
-          destination: build
-      - persist_to_workspace:
-          root: .
-          paths:
-            - dist
-
 workflows:
-  version: 2
-  build:
-    jobs:
-      - build:
-          filters:
-            branches:
-              only: /.*/
-            tags:
-              ignore: /.*/
   ci-build:
     jobs:
       - plugin-ci/lint:
