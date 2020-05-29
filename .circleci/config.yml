@@ -1,4 +1,8 @@
-version: 2.0
+version: 2.1
+
+orbs:
+  plugin-ci: mattermost/plugin-ci@volatile
+
 jobs:
   build:
     docker:
@@ -24,18 +28,6 @@ jobs:
           root: .
           paths:
             - dist
-  release:
-    docker:
-      - image: cibuilds/github:0.12
-    working_directory: /go/src/github.com/mattermost/mattermost-plugin-confluence
-    steps:
-      - checkout
-      - attach_workspace:
-          at: .
-      - run:
-          name: "Publish Release on GitHub"
-          command: |
-            ghr -t ${GITHUB_TOKEN} -u ${CIRCLE_PROJECT_USERNAME} -r ${CIRCLE_PROJECT_REPONAME} -c ${CIRCLE_SHA1} -delete ${CIRCLE_TAG} dist/
 
 workflows:
   version: 2
@@ -47,19 +39,48 @@ workflows:
               only: /.*/
             tags:
               ignore: /.*/
-  build-and-release:
+  ci-build:
     jobs:
-      - build:
+      - plugin-ci/lint:
+          filters:
+            tags:
+              only: /^v.*/
+      - plugin-ci/test:
+          filters:
+            tags:
+              only: /^v.*/
+      - plugin-ci/build:
+          filters:
+            tags:
+              only: /^v.*/
+      - plugin-ci/deploy-ci:
           filters:
             branches:
-              ignore: /.*/
-            tags:
-              only: /.*/
-      - release:
+              only: master
+          context: plugin-ci
           requires:
-            - build
+            - plugin-ci/lint
+            - plugin-ci/test
+            - plugin-ci/build
+      - plugin-ci/deploy-release:
           filters:
+            tags:
+              only: /^v.*/
             branches:
               ignore: /.*/
+          context: plugin-ci
+          requires:
+            - plugin-ci/lint
+            - plugin-ci/test
+            - plugin-ci/build
+      - plugin-ci/deploy-release-github:
+          filters:
             tags:
-              only: /.*/
+              only: /^v.*/
+            branches:
+              ignore: /.*/
+          context: matterbuild-github-token
+          requires:
+            - plugin-ci/lint
+            - plugin-ci/test
+            - plugin-ci/build
