@@ -1,65 +1,51 @@
-version: 2.0
-jobs:
-  build:
-    docker:
-      - image: circleci/golang:1.13-node
-    working_directory: /go/src/github.com/mattermost/mattermost-plugin-confluence
-    steps:
-      - checkout
-      - restore_cache:
-          key: go-mod-v1-{{ checksum "go.sum" }}
-      - type: shell
-        name: 'Checks the code style, tests, builds and bundles the plugin.'
-        command: make all
-        environment:
-          TERM: dumb
-      - save_cache:
-          key: go-mod-v1-{{ checksum "go.sum" }}
-          paths:
-            - "/go/pkg/mod"
-      - store_artifacts:
-          path: ./dist
-          destination: build
-      - persist_to_workspace:
-          root: .
-          paths:
-            - dist
-  release:
-    docker:
-      - image: cibuilds/github:0.12
-    working_directory: /go/src/github.com/mattermost/mattermost-plugin-confluence
-    steps:
-      - checkout
-      - attach_workspace:
-          at: .
-      - run:
-          name: "Publish Release on GitHub"
-          command: |
-            ghr -t ${GITHUB_TOKEN} -u ${CIRCLE_PROJECT_USERNAME} -r ${CIRCLE_PROJECT_REPONAME} -c ${CIRCLE_SHA1} -delete ${CIRCLE_TAG} dist/
+version: 2.1
+
+orbs:
+  plugin-ci: mattermost/plugin-ci@volatile
 
 workflows:
-  version: 2
-  build:
+  ci-build:
     jobs:
-      - build:
+      - plugin-ci/lint:
+          filters:
+            tags:
+              only: /^v.*/
+      - plugin-ci/test:
+          filters:
+            tags:
+              only: /^v.*/
+      - plugin-ci/build:
+          filters:
+            tags:
+              only: /^v.*/
+      - plugin-ci/deploy-ci:
           filters:
             branches:
-              only: /.*/
-            tags:
-              ignore: /.*/
-  build-and-release:
-    jobs:
-      - build:
-          filters:
-            branches:
-              ignore: /.*/
-            tags:
-              only: /.*/
-      - release:
+              only: master
+          context: plugin-ci
           requires:
-            - build
+            - plugin-ci/lint
+            - plugin-ci/test
+            - plugin-ci/build
+      - plugin-ci/deploy-release:
           filters:
+            tags:
+              only: /^v.*/
             branches:
               ignore: /.*/
+          context: plugin-ci
+          requires:
+            - plugin-ci/lint
+            - plugin-ci/test
+            - plugin-ci/build
+      - plugin-ci/deploy-release-github:
+          filters:
             tags:
-              only: /.*/
+              only: /^v.*/
+            branches:
+              ignore: /.*/
+          context: matterbuild-github-token
+          requires:
+            - plugin-ci/lint
+            - plugin-ci/test
+            - plugin-ci/build
