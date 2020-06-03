@@ -1,5 +1,9 @@
-# Mattermost Plugin for Confluence [![CircleCI branch](https://img.shields.io/circleci/project/github/mattermost/mattermost-plugin-confluence/master.svg)](https://circleci.com/gh/mattermost/mattermost-plugin-confluence)
+# Mattermost Plugin for Confluence 
 
+[![Build Status](https://img.shields.io/circleci/project/github/mattermost/mattermost-plugin-confluence/master)](https://circleci.com/gh/mattermost/mattermost-plugin-confluence)
+[![Code Coverage](https://img.shields.io/codecov/c/github/mattermost/mattermost-plugin-confluence/master)](https://codecov.io/gh/mattermost/mattermost-plugin-confluence)
+[![Release](https://img.shields.io/github/v/release/mattermost/mattermost-plugin-confluence)](https://github.com/mattermost/mattermost-plugin-confluence/releases/latest)
+[![HW](https://img.shields.io/github/issues/mattermost/mattermost-plugin-confluence/Up%20For%20Grabs?color=dark%20green&label=Help%20Wanted)](https://github.com/mattermost/mattermost-plugin-confluence/issues?q=is%3Aissue+is%3Aopen+sort%3Aupdated-desc+label%3A%22Up+For+Grabs%22+label%3A%22Help+Wanted%22)
 
 A Mattermost plugin for Confluence. Supports Confluence Cloud, Server and Data Center versions. This plugin helps your teams collaborate and keep in sync as Confluence Pages and Spaces get updated.  Comments and activity can be pushed into specific Mattermost channels for full visibility. 
 
