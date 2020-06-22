@@ -7,14 +7,13 @@ import (
 
 	"github.com/pkg/errors"
 
-	"github.com/mattermost/mattermost-server/model"
-	"github.com/mattermost/mattermost-server/plugin"
+	"github.com/mattermost/mattermost-server/v5/model"
+	"github.com/mattermost/mattermost-server/v5/plugin"
 
 	"github.com/mattermost/mattermost-plugin-confluence/server/command"
-	"github.com/mattermost/mattermost-plugin-confluence/server/util"
-
 	"github.com/mattermost/mattermost-plugin-confluence/server/config"
 	"github.com/mattermost/mattermost-plugin-confluence/server/controller"
+	"github.com/mattermost/mattermost-plugin-confluence/server/util"
 )
 
 const (

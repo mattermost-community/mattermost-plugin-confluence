@@ -6,7 +6,6 @@ import (
 	"testing"
 
 	"bou.ke/monkey"
-
 	"github.com/stretchr/testify/assert"
 
 	"github.com/mattermost/mattermost-plugin-confluence/server/serializer"
