@@ -79,7 +79,41 @@ func GetCommand() *model.Command {
 		AutoComplete:     true,
 		AutoCompleteDesc: "Available commands: subscribe, list, unsubscribe \"<name>\", edit \"<name>\", install cloud/server, help.",
 		AutoCompleteHint: "[command]",
+		AutocompleteData: getAutoCompleteData(),
 	}
+}
+
+func getAutoCompleteData() *model.AutocompleteData {
+	confluence := model.NewAutocompleteData("confluence", "[command]", "Available commands:  subscribe, list, unsubscribe \"<name>\", edit \"<name>\", install cloud/server, help")
+
+	install := model.NewAutocompleteData("install", "", "Connect Mattermost to a Confluence instance")
+	installItems := []model.AutocompleteListItem{{
+		HelpText: "Connect Mattermost to a Confluence Cloud instance",
+		Item:     "cloud",
+	}, {
+		HelpText: "Connect Mattermost to a Confluence Server or Data Center instance",
+		Item:     "server",
+	}}
+	install.AddStaticListArgument("", false, installItems)
+	confluence.AddCommand(install)
+
+	list := model.NewAutocompleteData("list", "", "List all subscriptions for the current channel")
+	confluence.AddCommand(list)
+
+	edit := model.NewAutocompleteData("edit", "[name]", "Edit the subscription settings associated with the given subscription name")
+	edit.AddTextArgument("Subscription name", "[name]", "")
+	confluence.AddCommand(edit)
+
+	subscribe := model.NewAutocompleteData("subscribe", "", "Subscribe the current channel to notifications from Confluence")
+	confluence.AddCommand(subscribe)
+
+	unsubscribe := model.NewAutocompleteData("unsubscribe", "[name]", "Unsubscribe the current channel from notifications associated with the given subscription name")
+	unsubscribe.AddTextArgument("Subscription name", "[name]", "")
+	confluence.AddCommand(unsubscribe)
+
+	help := model.NewAutocompleteData("help", "", "Show confluence slash command help")
+	confluence.AddCommand(help)
+	return confluence
 }
 
 func executeConfluenceDefault(context *model.CommandArgs, args ...string) *model.CommandResponse {
