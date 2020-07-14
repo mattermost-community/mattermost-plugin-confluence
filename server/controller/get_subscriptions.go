@@ -24,7 +24,7 @@ func handleGetChannelSubscriptions(w http.ResponseWriter, r *http.Request) {
 	}
 
 	out := []model.AutocompleteListItem{}
-	for alias, _ := range subscriptions {
+	for alias := range subscriptions {
 		out = append(out, model.AutocompleteListItem{
 			Item: alias,
 		})
