@@ -101,14 +101,14 @@ func getAutoCompleteData() *model.AutocompleteData {
 	confluence.AddCommand(list)
 
 	edit := model.NewAutocompleteData("edit", "[name]", "Edit the subscription settings associated with the given subscription name")
-	edit.AddTextArgument("Subscription name", "[name]", "")
+	edit.AddDynamicListArgument("name", "api/v1/autocomplete/GetChannelSubscriptions", false)
 	confluence.AddCommand(edit)
 
 	subscribe := model.NewAutocompleteData("subscribe", "", "Subscribe the current channel to notifications from Confluence")
 	confluence.AddCommand(subscribe)
 
 	unsubscribe := model.NewAutocompleteData("unsubscribe", "[name]", "Unsubscribe the current channel from notifications associated with the given subscription name")
-	unsubscribe.AddTextArgument("Subscription name", "[name]", "")
+	unsubscribe.AddDynamicListArgument("name", "api/v1/autocomplete/GetChannelSubscriptions", false)
 	confluence.AddCommand(unsubscribe)
 
 	help := model.NewAutocompleteData("help", "", "Show confluence slash command help")
