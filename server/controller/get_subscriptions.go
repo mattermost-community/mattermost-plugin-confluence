@@ -24,13 +24,13 @@ func handleGetChannelSubscriptions(w http.ResponseWriter, r *http.Request) {
 	}
 
 	out := []model.AutocompleteListItem{}
-	for alias := range subscriptions {
+	for _, sub := range subscriptions {
 		out = append(out, model.AutocompleteListItem{
-			Item: alias,
+			Item: sub.GetAlias(),
 		})
 	}
 
 	b, _ := json.Marshal(out)
 	w.Header().Set("Content-Type", "application/json")
-	_, _ = w.Write([]byte(string(b)))
+	_, _ = w.Write(b)
 }

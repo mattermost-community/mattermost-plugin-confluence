@@ -84,7 +84,7 @@ func GetCommand() *model.Command {
 }
 
 func getAutoCompleteData() *model.AutocompleteData {
-	confluence := model.NewAutocompleteData("confluence", "[command]", "Available commands:  subscribe, list, unsubscribe \"<name>\", edit \"<name>\", install cloud/server, help")
+	confluence := model.NewAutocompleteData("confluence", "[command]", "Available commands: subscribe, list, unsubscribe \"<name>\", edit \"<name>\", install cloud/server, help")
 
 	install := model.NewAutocompleteData("install", "", "Connect Mattermost to a Confluence instance")
 	installItems := []model.AutocompleteListItem{{
