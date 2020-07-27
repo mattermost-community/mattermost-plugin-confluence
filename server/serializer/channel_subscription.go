@@ -19,9 +19,9 @@ const (
 	SubscriptionTypeSpace = "space_subscription"
 	SubscriptionTypePage  = "page_subscription"
 
-	aliasAlreadyExist       = "A subscription with the same name already exists."
-	urlSpaceKeyAlreadyExist = "A subscription with the same url and space key already exists."
-	urlPageIDAlreadyExist   = "A subscription with the same url and page id already exists."
+	aliasAlreadyExist       = "A subscription with the same name already exists in this channel."
+	urlSpaceKeyAlreadyExist = "A subscription with the same url and space key already exists in this channel."
+	urlPageIDAlreadyExist   = "A subscription with the same url and page id already exists in this channel."
 )
 
 var eventDisplayName = map[string]string{
