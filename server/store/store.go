@@ -34,7 +34,7 @@ func AtomicModify(key string, modify func(initialValue []byte) ([]byte, error)) 
 	readModify := func() ([]byte, []byte, error) {
 		initialBytes, appErr := config.Mattermost.KVGet(key)
 		if appErr != nil {
-			return nil, nil, errors.Wrap(appErr, "unable to read inital value")
+			return nil, nil, errors.Wrap(appErr, "unable to read initial value")
 		}
 
 		modifiedBytes, err := modify(initialBytes)

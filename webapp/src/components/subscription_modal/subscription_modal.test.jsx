@@ -22,7 +22,7 @@ describe('components/ChannelSettingsModal', () => {
             ...baseProps,
             visibility: true,
         };
-        const wrapper = shallow<SubscriptionModal>(
+        const wrapper = shallow(
             <SubscriptionModal {...props}/>
         );
         expect(wrapper).toMatchSnapshot();
@@ -33,7 +33,7 @@ describe('components/ChannelSettingsModal', () => {
             ...baseProps,
             visibility: true,
         };
-        const wrapper = shallow<SubscriptionModal>(
+        const wrapper = shallow(
             <SubscriptionModal {...props}/>
         );
         wrapper.setState({
@@ -74,7 +74,7 @@ describe('components/ChannelSettingsModal', () => {
             ...baseProps,
             subscription,
         };
-        const wrapper = shallow<SubscriptionModal>(
+        const wrapper = shallow(
             <SubscriptionModal {...props}/>
         );
         wrapper.setState({
@@ -106,7 +106,7 @@ describe('components/ChannelSettingsModal', () => {
             ...baseProps,
             visibility: true,
         };
-        const wrapper = shallow<SubscriptionModal>(
+        const wrapper = shallow(
             <SubscriptionModal {...props}/>
         );
         wrapper.setState({
@@ -147,7 +147,7 @@ describe('components/ChannelSettingsModal', () => {
             ...baseProps,
             subscription,
         };
-        const wrapper = shallow<SubscriptionModal>(
+        const wrapper = shallow(
             <SubscriptionModal {...props}/>
         );
         wrapper.setState({
@@ -179,7 +179,7 @@ describe('components/ChannelSettingsModal', () => {
             ...baseProps,
             visibility: true,
         };
-        const wrapper = shallow<SubscriptionModal>(
+        const wrapper = shallow(
             <SubscriptionModal {...props}/>
         );
         wrapper.setState({

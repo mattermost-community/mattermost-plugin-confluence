@@ -2,6 +2,7 @@ package controller
 
 import (
 	"crypto/subtle"
+	"io"
 	"net/http"
 	"net/url"
 	"path/filepath"
@@ -85,7 +86,7 @@ func IsAdmin(w http.ResponseWriter, r *http.Request) bool {
 	return util.IsSystemAdmin(userID)
 }
 
-func ReturnStatusOK(w http.ResponseWriter) {
+func ReturnStatusOK(w io.Writer) {
 	m := make(map[string]string)
 	m[model.STATUS] = model.STATUS_OK
 	_, _ = w.Write([]byte(model.MapToJson(m)))
@@ -99,7 +100,7 @@ func verifyHTTPSecret(expected, got string) (status int, err error) {
 
 		unescaped, _ := url.QueryUnescape(got)
 		if unescaped == got {
-			return http.StatusForbidden, errors.New("Request URL: secret did not match")
+			return http.StatusForbidden, errors.New("request URL: secret did not match")
 		}
 		got = unescaped
 	}

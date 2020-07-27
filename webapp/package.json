@@ -8,7 +8,8 @@
     "debug": "webpack --mode=none",
     "lint": "eslint --ignore-pattern node_modules --ignore-pattern dist --ext .js --ext .jsx . --quiet",
     "fix": "eslint --ignore-pattern node_modules --ignore-pattern dist --ext .js --ext .jsx . --quiet --fix",
-    "test": "jest --passWithNoTests --forceExit --detectOpenHandles --verbose"
+    "test": "jest --passWithNoTests --forceExit --detectOpenHandles --verbose",
+    "check-types": "tsc"
   },
   "author": "",
   "license": "",
@@ -51,6 +52,7 @@
     "webpack-cli": "3.3.5"
   },
   "dependencies": {
+    "check-types": "11.1.2",
     "core-js": "3.6.4",
     "js-cookie": "^2.2.1",
     "mattermost-redux": "^5.18.0",
