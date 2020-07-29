@@ -6,12 +6,12 @@ checks:
     params:
       repo: plugin
 actions:
-  - paths:
-      - build
-    actions:
-      - type: overwrite_directory
-        params:
-          create: true
+  # - paths:
+  #     - build
+  #   actions:
+  #     - type: overwrite_directory
+  #       params:
+  #         create: true
   - paths:
       - Makefile
       - .editorconfig
