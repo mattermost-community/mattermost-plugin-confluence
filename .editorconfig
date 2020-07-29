@@ -1,7 +1,5 @@
-# EditorConfig is awesome: http://editorConfig.org
-# Usage with your editor: http://editorconfig.org/#download
+# http://editorconfig.org/
 
-# Top-most EditorConfig file
 root = true
 
 [*]
@@ -17,25 +15,14 @@ indent_style = tab
 indent_style = space
 indent_size = 4
 
-[webapp/.eslintrc.json]
-indent_style = space
+[webapp/package.json]
 indent_size = 2
 
-# The indentation in package.json will always need to be 2 spaces
-# https://github.com/npm/npm/issues/4718
-[package*.json]
-indent_style = space
-indent_size = 2
-
-[{Makefile,*.mk}]
+[Makefile,*.mk]
 indent_style = tab
-
-[*.css]
-indent_size = 2
-indent_style = space
 
 [*.md]
 indent_style = space
 indent_size = 4
-# Don't trim trailing whitespace in Markdown (they are used to force line breaks)
 trim_trailing_whitespace = false
+

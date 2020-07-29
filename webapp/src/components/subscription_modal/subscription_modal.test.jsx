@@ -1,3 +1,5 @@
+/*eslint max-nested-callbacks: ["error", 3]*/
+
 import React from 'react';
 
 import {shallow} from 'enzyme';
