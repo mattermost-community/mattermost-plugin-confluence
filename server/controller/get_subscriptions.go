@@ -5,6 +5,7 @@ import (
 	"net/http"
 
 	"github.com/mattermost/mattermost-plugin-confluence/server/service"
+
 	"github.com/mattermost/mattermost-server/v5/model"
 )
 
