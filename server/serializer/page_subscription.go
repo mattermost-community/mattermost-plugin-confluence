@@ -43,6 +43,10 @@ func (ps PageSubscription) Name() string {
 	return SubscriptionTypePage
 }
 
+func (ps PageSubscription) GetAlias() string {
+	return ps.Alias
+}
+
 func (ps PageSubscription) GetFormattedSubscription() string {
 	var events []string
 	for _, event := range ps.Events {

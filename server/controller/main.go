@@ -30,6 +30,8 @@ var Endpoints = map[string]*Endpoint{
 	getEndpointKey(editChannelSubscription): editChannelSubscription,
 	getEndpointKey(confluenceServerWebhook): confluenceServerWebhook,
 	getEndpointKey(getChannelSubscription):  getChannelSubscription,
+
+	getEndpointKey(autocompleteGetChannelSubscriptions): autocompleteGetChannelSubscriptions,
 }
 
 // Uniquely identifies an endpoint using path and method

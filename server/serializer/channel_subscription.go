@@ -40,6 +40,7 @@ type Subscription interface {
 	Remove(*Subscriptions)
 	Edit(*Subscriptions)
 	Name() string
+	GetAlias() string
 	GetFormattedSubscription() string
 	IsValid() error
 	ValidateSubscription(*Subscriptions) error
