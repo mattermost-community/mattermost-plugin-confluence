@@ -9,10 +9,10 @@ import Constants from '../constants';
 export default class Client {
     constructor() {
         const url = new URL(window.location.href);
-        this.baseUrl = `${url.protocol}//${url.host}`;
-        this.pluginUrl = `${this.baseUrl}/plugins/${Constants.PLUGIN_NAME}`;
-        this.apiUrl = `${this.baseUrl}/api/v4`;
-        this.pluginApiUrl = `${this.pluginUrl}/api/v1`;
+        this.baseUrl = url.protocol + '//' + url.host;
+        this.pluginUrl = this.baseUrl + '/plugins/' + Constants.PLUGIN_NAME;
+        this.apiUrl = this.baseUrl + '/api/v4';
+        this.pluginApiUrl = this.pluginUrl + '/api/v1';
     }
 
     saveChannelSubscription = (channelSubscription) => {

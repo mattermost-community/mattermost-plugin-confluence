@@ -25,7 +25,7 @@ describe('components/ChannelSettingsModal', () => {
             visibility: true,
         };
         const wrapper = shallow(
-            <SubscriptionModal {...props}/>
+            <SubscriptionModal {...props}/>,
         );
         expect(wrapper).toMatchSnapshot();
     });
@@ -36,7 +36,7 @@ describe('components/ChannelSettingsModal', () => {
             visibility: true,
         };
         const wrapper = shallow(
-            <SubscriptionModal {...props}/>
+            <SubscriptionModal {...props}/>,
         );
         wrapper.setState({
             alias: 'Abc',
@@ -77,7 +77,7 @@ describe('components/ChannelSettingsModal', () => {
             subscription,
         };
         const wrapper = shallow(
-            <SubscriptionModal {...props}/>
+            <SubscriptionModal {...props}/>,
         );
         wrapper.setState({
             alias: 'Abc',
@@ -109,7 +109,7 @@ describe('components/ChannelSettingsModal', () => {
             visibility: true,
         };
         const wrapper = shallow(
-            <SubscriptionModal {...props}/>
+            <SubscriptionModal {...props}/>,
         );
         wrapper.setState({
             alias: 'Abc',
@@ -150,7 +150,7 @@ describe('components/ChannelSettingsModal', () => {
             subscription,
         };
         const wrapper = shallow(
-            <SubscriptionModal {...props}/>
+            <SubscriptionModal {...props}/>,
         );
         wrapper.setState({
             alias: 'Abc',
@@ -182,7 +182,7 @@ describe('components/ChannelSettingsModal', () => {
             visibility: true,
         };
         const wrapper = shallow(
-            <SubscriptionModal {...props}/>
+            <SubscriptionModal {...props}/>,
         );
         wrapper.setState({
             alias: '   Abc   ',
