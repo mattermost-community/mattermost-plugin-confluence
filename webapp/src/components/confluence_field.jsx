@@ -62,7 +62,8 @@ export default class ConfluenceField extends React.PureComponent {
     isValid = () => {
         const {fieldType, value, required} = this.props;
         if (required &&
-            ((typeof value === 'string' && !value.trim()) ||
+            (value === null ||
+            (typeof value === 'string' && !value.trim()) ||
             (fieldType === 'dropDown' && value.length === 0) ||
             !value)
         ) {
