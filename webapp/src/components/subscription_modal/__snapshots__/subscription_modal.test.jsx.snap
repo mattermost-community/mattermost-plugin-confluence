@@ -186,7 +186,7 @@ exports[`components/ChannelSettingsModal subscription modal snapshot test 1`] = 
         }
         readOnly={false}
         removeValidation={[Function]}
-        required={false}
+        required={true}
         theme={Object {}}
         value={
           Array [
