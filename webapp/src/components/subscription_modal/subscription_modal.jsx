@@ -166,7 +166,6 @@ export default class SubscriptionModal extends React.PureComponent {
                 type={'text'}
                 fieldType={'input'}
                 required={true}
-                readOnly={editSubscription}
                 placeholder={'Enter the Confluence Space Key.'}
                 value={this.state.spaceKey}
                 addValidation={this.validator.addValidation}
@@ -183,7 +182,6 @@ export default class SubscriptionModal extends React.PureComponent {
                     type={'text'}
                     fieldType={'input'}
                     required={true}
-                    readOnly={editSubscription}
                     placeholder={'Enter the page id.'}
                     value={this.state.pageID}
                     addValidation={this.validator.addValidation}
@@ -198,7 +196,6 @@ export default class SubscriptionModal extends React.PureComponent {
                     formGroupStyle={getStyle.subscriptionType}
                     isSearchable={false}
                     isMulti={false}
-                    isDisabled={editSubscription}
                     label={'Subscribe To'}
                     name={'type'}
                     fieldType={'dropDown'}
@@ -244,7 +241,6 @@ export default class SubscriptionModal extends React.PureComponent {
                             type={'text'}
                             fieldType={'input'}
                             required={true}
-                            readOnly={editSubscription}
                             placeholder={'Enter a name for this subscription.'}
                             value={this.state.alias}
                             addValidation={this.validator.addValidation}
@@ -256,7 +252,6 @@ export default class SubscriptionModal extends React.PureComponent {
                             type={'text'}
                             fieldType={'input'}
                             required={true}
-                            readOnly={editSubscription}
                             placeholder={'Enter the Confluence Base URL.'}
                             value={this.state.baseURL}
                             addValidation={this.validator.addValidation}
