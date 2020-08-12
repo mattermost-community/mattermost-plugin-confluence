@@ -1,4 +1,5 @@
-import Constants from './constants';
+import {id} from './manifest';
+
 import Hooks from './hooks';
 import reducer from './reducers';
 
@@ -20,4 +21,4 @@ class PluginClass {
 //
 // To register your plugin you must expose it on window.
 //
-window.registerPlugin(Constants.PLUGIN_NAME, new PluginClass());
+window.registerPlugin(id, new PluginClass());

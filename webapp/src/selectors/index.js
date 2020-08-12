@@ -1,6 +1,6 @@
-import Constants from '../constants';
+import {id} from '../manifest';
 
-const getPluginState = (state) => state[`plugins-${Constants.PLUGIN_NAME}`] || {};
+const getPluginState = (state) => state[`plugins-${id}`] || {};
 
 const isSubscriptionModalVisible = (state) => getPluginState(state).subscriptionModal;
 
