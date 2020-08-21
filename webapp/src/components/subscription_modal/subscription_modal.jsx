@@ -264,7 +264,7 @@ export default class SubscriptionModal extends React.PureComponent {
                             label={'Events'}
                             name={'events'}
                             fieldType={'dropDown'}
-                            required={false}
+                            required={true}
                             theme={this.props.theme}
                             options={Constants.CONFLUENCE_EVENTS}
                             value={this.state.events}
