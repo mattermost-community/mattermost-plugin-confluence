@@ -1,4 +1,5 @@
-import {PLUGIN_NAME} from './manifest';
+import {id} from '../manifest';
+
 import {ACTION_TYPES} from './action_types';
 
 const CONFLUENCE_EVENTS = [
@@ -48,7 +49,7 @@ const SUBSCRIPTION_TYPE = [
 ];
 
 const MATTERMOST_CSRF_COOKIE = 'MMCSRF';
-const OPEN_EDIT_SUBSCRIPTION_MODAL_WEBSOCKET_EVENT = `custom_${PLUGIN_NAME}_open_edit_subscription_modal`;
+const OPEN_EDIT_SUBSCRIPTION_MODAL_WEBSOCKET_EVENT = `custom_${id}_open_edit_subscription_modal`;
 const SPECIFY_ALIAS = 'Please specify a name for the subscription.';
 
 const COMMAND_ADMIN_ONLY = '`/confluence` commands can only be run by a system administrator.';
@@ -59,7 +60,7 @@ export default {
     CONFLUENCE_EVENTS,
     MATTERMOST_CSRF_COOKIE,
     OPEN_EDIT_SUBSCRIPTION_MODAL_WEBSOCKET_EVENT,
-    PLUGIN_NAME,
+    id,
     SPECIFY_ALIAS,
     COMMAND_ADMIN_ONLY,
     SYSTEM_ADMIN_ROLE,

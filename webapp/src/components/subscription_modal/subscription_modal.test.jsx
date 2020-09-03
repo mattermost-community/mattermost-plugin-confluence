@@ -1,3 +1,5 @@
+/*eslint max-nested-callbacks: ["error", 3]*/
+
 import React from 'react';
 
 import {shallow} from 'enzyme';
@@ -22,8 +24,8 @@ describe('components/ChannelSettingsModal', () => {
             ...baseProps,
             visibility: true,
         };
-        const wrapper = shallow<SubscriptionModal>(
-            <SubscriptionModal {...props}/>
+        const wrapper = shallow(
+            <SubscriptionModal {...props}/>,
         );
         expect(wrapper).toMatchSnapshot();
     });
@@ -33,8 +35,8 @@ describe('components/ChannelSettingsModal', () => {
             ...baseProps,
             visibility: true,
         };
-        const wrapper = shallow<SubscriptionModal>(
-            <SubscriptionModal {...props}/>
+        const wrapper = shallow(
+            <SubscriptionModal {...props}/>,
         );
         wrapper.setState({
             alias: 'Abc',
@@ -74,8 +76,8 @@ describe('components/ChannelSettingsModal', () => {
             ...baseProps,
             subscription,
         };
-        const wrapper = shallow<SubscriptionModal>(
-            <SubscriptionModal {...props}/>
+        const wrapper = shallow(
+            <SubscriptionModal {...props}/>,
         );
         wrapper.setState({
             alias: 'Abc',
@@ -106,8 +108,8 @@ describe('components/ChannelSettingsModal', () => {
             ...baseProps,
             visibility: true,
         };
-        const wrapper = shallow<SubscriptionModal>(
-            <SubscriptionModal {...props}/>
+        const wrapper = shallow(
+            <SubscriptionModal {...props}/>,
         );
         wrapper.setState({
             alias: 'Abc',
@@ -147,8 +149,8 @@ describe('components/ChannelSettingsModal', () => {
             ...baseProps,
             subscription,
         };
-        const wrapper = shallow<SubscriptionModal>(
-            <SubscriptionModal {...props}/>
+        const wrapper = shallow(
+            <SubscriptionModal {...props}/>,
         );
         wrapper.setState({
             alias: 'Abc',
@@ -179,8 +181,8 @@ describe('components/ChannelSettingsModal', () => {
             ...baseProps,
             visibility: true,
         };
-        const wrapper = shallow<SubscriptionModal>(
-            <SubscriptionModal {...props}/>
+        const wrapper = shallow(
+            <SubscriptionModal {...props}/>,
         );
         wrapper.setState({
             alias: '   Abc   ',

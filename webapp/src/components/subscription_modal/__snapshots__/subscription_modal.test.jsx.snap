@@ -5,43 +5,28 @@ exports[`components/ChannelSettingsModal subscription modal snapshot test 1`] = 
   animation={true}
   autoFocus={true}
   backdrop="static"
-  bsClass="modal"
-  dialogComponentClass={[Function]}
-  enforceFocus={true}
-  keyboard={true}
-  manager={
-    ModalManager {
-      "add": [Function],
-      "containers": Array [],
-      "data": Array [],
-      "handleContainerOverflow": true,
-      "hideSiblingNodes": true,
-      "isTopModal": [Function],
-      "modals": Array [],
-      "remove": [Function],
+  dialogAs={
+    Object {
+      "$$typeof": Symbol(react.forward_ref),
+      "displayName": "ModalDialog",
+      "render": [Function],
     }
   }
+  enforceFocus={true}
+  keyboard={true}
   onHide={[Function]}
-  renderBackdrop={[Function]}
   restoreFocus={true}
   show={true}
 >
   <ModalHeader
-    bsClass="modal-header"
     closeButton={true}
     closeLabel="Close"
   >
-    <ModalTitle
-      bsClass="modal-title"
-      componentClass="h4"
-    >
+    <ModalTitle>
       Edit Your Confluence Subscription
     </ModalTitle>
   </ModalHeader>
-  <ModalBody
-    bsClass="modal-body"
-    componentClass="div"
-  >
+  <ModalBody>
     <div>
       <ConfluenceField
         addValidation={[Function]}
@@ -227,29 +212,24 @@ exports[`components/ChannelSettingsModal subscription modal snapshot test 1`] = 
       />
     </div>
   </ModalBody>
-  <ModalFooter
-    bsClass="modal-footer"
-    componentClass="div"
-  >
+  <ModalFooter>
     <Button
       active={false}
-      block={false}
-      bsClass="btn"
       bsStyle="link"
       disabled={false}
       onClick={[Function]}
       type="button"
+      variant="primary"
     >
       Cancel
     </Button>
     <Button
       active={false}
-      block={false}
-      bsClass="btn"
       bsStyle="primary"
       disabled={false}
       onClick={[Function]}
       type="submit"
+      variant="primary"
     >
       Save Subscription
     </Button>

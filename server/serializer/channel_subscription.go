@@ -2,7 +2,6 @@ package serializer
 
 import (
 	"encoding/json"
-	"fmt"
 	"reflect"
 	"strings"
 )
@@ -19,9 +18,9 @@ const (
 	SubscriptionTypeSpace = "space_subscription"
 	SubscriptionTypePage  = "page_subscription"
 
-	aliasAlreadyExist       = "A subscription with the same name already exists in this channel."
-	urlSpaceKeyAlreadyExist = "A subscription with the same url and space key already exists in this channel."
-	urlPageIDAlreadyExist   = "A subscription with the same url and page id already exists in this channel."
+	aliasAlreadyExist       = "a subscription with the same name already exists in this channel"
+	urlSpaceKeyAlreadyExist = "a subscription with the same url and space key already exists in this channel"
+	urlPageIDAlreadyExist   = "a subscription with the same url and page id already exists in this channel"
 )
 
 var eventDisplayName = map[string]string{
@@ -137,8 +136,8 @@ func SubscriptionsFromJSON(bytes []byte) (*Subscriptions, error) {
 
 func FormattedSubscriptionList(channelSubscriptions StringSubscription) string {
 	var pageSubscriptions, spaceSubscriptions, list string
-	pageSubscriptionsHeader := fmt.Sprintf("| Name | Base Url | Page Id | Events|\n| :----|:--------| :--------| :-----|")
-	spaceSubscriptionsHeader := fmt.Sprintf("| Name | Base Url | Space Key | Events|\n| :----|:--------| :--------| :-----|")
+	pageSubscriptionsHeader := "| Name | Base Url | Page Id | Events|\n| :----|:--------| :--------| :-----|"
+	spaceSubscriptionsHeader := "| Name | Base Url | Space Key | Events|\n| :----|:--------| :--------| :-----|"
 	for _, sub := range channelSubscriptions {
 		if sub.Name() == SubscriptionTypePage {
 			pageSubscriptions += sub.GetFormattedSubscription()
