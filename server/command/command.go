@@ -4,6 +4,9 @@ import (
 	"fmt"
 	"strings"
 
+	"github.com/pkg/errors"
+
+	"github.com/mattermost/mattermost-plugin-api/experimental/command"
 	"github.com/mattermost/mattermost-server/v5/model"
 
 	"github.com/mattermost/mattermost-plugin-confluence/server/config"
@@ -11,6 +14,10 @@ import (
 	"github.com/mattermost/mattermost-plugin-confluence/server/service"
 	"github.com/mattermost/mattermost-plugin-confluence/server/util"
 )
+
+type PluginAPI interface {
+	GetBundlePath() (string, error)
+}
 
 type HandlerFunc func(context *model.CommandArgs, args ...string) *model.CommandResponse
 
@@ -71,16 +78,22 @@ var ConfluenceCommandHandler = Handler{
 	defaultHandler: executeConfluenceDefault,
 }
 
-func GetCommand() *model.Command {
-	return &model.Command{
-		Trigger:          "confluence",
-		DisplayName:      "Confluence",
-		Description:      "Integration with Confluence.",
-		AutoComplete:     true,
-		AutoCompleteDesc: "Available commands: subscribe, list, unsubscribe \"<name>\", edit \"<name>\", install cloud/server, help.",
-		AutoCompleteHint: "[command]",
-		AutocompleteData: getAutoCompleteData(),
+func GetCommand(pAPI PluginAPI) (*model.Command, error) {
+	iconData, err := command.GetIconData(pAPI, "assets/icon-small.svg")
+	if err != nil {
+		return nil, errors.Wrap(err, "failed to get icon data")
 	}
+
+	return &model.Command{
+		Trigger:              "confluence",
+		DisplayName:          "Confluence",
+		Description:          "Integration with Confluence.",
+		AutoComplete:         true,
+		AutoCompleteDesc:     "Available commands: subscribe, list, unsubscribe \"<name>\", edit \"<name>\", install cloud/server, help.",
+		AutoCompleteHint:     "[command]",
+		AutocompleteData:     getAutoCompleteData(),
+		AutocompleteIconData: iconData,
+	}, nil
 }
 
 func getAutoCompleteData() *model.AutocompleteData {
