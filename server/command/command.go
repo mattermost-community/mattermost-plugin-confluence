@@ -4,13 +4,19 @@ import (
 	"fmt"
 	"strings"
 
+	"github.com/mattermost/mattermost-plugin-api/experimental/command"
 	"github.com/mattermost/mattermost-server/v5/model"
+	"github.com/pkg/errors"
 
 	"github.com/mattermost/mattermost-plugin-confluence/server/config"
 	"github.com/mattermost/mattermost-plugin-confluence/server/serializer"
 	"github.com/mattermost/mattermost-plugin-confluence/server/service"
 	"github.com/mattermost/mattermost-plugin-confluence/server/util"
 )
+
+type PluginAPI interface {
+	GetBundlePath() (string, error)
+}
 
 type HandlerFunc func(context *model.CommandArgs, args ...string) *model.CommandResponse
 
@@ -71,20 +77,26 @@ var ConfluenceCommandHandler = Handler{
 	defaultHandler: executeConfluenceDefault,
 }
 
-func GetCommand() *model.Command {
-	return &model.Command{
-		Trigger:          "confluence",
-		DisplayName:      "Confluence",
-		Description:      "Integration with Confluence.",
-		AutoComplete:     true,
-		AutoCompleteDesc: "Available commands: subscribe, list, unsubscribe \"<name>\", edit \"<name>\", install cloud/server, help.",
-		AutoCompleteHint: "[command]",
-		AutocompleteData: getAutoCompleteData(),
+func GetCommand(pAPI PluginAPI) (*model.Command, error) {
+	iconData, err := command.GetIconData(pAPI, "assets/icon.svg")
+	if err != nil {
+		return nil, errors.Wrap(err, "failed to get icon data")
 	}
+
+	return &model.Command{
+		Trigger:              "confluence",
+		DisplayName:          "Confluence",
+		Description:          "Integration with Confluence.",
+		AutoComplete:         true,
+		AutoCompleteDesc:     "Available commands: subscribe, list, unsubscribe, edit, install, help.",
+		AutoCompleteHint:     "[command]",
+		AutocompleteData:     getAutoCompleteData(),
+		AutocompleteIconData: iconData,
+	}, nil
 }
 
 func getAutoCompleteData() *model.AutocompleteData {
-	confluence := model.NewAutocompleteData("confluence", "[command]", "Available commands: subscribe, list, unsubscribe \"<name>\", edit \"<name>\", install cloud/server, help")
+	confluence := model.NewAutocompleteData("confluence", "[command]", "Available commands: subscribe, list, unsubscribe, edit, install, help")
 
 	install := model.NewAutocompleteData("install", "", "Connect Mattermost to a Confluence instance")
 	installItems := []model.AutocompleteListItem{{
