@@ -19,13 +19,13 @@ func TestGetChannelSubscription(t *testing.T) {
 		errorMessage string
 	}{
 		"get subscription success": {
-			channelID:    "testtesttesttest",
+			channelID:    "testChannelID",
 			alias:        "test",
 			statusCode:   http.StatusOK,
 			errorMessage: "",
 		},
 		"subscription not found for alias": {
-			channelID:    "testtesttesttest",
+			channelID:    "testChannelID",
 			alias:        "test4",
 			statusCode:   http.StatusBadRequest,
 			errorMessage: fmt.Sprintf(subscriptionNotFound, "test4"),
@@ -35,37 +35,41 @@ func TestGetChannelSubscription(t *testing.T) {
 			defer monkey.UnpatchAll()
 			subscriptions := serializer.Subscriptions{
 				ByChannelID: map[string]serializer.StringSubscription{
-					"testtesttesttest": {
+					"testChannelID": {
 						"test": serializer.SpaceSubscription{
 							SpaceKey: "TS",
 							BaseSubscription: serializer.BaseSubscription{
 								Alias:     "test",
 								BaseURL:   "https://test.com",
-								ChannelID: "testtesttesttest",
+								ChannelID: "testChannelID",
 								Events:    []string{serializer.CommentRemovedEvent, serializer.CommentUpdatedEvent},
 							},
 						},
 					},
-					"testtesttesttes1": {
+					"testChannelID3": {
 						"test": serializer.PageSubscription{
 							PageID: "1234",
 							BaseSubscription: serializer.BaseSubscription{
 								Alias:     "test",
 								BaseURL:   "https://test.com",
-								ChannelID: "testtesttesttest",
+								ChannelID: "testChannelID",
 								Events:    []string{serializer.CommentCreatedEvent, serializer.CommentUpdatedEvent},
 							},
 						},
 					},
 				},
-				ByURLSpaceKey: map[string]serializer.StringArrayMap{
+				ByURLSpaceKey: map[string]serializer.StringStringArrayMap{
 					"confluence_subs/test.com/TS": {
-						"testtesttesttest": {serializer.CommentRemovedEvent, serializer.CommentUpdatedEvent},
+						"testChannelID": {
+							"testUserID": {serializer.CommentRemovedEvent, serializer.CommentUpdatedEvent},
+						},
 					},
 				},
-				ByURLPagID: map[string]serializer.StringArrayMap{
+				ByURLPageID: map[string]serializer.StringStringArrayMap{
 					"confluence_subs/test.com/1234": {
-						"testtesttesttes1": {serializer.CommentCreatedEvent, serializer.CommentUpdatedEvent},
+						"testChannelID3": {
+							"testUserID": {serializer.CommentCreatedEvent, serializer.CommentUpdatedEvent},
+						},
 					},
 				},
 			}

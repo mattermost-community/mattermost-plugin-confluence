@@ -4,7 +4,6 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
-	"io"
 	url2 "net/url"
 	"strings"
 
@@ -14,6 +13,16 @@ import (
 type SpaceSubscription struct {
 	SpaceKey string `json:"spaceKey"`
 	BaseSubscription
+	SpaceID string
+	UserID  string
+}
+
+type OldSubscriptionForSpace struct {
+	SpaceSubscription
+}
+
+type OldSpaceSubscription struct {
+	OldSubscription OldSubscriptionForSpace `json:"oldSubscription"`
 }
 
 func (ss SpaceSubscription) Add(s *Subscriptions) {
@@ -22,10 +31,20 @@ func (ss SpaceSubscription) Add(s *Subscriptions) {
 	}
 	s.ByChannelID[ss.ChannelID][ss.Alias] = ss
 	key := store.GetURLSpaceKeyCombinationKey(ss.BaseURL, ss.SpaceKey)
+
 	if _, ok := s.ByURLSpaceKey[key]; !ok {
-		s.ByURLSpaceKey[key] = make(map[string][]string)
+		s.ByURLSpaceKey[key] = make(map[string]StringArrayMap)
 	}
-	s.ByURLSpaceKey[key][ss.ChannelID] = ss.Events
+	if _, ok := s.ByURLSpaceKey[key][ss.ChannelID]; !ok {
+		s.ByURLSpaceKey[key][ss.ChannelID] = make(map[string][]string)
+	}
+
+	s.ByURLSpaceKey[key][ss.ChannelID][ss.UserID] = ss.Events
+
+	if s.BySpaceID == nil {
+		s.BySpaceID = make(map[string]string)
+	}
+	s.BySpaceID[ss.SpaceID] = ss.SpaceKey
 }
 
 func (ss SpaceSubscription) Remove(s *Subscriptions) {
@@ -45,6 +64,14 @@ func (ss SpaceSubscription) Name() string {
 
 func (ss SpaceSubscription) GetAlias() string {
 	return ss.Alias
+}
+
+func (ss SpaceSubscription) GetConfluenceURL() string {
+	return ss.GetSubscription().BaseURL
+}
+
+func (ss SpaceSubscription) GetUserID() string {
+	return ss.UserID
 }
 
 func (ss SpaceSubscription) GetFormattedSubscription() string {
@@ -73,11 +100,44 @@ func (ss SpaceSubscription) IsValid() error {
 	}
 	return nil
 }
-
-func SpaceSubscriptionFromJSON(data io.Reader) (SpaceSubscription, error) {
+func SpaceSubscriptionFromJSON(body []byte) (*SpaceSubscription, error) {
 	var ps SpaceSubscription
-	err := json.NewDecoder(data).Decode(&ps)
-	return ps, err
+	if err := json.Unmarshal(body, &ps); err != nil {
+		return nil, err
+	}
+	return &ps, nil
+}
+
+func OldSpaceSubscriptionFromJSON(body []byte) (*SpaceSubscription, error) {
+	var ps OldSpaceSubscription
+	if err := json.Unmarshal(body, &ps); err != nil {
+		return nil, err
+	}
+	return &ps.OldSubscription.SpaceSubscription, nil
+}
+
+func (ss *SpaceSubscription) UpdateSpaceIDAndUserID(spaceID, userID string) *SpaceSubscription {
+	ss.SpaceID = spaceID
+	ss.UserID = userID
+	return ss
+}
+
+func (ss *SpaceSubscription) UpdateUserID(userID string) *SpaceSubscription {
+	ss.UserID = userID
+	return ss
+}
+
+func (ss SpaceSubscription) GetChannelID() string {
+	return ss.BaseSubscription.ChannelID
+}
+
+func (ss SpaceSubscription) GetSubscription() *SpaceSubscription {
+	return &SpaceSubscription{
+		SpaceKey:         ss.SpaceKey,
+		BaseSubscription: ss.BaseSubscription,
+		SpaceID:          ss.SpaceID,
+		UserID:           ss.UserID,
+	}
 }
 
 func (ss SpaceSubscription) ValidateSubscription(subs *Subscriptions) error {

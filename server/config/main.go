@@ -3,7 +3,7 @@ package config
 import (
 	"strings"
 
-	"github.com/mattermost/mattermost-server/v5/plugin"
+	"github.com/mattermost/mattermost-server/v6/plugin"
 	"github.com/pkg/errors"
 	"go.uber.org/atomic"
 )
@@ -19,7 +19,8 @@ var (
 )
 
 type Configuration struct {
-	Secret string `json:"Secret"`
+	Secret            string `json:"Secret"`
+	MattermostSiteURL string
 }
 
 func GetConfig() *Configuration {
