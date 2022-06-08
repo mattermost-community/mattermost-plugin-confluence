@@ -17,12 +17,12 @@ const (
 )
 
 func SaveSubscription(subscription serializer.Subscription) (int, error) {
-	subs, gErr := GetSubscriptions()
-	if gErr != nil {
+	subs, err := GetSubscriptions()
+	if err != nil {
 		return http.StatusInternalServerError, errors.New(generalSaveError)
 	}
-	if vErr := subscription.ValidateSubscription(&subs); vErr != nil {
-		return http.StatusBadRequest, vErr
+	if err = subscription.ValidateSubscription(&subs); err != nil {
+		return http.StatusBadRequest, err
 	}
 	key := store.GetSubscriptionKey()
 	if err := store.AtomicModify(key, func(initialBytes []byte) ([]byte, error) {
