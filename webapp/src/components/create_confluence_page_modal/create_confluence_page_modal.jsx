@@ -189,7 +189,7 @@ const CreateConfluencePage = (theme) => {
                     type='submit'
                     bsStyle='primary'
                     onClick={handleSubmit}
-                    disabled={saving || error}
+                    disabled={saving}
                 >
                     {saving && <span className='fa fa-spinner fa-fw fa-pulse spinner'/>}
                     {'Save Subscription'}
