@@ -14,7 +14,9 @@ import (
 
 const (
 	PathAccessibleResources   = "/oauth/token/accessible-resources"
-	PathGetUserGroupsForCloud = "rest/api/user/memberof?accountId=%s"
+	PathGetUserGroupsForCloud = "/rest/api/user/memberof?accountId=%s"
+	PathGetSpacesForCloud     = "/rest/api/space?limit=100"
+	PathCreatePageForCloud    = "/rest/api/content"
 )
 
 type confluenceCloudClient struct {
@@ -177,4 +179,45 @@ func (ccc *confluenceCloudClient) GetUserGroups(connection *Connection) ([]*User
 	}
 
 	return userGroups.Groups, nil
+}
+
+func (ccc *confluenceCloudClient) GetSpacesForConfluenceURL() ([]*SpaceForConfluenceURL, error) {
+	spacesForConfluenceURL := SpacesForConfluenceURL{}
+	url, err := utils.GetEndpointURL(ccc.URL, PathGetSpacesForCloud)
+
+	if err != nil {
+		return nil, errors.Wrap(err, "confluence GetSpacesForConfluenceURL")
+	}
+	_, err = utils.CallJSON(ccc.URL, http.MethodGet, url, nil, &spacesForConfluenceURL, ccc.HTTPClient)
+	if err != nil {
+		return nil, errors.Wrap(err, "confluence GetSpacesForConfluenceURL")
+	}
+	return spacesForConfluenceURL.Spaces, nil
+}
+
+func (ccc *confluenceCloudClient) CreatePage(spaceKey string, pageDetails *serializer.PageDetails) (*CreatePageResponse, error) {
+	requestBody := &CreatePageRequestBody{
+		Title: pageDetails.Title,
+		Type:  "page",
+		Space: SpaceForPageCreate{
+			Key: spaceKey,
+		},
+		Body: BodyForPageCreate{
+			Storage: Storage{
+				Value:          pageDetails.Description,
+				Representation: "storage",
+			},
+		},
+	}
+
+	createPageResponse := &CreatePageResponse{}
+	url, err := utils.GetEndpointURL(ccc.URL, PathCreatePageForCloud)
+	if err != nil {
+		return nil, errors.Wrap(err, "confluence CreatePage")
+	}
+	_, err = utils.CallJSON(ccc.URL, http.MethodPost, url, requestBody, createPageResponse, ccc.HTTPClient)
+	if err != nil {
+		return nil, errors.Wrap(err, "confluence CreatePage")
+	}
+	return createPageResponse, nil
 }

@@ -1,6 +1,6 @@
 import {getCurrentUser} from 'mattermost-redux/selectors/entities/users';
 
-import {openSubscriptionModal, getChannelSubscription, getConnected} from '../actions';
+import {openSubscriptionModal, getChannelSubscription, getConnected, openCreateConfluencePageModal} from '../actions';
 
 import {splitArgs} from '../utils';
 import {sendEphemeralPost} from '../actions/subscription_modal';
@@ -44,5 +44,11 @@ export default class Hooks {
             message,
             args: contextArgs,
         });
+    }
+
+    createConfluencePage = (message) => {
+        this.store.dispatch(getConnected());
+        this.store.dispatch(openCreateConfluencePageModal(message));
+        return Promise.resolve({});
     }
 }

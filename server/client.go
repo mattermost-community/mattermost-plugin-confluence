@@ -1,5 +1,7 @@
 package main
 
+import "github.com/mattermost/mattermost-plugin-confluence/server/serializer"
+
 // Client is the combined interface for all upstream APIs and convenience methods.
 type Client interface {
 	RESTService
@@ -12,4 +14,6 @@ type RESTService interface {
 	GetSelf() (*ConfluenceUser, error)
 	GetSpaceData(string) (*SpaceResponse, error)
 	GetUserGroups(*Connection) ([]*UserGroup, error)
+	GetSpacesForConfluenceURL() ([]*SpaceForConfluenceURL, error)
+	CreatePage(string, *serializer.PageDetails) (*CreatePageResponse, error)
 }

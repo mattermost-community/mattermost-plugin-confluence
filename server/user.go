@@ -40,6 +40,15 @@ type UserGroup struct {
 	Name string `json:"name"`
 }
 
+type SpacesForConfluenceURL struct {
+	Spaces []*SpaceForConfluenceURL `json:"results,omitempty"`
+}
+
+type SpaceForConfluenceURL struct {
+	Key  string `json:"key"`
+	Name string `json:"name"`
+}
+
 type Connection struct {
 	ConfluenceUser
 	PluginVersion     string

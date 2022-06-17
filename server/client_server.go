@@ -21,6 +21,8 @@ const (
 	PathDeleteWebhook          = "/rest/api/webhooks/%s"
 	PathGetUserGroupsForServer = "/rest/api/user/memberof?username=%s"
 	PathAdminData              = "/rest/api/audit/retention"
+	PathGetSpacesForServer     = "/rest/api/space?limit=100"
+	PathCreatePage             = "/rest/api/content"
 )
 
 const (
@@ -43,6 +45,35 @@ type CreateWebhookRequestBody struct {
 	URL           string                `json:"url"`
 	Active        string                `json:"active"`
 	Configuration *WebhookConfiguration `json:"configuration"`
+}
+type SpaceForPageCreate struct {
+	Key string `json:"key"`
+}
+
+type Storage struct {
+	Value          string `json:"value"`
+	Representation string `json:"representation"`
+}
+
+type BodyForPageCreate struct {
+	Storage Storage `json:"storage"`
+}
+
+type CreatePageRequestBody struct {
+	Title string             `json:"title"`
+	Type  string             `json:"type"`
+	Space SpaceForPageCreate `json:"space"`
+	Body  BodyForPageCreate  `json:"body"`
+}
+
+type CreatePageResponse struct {
+	Space SpaceResponse      `json:"space"`
+	Links LinksForPageCreate `json:"_links"`
+}
+
+type LinksForPageCreate struct {
+	Self    string `json:"webui"`
+	BaseURL string `json:"base"`
 }
 
 type SpaceResponse struct {
@@ -278,4 +309,43 @@ func (csc *confluenceServerClient) GetUserGroups(connection *Connection) ([]*Use
 		return nil, errors.Wrap(err, "confluence GetUserGroups")
 	}
 	return userGroups.Groups, nil
+}
+
+func (csc *confluenceServerClient) GetSpacesForConfluenceURL() ([]*SpaceForConfluenceURL, error) {
+	spacesForConfluenceURL := SpacesForConfluenceURL{}
+	url, err := utils.GetEndpointURL(csc.URL, PathGetSpacesForServer)
+	if err != nil {
+		return nil, errors.Wrap(err, "confluence GetSpacesForConfluenceURL")
+	}
+	_, err = utils.CallJSON(csc.URL, http.MethodGet, url, nil, &spacesForConfluenceURL, csc.HTTPClient)
+	if err != nil {
+		return nil, errors.Wrap(err, "confluence GetSpacesForConfluenceURL")
+	}
+	return spacesForConfluenceURL.Spaces, nil
+}
+
+func (csc *confluenceServerClient) CreatePage(spaceKey string, pageDetails *serializer.PageDetails) (*CreatePageResponse, error) {
+	requestBody := &CreatePageRequestBody{
+		Title: pageDetails.Title,
+		Type:  "page",
+		Space: SpaceForPageCreate{
+			Key: spaceKey,
+		},
+		Body: BodyForPageCreate{
+			Storage: Storage{
+				Value:          pageDetails.Description,
+				Representation: "storage",
+			},
+		},
+	}
+	createPageResponse := &CreatePageResponse{}
+	url, err := utils.GetEndpointURL(csc.URL, PathCreatePage)
+	if err != nil {
+		return nil, errors.Wrap(err, "confluence CreatePage")
+	}
+	_, err = utils.CallJSON(csc.URL, http.MethodPost, url, requestBody, createPageResponse, csc.HTTPClient)
+	if err != nil {
+		return nil, errors.Wrap(err, "confluence CreatePage")
+	}
+	return createPageResponse, nil
 }

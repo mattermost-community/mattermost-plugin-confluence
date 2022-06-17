@@ -35,6 +35,21 @@ export default class Client {
         return this.doGet(url);
     };
 
+    getSpacesForConfluenceURL = (instanceID) => {
+        const url = `${this.pluginApiUrl}/instance/${encodeToBase64(instanceID)}/spaces`;
+        return this.doGet(url);
+    };
+
+    getPostDetails = (postID) => {
+        const url = `${this.baseUrl}/api/v4/posts/${postID}`;
+        return this.doGet(url);
+    };
+
+    createPage = (instanceID, channelID, spaceKey, pageDetials) => {
+        const url = `${this.pluginApiUrl}/instance/${encodeToBase64(instanceID)}/${channelID}/spaceKey/${spaceKey}/createpage`;
+        return this.doPost(url, pageDetials);
+    };
+
     getConnected = () => {
         const url = `${this.pluginApiUrl}/userinfo`;
         return this.doGet(url);

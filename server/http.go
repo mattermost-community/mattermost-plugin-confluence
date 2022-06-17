@@ -69,6 +69,8 @@ func (p *Plugin) InitAPI() *mux.Router {
 	apiRouter.HandleFunc(routeUserConnect, p.httpOAuth2Connect).Methods(http.MethodGet)
 	apiRouter.HandleFunc(routeUserComplete, p.httpOAuth2Complete).Methods(http.MethodGet)
 
+	apiRouter.HandleFunc("/spaces", p.handleGetSpacesForConfluenceURL).Methods(http.MethodGet)
+	apiRouter.HandleFunc("/{channelID:[A-Za-z0-9]+}/spaceKey/{spaceKey:.+}/createpage", p.handleCreatePage).Methods(http.MethodPost)
 	apiRouter.HandleFunc("/{channelID:[A-Za-z0-9]+}/subscription/{type:[A-Za-z_]+}", p.handleSaveSubscription).Methods(http.MethodPost)
 	apiRouter.HandleFunc("/{channelID:[A-Za-z0-9]+}/subscription/{type:[A-Za-z_]+}/{oldSubscriptionType:[A-Za-z_]+}", p.handleEditChannelSubscription).Methods(http.MethodPut)
 	apiRouter.HandleFunc("/server/webhook/{userID:.+}", p.handleConfluenceServerWebhook).Methods(http.MethodPost)
