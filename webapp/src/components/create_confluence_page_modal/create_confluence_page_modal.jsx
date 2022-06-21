@@ -57,20 +57,20 @@ const CreateConfluencePage = (theme) => {
         setSpaceKey('');
     }, [instanceID, dispatch]);
 
-    const reset = () =>{
+    const reset = () => {
         setSaving(false);
         setInstanceID('');
         setSpaceKey('');
         setPageTitle('');
         setPageDescription('');
         setError('');
-    }
+    };
 
     const handleClose = (e) => {
         if (e && e.preventDefault) {
             e.preventDefault();
         }
-        reset()
+        reset();
         dispatch(closeCreateConfluencePageModal());
     };
 
@@ -109,7 +109,7 @@ const CreateConfluencePage = (theme) => {
                 setError(response.error?.response?.text);
                 setSaving(false);
             } else {
-                reset()
+                reset();
                 dispatch(closeCreateConfluencePageModal());
             }
         })();

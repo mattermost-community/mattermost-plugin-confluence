@@ -89,7 +89,7 @@ export function openCreateConfluencePageModal(postID) {
         });
         return {data};
     };
-};
+}
 
 export const createPageForConfluence = (instanceID, channelID, spaceKey, pageDetails) => {
     return async () => {

@@ -53,7 +53,7 @@ export default class ReactSelectSetting extends React.PureComponent {
 
     componentDidUpdate(prevProps, prevState) {
         if (prevState.invalid && (this.props.value && this.props.value.value) !== (prevProps.value && prevProps.value.value)) {
-            this.setState({invalid: false});
+            this.setState({invalid: false}); //eslint-disable-line react/no-did-update-set-state
         }
     }
 
