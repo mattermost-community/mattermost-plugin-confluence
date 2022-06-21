@@ -15,8 +15,8 @@ const ConfluenceInstanceSelector = (props) => {
     const [installedInstancesOptions, setInstalledInstancesOptions] = useState([]);
 
     useEffect(() => {
-        const issueOptions = isInstalledInstances?.map((it) => ({label: it.instance_id, value: it.instance_id}));
-        setInstalledInstancesOptions(issueOptions);
+        const installedInstancesSelectOptions = isInstalledInstances?.map((instance) => ({label: instance.instance_id, value: instance.instance_id}));
+        setInstalledInstancesOptions(installedInstancesSelectOptions);
     }, [isInstalledInstances]);
 
     const handleEvents = (_, instanceID) => {

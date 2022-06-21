@@ -45,9 +45,9 @@ export default class Client {
         return this.doGet(url);
     };
 
-    createPage = (instanceID, channelID, spaceKey, pageDetials) => {
+    createPage = (instanceID, channelID, spaceKey, pageDetails) => {
         const url = `${this.pluginApiUrl}/instance/${encodeToBase64(instanceID)}/${channelID}/spaceKey/${spaceKey}/createpage`;
-        return this.doPost(url, pageDetials);
+        return this.doPost(url, pageDetails);
     };
 
     getConnected = () => {

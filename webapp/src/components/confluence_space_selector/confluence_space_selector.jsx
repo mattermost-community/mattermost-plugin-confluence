@@ -15,10 +15,11 @@ const ConfluenceSpaceSelector = (props) => {
     const [spaceOptions, setSpaceOptions] = useState([]);
 
     useEffect(() => {
-        if (spacesForConfluenceURL && spacesForConfluenceURL?.spaces) {
-            const issueOptions = spacesForConfluenceURL?.spaces.map((it) => ({label: it.name, value: it.key}));
-            setSpaceOptions(issueOptions);
+        if (!spacesForConfluenceURL || !spacesForConfluenceURL?.spaces) {
+            return;
         }
+        const spaceSelectOptions = spacesForConfluenceURL?.spaces.map((space) => ({label: space.name, value: space.key}));
+        setSpaceOptions(spaceSelectOptions);
     }, [spacesForConfluenceURL]);
 
     const handleEvents = (_, spaceKey) => {

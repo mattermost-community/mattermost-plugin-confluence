@@ -10,11 +10,10 @@ import (
 
 	"github.com/mattermost/mattermost-plugin-confluence/server/config"
 	"github.com/mattermost/mattermost-plugin-confluence/server/serializer"
-	"github.com/mattermost/mattermost-plugin-confluence/server/utils/types"
 )
 
 const (
-	pageCreateSuccess = "You created a page [%s](%s) in space [%s](%s)"
+	PageCreateSuccessMessage = "You created a page [%s](%s) in space [%s](%s)"
 )
 
 func (p *Plugin) handleCreatePage(w http.ResponseWriter, r *http.Request) {
@@ -23,21 +22,9 @@ func (p *Plugin) handleCreatePage(w http.ResponseWriter, r *http.Request) {
 	channelID := params["channelID"]
 	userID := r.Header.Get(config.HeaderMattermostUserID)
 
-	instance, err := p.getInstanceFromURL(r.URL.Path)
+	client, err := p.GetClientFromURL(r.URL.Path, userID)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
-		return
-	}
-
-	conn, err := p.userStore.LoadConnection(types.ID(instance.GetURL()), types.ID(userID))
-	if err != nil {
-		p.LogAndRespondError(w, http.StatusInternalServerError, "error in loading connection.", err)
-		return
-	}
-
-	client, err := instance.GetClient(conn)
-	if err != nil {
-		p.LogAndRespondError(w, http.StatusInternalServerError, "not able to get Client.", err)
 		return
 	}
 
@@ -62,7 +49,7 @@ func (p *Plugin) handleCreatePage(w http.ResponseWriter, r *http.Request) {
 	post := &model.Post{
 		UserId:    p.conf.botUserID,
 		ChannelId: channelID,
-		Message:   fmt.Sprintf(pageCreateSuccess, pageDetails.Title, fmt.Sprintf("%s%s", createPageResponse.Links.BaseURL, createPageResponse.Links.Self), spaceKey, fmt.Sprintf("%s%s", createPageResponse.Links.BaseURL, createPageResponse.Space.Links.Self)),
+		Message:   fmt.Sprintf(PageCreateSuccessMessage, pageDetails.Title, fmt.Sprintf("%s%s", createPageResponse.Links.BaseURL, createPageResponse.Links.Self), spaceKey, fmt.Sprintf("%s%s", createPageResponse.Links.BaseURL, createPageResponse.Space.Links.Self)),
 	}
 	_ = p.API.SendEphemeralPost(userID, post)
 	ReturnStatusOK(w)

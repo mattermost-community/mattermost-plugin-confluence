@@ -41,10 +41,10 @@ type UserGroup struct {
 }
 
 type SpacesForConfluenceURL struct {
-	Spaces []*SpaceForConfluenceURL `json:"results,omitempty"`
+	Spaces []*Spaces `json:"results,omitempty"`
 }
 
-type SpaceForConfluenceURL struct {
+type Spaces struct {
 	Key  string `json:"key"`
 	Name string `json:"name"`
 }
@@ -516,4 +516,23 @@ func (p *Plugin) CreateWebhook(instance Instance, subscription serializer.Subscr
 		}
 	}
 	return nil
+}
+
+func (p *Plugin) GetClientFromURL(url, userID string) (Client, error) {
+	instance, err := p.getInstanceFromURL(url)
+	if err != nil {
+		return nil, err
+	}
+
+	conn, err := p.userStore.LoadConnection(types.ID(instance.GetURL()), types.ID(userID))
+	if err != nil {
+		return nil, err
+	}
+
+	client, err := instance.GetClient(conn)
+	if err != nil {
+		return nil, err
+	}
+
+	return client, nil
 }

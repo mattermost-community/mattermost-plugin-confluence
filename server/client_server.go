@@ -46,7 +46,7 @@ type CreateWebhookRequestBody struct {
 	Active        string                `json:"active"`
 	Configuration *WebhookConfiguration `json:"configuration"`
 }
-type SpaceForPageCreate struct {
+type PageCreateSpace struct {
 	Key string `json:"key"`
 }
 
@@ -55,23 +55,23 @@ type Storage struct {
 	Representation string `json:"representation"`
 }
 
-type BodyForPageCreate struct {
+type PageCreateBody struct {
 	Storage Storage `json:"storage"`
 }
 
 type CreatePageRequestBody struct {
-	Title string             `json:"title"`
-	Type  string             `json:"type"`
-	Space SpaceForPageCreate `json:"space"`
-	Body  BodyForPageCreate  `json:"body"`
+	Title string          `json:"title"`
+	Type  string          `json:"type"`
+	Space PageCreateSpace `json:"space"`
+	Body  PageCreateBody  `json:"body"`
 }
 
 type CreatePageResponse struct {
-	Space SpaceResponse      `json:"space"`
-	Links LinksForPageCreate `json:"_links"`
+	Space SpaceResponse   `json:"space"`
+	Links PageCreateLinks `json:"_links"`
 }
 
-type LinksForPageCreate struct {
+type PageCreateLinks struct {
 	Self    string `json:"webui"`
 	BaseURL string `json:"base"`
 }
@@ -311,15 +311,15 @@ func (csc *confluenceServerClient) GetUserGroups(connection *Connection) ([]*Use
 	return userGroups.Groups, nil
 }
 
-func (csc *confluenceServerClient) GetSpacesForConfluenceURL() ([]*SpaceForConfluenceURL, error) {
+func (csc *confluenceServerClient) GetSpaces() ([]*Spaces, error) {
 	spacesForConfluenceURL := SpacesForConfluenceURL{}
 	url, err := utils.GetEndpointURL(csc.URL, PathGetSpacesForServer)
 	if err != nil {
-		return nil, errors.Wrap(err, "confluence GetSpacesForConfluenceURL")
+		return nil, errors.Wrap(err, "confluence GetSpaces")
 	}
 	_, err = utils.CallJSON(csc.URL, http.MethodGet, url, nil, &spacesForConfluenceURL, csc.HTTPClient)
 	if err != nil {
-		return nil, errors.Wrap(err, "confluence GetSpacesForConfluenceURL")
+		return nil, errors.Wrap(err, "confluence GetSpaces")
 	}
 	return spacesForConfluenceURL.Spaces, nil
 }
@@ -328,10 +328,10 @@ func (csc *confluenceServerClient) CreatePage(spaceKey string, pageDetails *seri
 	requestBody := &CreatePageRequestBody{
 		Title: pageDetails.Title,
 		Type:  "page",
-		Space: SpaceForPageCreate{
+		Space: PageCreateSpace{
 			Key: spaceKey,
 		},
-		Body: BodyForPageCreate{
+		Body: PageCreateBody{
 			Storage: Storage{
 				Value:          pageDetails.Description,
 				Representation: "storage",

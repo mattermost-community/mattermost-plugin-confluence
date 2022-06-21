@@ -44,28 +44,33 @@ const CreateConfluencePage = (theme) => {
     }, [createConfluencePageModalVisible]);
 
     useEffect(() => {
-        if (instanceID !== '') {
-            let response;
-            (async () => {
-                response = await getSpacesForConfluenceURL(instanceID)(dispatch);
-                if (response?.error !== null) {
-                    setError(response.error.response?.text);
-                }
-            })();
-            setSpaceKey('');
+        if (instanceID === '') {
+            return;
         }
+        let response;
+        (async () => {
+            response = await getSpacesForConfluenceURL(instanceID)(dispatch);
+            if (response?.error !== null) {
+                setError(response.error.response?.text);
+            }
+        })();
+        setSpaceKey('');
     }, [instanceID, dispatch]);
 
-    const handleClose = (e) => {
-        if (e && e.preventDefault) {
-            e.preventDefault();
-        }
+    const reset = () =>{
         setSaving(false);
         setInstanceID('');
         setSpaceKey('');
         setPageTitle('');
         setPageDescription('');
         setError('');
+    }
+
+    const handleClose = (e) => {
+        if (e && e.preventDefault) {
+            e.preventDefault();
+        }
+        reset()
         dispatch(closeCreateConfluencePageModal());
     };
 
@@ -92,24 +97,19 @@ const CreateConfluencePage = (theme) => {
             return;
         }
 
-        const pageDetials = {
+        const pageDetails = {
             title: pageTitle,
             description: pageDescription,
         };
 
         setSaving(true);
         (async () => {
-            const response = await createPageForConfluence(instanceID, channelID, spaceKey, pageDetials)(dispatch);
+            const response = await createPageForConfluence(instanceID, channelID, spaceKey, pageDetails)(dispatch);
             if (response?.error) {
                 setError(response.error?.response?.text);
                 setSaving(false);
             } else {
-                setSaving(false);
-                setInstanceID('');
-                setSpaceKey('');
-                setPageTitle('');
-                setPageDescription('');
-                setError('');
+                reset()
                 dispatch(closeCreateConfluencePageModal());
             }
         })();

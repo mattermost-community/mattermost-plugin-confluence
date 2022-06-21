@@ -79,7 +79,7 @@ export function openCreateConfluencePageModal(postID) {
     return async (dispatch) => {
         let data = null;
         try {
-            data = await await Client.getPostDetails(postID);
+            data = await Client.getPostDetails(postID);
         } catch (error) {
             return {error};
         }
@@ -89,13 +89,13 @@ export function openCreateConfluencePageModal(postID) {
         });
         return {data};
     };
-}
+};
 
-export const createPageForConfluence = (instanceID, channelID, spaceKey, pageDetials) => {
+export const createPageForConfluence = (instanceID, channelID, spaceKey, pageDetails) => {
     return async () => {
         let data = null;
         try {
-            data = await Client.createPage(instanceID, channelID, spaceKey, pageDetials);
+            data = await Client.createPage(instanceID, channelID, spaceKey, pageDetails);
         } catch (error) {
             return {
                 data,
