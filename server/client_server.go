@@ -22,7 +22,7 @@ const (
 	PathGetUserGroupsForServer = "/rest/api/user/memberof?username=%s"
 	PathAdminData              = "/rest/api/audit/retention"
 	PathGetSpacesForServer     = "/rest/api/space?limit=100"
-	PathCreatePage             = "/rest/api/content"
+	PathCreatePageForServer    = "/rest/api/content"
 )
 
 const (
@@ -46,6 +46,7 @@ type CreateWebhookRequestBody struct {
 	Active        string                `json:"active"`
 	Configuration *WebhookConfiguration `json:"configuration"`
 }
+
 type PageCreateSpace struct {
 	Key string `json:"key"`
 }
@@ -55,23 +56,23 @@ type Storage struct {
 	Representation string `json:"representation"`
 }
 
-type PageCreateBody struct {
+type PageBody struct {
 	Storage Storage `json:"storage"`
 }
 
-type CreatePageRequestBody struct {
+type PageRequestBody struct {
 	Title string          `json:"title"`
 	Type  string          `json:"type"`
 	Space PageCreateSpace `json:"space"`
-	Body  PageCreateBody  `json:"body"`
+	Body  PageBody        `json:"body"`
 }
 
 type CreatePageResponse struct {
-	Space SpaceResponse   `json:"space"`
-	Links PageCreateLinks `json:"_links"`
+	Space SpaceResponse `json:"space"`
+	Links PageLinks     `json:"_links"`
 }
 
-type PageCreateLinks struct {
+type PageLinks struct {
 	Self    string `json:"webui"`
 	BaseURL string `json:"base"`
 }
@@ -325,13 +326,13 @@ func (csc *confluenceServerClient) GetSpaces() ([]*Spaces, error) {
 }
 
 func (csc *confluenceServerClient) CreatePage(spaceKey string, pageDetails *serializer.PageDetails) (*CreatePageResponse, error) {
-	requestBody := &CreatePageRequestBody{
+	requestBody := &PageRequestBody{
 		Title: pageDetails.Title,
 		Type:  "page",
 		Space: PageCreateSpace{
 			Key: spaceKey,
 		},
-		Body: PageCreateBody{
+		Body: PageBody{
 			Storage: Storage{
 				Value:          pageDetails.Description,
 				Representation: "storage",
@@ -339,7 +340,7 @@ func (csc *confluenceServerClient) CreatePage(spaceKey string, pageDetails *seri
 		},
 	}
 	createPageResponse := &CreatePageResponse{}
-	url, err := utils.GetEndpointURL(csc.URL, PathCreatePage)
+	url, err := utils.GetEndpointURL(csc.URL, PathCreatePageForServer)
 	if err != nil {
 		return nil, errors.Wrap(err, "confluence CreatePage")
 	}

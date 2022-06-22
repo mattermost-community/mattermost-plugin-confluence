@@ -195,13 +195,13 @@ func (ccc *confluenceCloudClient) GetSpaces() ([]*Spaces, error) {
 }
 
 func (ccc *confluenceCloudClient) CreatePage(spaceKey string, pageDetails *serializer.PageDetails) (*CreatePageResponse, error) {
-	requestBody := &CreatePageRequestBody{
+	requestBody := &PageRequestBody{
 		Title: pageDetails.Title,
 		Type:  "page",
 		Space: PageCreateSpace{
 			Key: spaceKey,
 		},
-		Body: PageCreateBody{
+		Body: PageBody{
 			Storage: Storage{
 				Value:          pageDetails.Description,
 				Representation: "storage",

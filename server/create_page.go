@@ -13,7 +13,7 @@ import (
 )
 
 const (
-	PageCreateSuccessMessage = "You created a page [%s](%s) in space [%s](%s)"
+	PageCreateSuccessMessage = "You created a page [%s](%s%s) in space [%s](%s%s)"
 )
 
 func (p *Plugin) handleCreatePage(w http.ResponseWriter, r *http.Request) {
@@ -49,7 +49,7 @@ func (p *Plugin) handleCreatePage(w http.ResponseWriter, r *http.Request) {
 	post := &model.Post{
 		UserId:    p.conf.botUserID,
 		ChannelId: channelID,
-		Message:   fmt.Sprintf(PageCreateSuccessMessage, pageDetails.Title, fmt.Sprintf("%s%s", createPageResponse.Links.BaseURL, createPageResponse.Links.Self), spaceKey, fmt.Sprintf("%s%s", createPageResponse.Links.BaseURL, createPageResponse.Space.Links.Self)),
+		Message:   fmt.Sprintf(PageCreateSuccessMessage, pageDetails.Title, createPageResponse.Links.BaseURL, createPageResponse.Links.Self, spaceKey, createPageResponse.Links.BaseURL, createPageResponse.Space.Links.Self),
 	}
 	_ = p.API.SendEphemeralPost(userID, post)
 	ReturnStatusOK(w)

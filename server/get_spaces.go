@@ -23,7 +23,7 @@ func (p *Plugin) handleGetSpacesForConfluenceURL(w http.ResponseWriter, r *http.
 	}
 	responseBody, err := json.Marshal(spaces)
 	if err != nil {
-		p.LogAndRespondError(w, http.StatusInternalServerError, "not able to get marshal spaces.", err)
+		p.LogAndRespondError(w, http.StatusInternalServerError, "failed to marshal confluence spaces.", err)
 		return
 	}
 
