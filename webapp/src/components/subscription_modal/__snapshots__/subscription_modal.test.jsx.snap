@@ -145,10 +145,6 @@ exports[`components/ChannelSettingsModal subscription modal snapshot test 1`] = 
                 "value": "comment_updated",
               },
               Object {
-                "label": "Comment Remove",
-                "value": "comment_removed",
-              },
-              Object {
                 "label": "Page Create",
                 "value": "page_created",
               },
@@ -163,18 +159,6 @@ exports[`components/ChannelSettingsModal subscription modal snapshot test 1`] = 
               Object {
                 "label": "Page Restore",
                 "value": "page_restored",
-              },
-              Object {
-                "label": "Page Remove",
-                "value": "page_removed",
-              },
-              Object {
-                "label": "Space Created",
-                "value": "space_created",
-              },
-              Object {
-                "label": "Space Removed",
-                "value": "space_removed",
               },
               Object {
                 "label": "Space Updated",
@@ -197,10 +181,6 @@ exports[`components/ChannelSettingsModal subscription modal snapshot test 1`] = 
                 "value": "comment_updated",
               },
               Object {
-                "label": "Comment Remove",
-                "value": "comment_removed",
-              },
-              Object {
                 "label": "Page Create",
                 "value": "page_created",
               },
@@ -215,18 +195,6 @@ exports[`components/ChannelSettingsModal subscription modal snapshot test 1`] = 
               Object {
                 "label": "Page Restore",
                 "value": "page_restored",
-              },
-              Object {
-                "label": "Page Remove",
-                "value": "page_removed",
-              },
-              Object {
-                "label": "Space Created",
-                "value": "space_created",
-              },
-              Object {
-                "label": "Space Removed",
-                "value": "space_removed",
               },
               Object {
                 "label": "Space Updated",

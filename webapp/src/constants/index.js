@@ -12,10 +12,6 @@ const CONFLUENCE_PAGE_EVENTS = [
         label: 'Comment Update',
     },
     {
-        value: 'comment_removed',
-        label: 'Comment Remove',
-    },
-    {
         value: 'page_created',
         label: 'Page Create',
     },
@@ -30,10 +26,6 @@ const CONFLUENCE_PAGE_EVENTS = [
     {
         value: 'page_restored',
         label: 'Page Restore',
-    },
-    {
-        value: 'page_removed',
-        label: 'Page Remove',
     },
 ];
 
@@ -47,10 +39,6 @@ const CONFLUENCE_SPACE_EVENTS = [
         label: 'Comment Update',
     },
     {
-        value: 'comment_removed',
-        label: 'Comment Remove',
-    },
-    {
         value: 'page_created',
         label: 'Page Create',
     },
@@ -65,18 +53,6 @@ const CONFLUENCE_SPACE_EVENTS = [
     {
         value: 'page_restored',
         label: 'Page Restore',
-    },
-    {
-        value: 'page_removed',
-        label: 'Page Remove',
-    },
-    {
-        value: 'space_created',
-        label: 'Space Created',
-    },
-    {
-        value: 'space_removed',
-        label: 'Space Removed',
     },
     {
         value: 'space_updated',

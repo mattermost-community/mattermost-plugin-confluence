@@ -37,6 +37,5 @@ exports[`components/ConfluenceInstanceSelector confluence instance selector snap
     selectedInstanceID="test-spaceKey"
     theme={Object {}}
   />
-  ,
 </ContextProvider>
 `;

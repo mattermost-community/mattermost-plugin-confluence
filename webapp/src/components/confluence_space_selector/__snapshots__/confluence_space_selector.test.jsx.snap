@@ -37,6 +37,5 @@ exports[`components/ConfluenceSpaceSelector confluence space selector snapshot t
     selectedSpaceKey="test-spaceKey"
     theme={Object {}}
   />
-  ,
 </ContextProvider>
 `;

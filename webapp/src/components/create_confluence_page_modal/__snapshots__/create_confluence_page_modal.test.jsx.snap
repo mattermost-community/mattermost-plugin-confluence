@@ -35,6 +35,5 @@ exports[`components/CreateCofluencePageModal confluence create page modal snapsh
   <CreateConfluencePage
     theme={Object {}}
   />
-  ,
 </ContextProvider>
 `;
