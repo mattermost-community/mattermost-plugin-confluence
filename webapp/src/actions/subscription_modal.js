@@ -75,6 +75,63 @@ export const closeSubscriptionModal = () => (dispatch) => {
     });
 };
 
+export function openCreateConfluencePageModal(postID) {
+    return async (dispatch) => {
+        let data = null;
+        try {
+            data = await Client.getPostDetails(postID);
+        } catch (error) {
+            return {error};
+        }
+        dispatch({
+            type: Constants.ACTION_TYPES.OPEN_CREATE_CONFLUENCE_PAGE_MODAL,
+            data,
+        });
+        return {data};
+    };
+}
+
+export const createPageForConfluence = (instanceID, channelID, spaceKey, pageDetails) => {
+    return async () => {
+        let data = null;
+        try {
+            data = await Client.createPage(instanceID, channelID, spaceKey, pageDetails);
+        } catch (error) {
+            return {
+                error,
+            };
+        }
+
+        return {
+            data,
+            error: null,
+        };
+    };
+};
+
+export const closeCreateConfluencePageModal = () => (dispatch) => {
+    dispatch({
+        type: Constants.ACTION_TYPES.CLOSE_CREATE_CONFLUENCE_PAGE_MODAL,
+    });
+};
+
+export function getSpacesForConfluenceURL(instanceID) {
+    return async (dispatch) => {
+        let data = null;
+        try {
+            data = await Client.getSpacesForConfluenceURL(instanceID);
+        } catch (error) {
+            return {error};
+        }
+        dispatch({
+            type: Constants.ACTION_TYPES.RECEIVED_CONFLUENCE_INSTANCE,
+            data,
+        });
+
+        return {data};
+    };
+}
+
 export const getChannelSubscription = (channelID, alias, userID) => async (dispatch) => {
     try {
         const response = await Client.getChannelSubscription(channelID, alias);

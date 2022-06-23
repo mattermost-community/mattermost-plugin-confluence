@@ -1,5 +1,5 @@
 import {
-    closeSubscriptionModal, openSubscriptionModal, saveChannelSubscription, editChannelSubscription, getChannelSubscription, getConnected,
+    closeSubscriptionModal, openSubscriptionModal, saveChannelSubscription, editChannelSubscription, getChannelSubscription, getConnected, openCreateConfluencePageModal, closeCreateConfluencePageModal, getSpacesForConfluenceURL, createPageForConfluence,
 } from './subscription_modal';
 
 export {
@@ -9,4 +9,8 @@ export {
     editChannelSubscription,
     getChannelSubscription,
     getConnected,
+    openCreateConfluencePageModal,
+    closeCreateConfluencePageModal,
+    getSpacesForConfluenceURL,
+    createPageForConfluence,
 };
