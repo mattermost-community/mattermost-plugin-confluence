@@ -194,29 +194,16 @@ func (ccc *confluenceCloudClient) GetSpaces() ([]*Spaces, error) {
 	return spacesForConfluenceURL.Spaces, nil
 }
 
-func (ccc *confluenceCloudClient) CreatePage(spaceKey string, pageDetails *serializer.PageDetails) (*CreatePageResponse, error) {
-	requestBody := &PageRequestBody{
-		Title: pageDetails.Title,
-		Type:  "page",
-		Space: PageCreateSpace{
-			Key: spaceKey,
-		},
-		Body: PageBody{
-			Storage: Storage{
-				Value:          pageDetails.Description,
-				Representation: "storage",
-			},
-		},
-	}
-
+func (ccc *confluenceCloudClient) CreatePage(spaceKey string, pageDetails *serializer.PageDetails) (*CreatePageResponse, int, error) {
+	requestBody := GetRequestBodyForCreatePage(spaceKey, pageDetails)
 	createPageResponse := &CreatePageResponse{}
 	url, err := utils.GetEndpointURL(ccc.URL, PathCreatePageForCloud)
 	if err != nil {
-		return nil, errors.Wrap(err, "confluence CreatePage")
+		return nil, http.StatusInternalServerError, errors.Wrap(err, "confluence CreatePage")
 	}
 	_, err = utils.CallJSON(ccc.URL, http.MethodPost, url, requestBody, createPageResponse, ccc.HTTPClient)
 	if err != nil {
-		return nil, errors.Wrap(err, "confluence CreatePage")
+		return nil, http.StatusInternalServerError, errors.Wrap(err, "confluence CreatePage")
 	}
-	return createPageResponse, nil
+	return createPageResponse, http.StatusOK, nil
 }

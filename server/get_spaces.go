@@ -18,7 +18,7 @@ func (p *Plugin) handleGetSpacesForConfluenceURL(w http.ResponseWriter, r *http.
 
 	spaces, err := client.GetSpaces()
 	if err != nil {
-		p.LogAndRespondError(w, http.StatusInternalServerError, "not able to get Spaces for confluence url.", err)
+		p.LogAndRespondError(w, http.StatusInternalServerError, "not able to get spaces for confluence url.", err)
 		return
 	}
 	responseBody, err := json.Marshal(spaces)
@@ -28,5 +28,7 @@ func (p *Plugin) handleGetSpacesForConfluenceURL(w http.ResponseWriter, r *http.
 	}
 
 	w.Header().Set("Content-Type", "application/json")
-	_, _ = w.Write([]byte(string(responseBody)))
+	if _, err := w.Write(responseBody); err != nil {
+		_, _ = w.Write([]byte(string(responseBody)))
+	}
 }

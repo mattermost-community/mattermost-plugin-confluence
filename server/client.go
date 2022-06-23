@@ -15,5 +15,5 @@ type RESTService interface {
 	GetSpaceData(string) (*SpaceResponse, error)
 	GetUserGroups(*Connection) ([]*UserGroup, error)
 	GetSpaces() ([]*Spaces, error)
-	CreatePage(string, *serializer.PageDetails) (*CreatePageResponse, error)
+	CreatePage(spaceKey string, pageDetails *serializer.PageDetails) (*CreatePageResponse, int, error)
 }

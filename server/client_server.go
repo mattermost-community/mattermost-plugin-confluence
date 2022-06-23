@@ -325,28 +325,16 @@ func (csc *confluenceServerClient) GetSpaces() ([]*Spaces, error) {
 	return spacesForConfluenceURL.Spaces, nil
 }
 
-func (csc *confluenceServerClient) CreatePage(spaceKey string, pageDetails *serializer.PageDetails) (*CreatePageResponse, error) {
-	requestBody := &PageRequestBody{
-		Title: pageDetails.Title,
-		Type:  "page",
-		Space: PageCreateSpace{
-			Key: spaceKey,
-		},
-		Body: PageBody{
-			Storage: Storage{
-				Value:          pageDetails.Description,
-				Representation: "storage",
-			},
-		},
-	}
+func (csc *confluenceServerClient) CreatePage(spaceKey string, pageDetails *serializer.PageDetails) (*CreatePageResponse, int, error) {
+	requestBody := GetRequestBodyForCreatePage(spaceKey, pageDetails)
 	createPageResponse := &CreatePageResponse{}
 	url, err := utils.GetEndpointURL(csc.URL, PathCreatePageForServer)
 	if err != nil {
-		return nil, errors.Wrap(err, "confluence CreatePage")
+		return nil, http.StatusInternalServerError, errors.Wrap(err, "confluence CreatePage")
 	}
 	_, err = utils.CallJSON(csc.URL, http.MethodPost, url, requestBody, createPageResponse, csc.HTTPClient)
 	if err != nil {
-		return nil, errors.Wrap(err, "confluence CreatePage")
+		return nil, http.StatusInternalServerError, errors.Wrap(err, "confluence CreatePage")
 	}
-	return createPageResponse, nil
+	return createPageResponse, http.StatusOK, nil
 }

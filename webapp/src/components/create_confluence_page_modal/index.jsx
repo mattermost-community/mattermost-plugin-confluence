@@ -1,61 +1,61 @@
-import React, {useEffect, useState} from 'react';
+import React, {useEffect, useState, useCallback} from 'react';
 import {useDispatch, useSelector} from 'react-redux';
 import {Modal, Button} from 'react-bootstrap';
 
 import {getCurrentChannelId} from 'mattermost-redux/selectors/entities/common';
 
-import selectors from 'src/selectors';
-import ConfluenceInstanceSelector from '../confluence_instance_selector/confluence_instance_selector';
-import ConfluenceSpaceSelector from '../confluence_space_selector/confluence_space_selector';
+import selectors from '../../selectors';
+import ConfluenceInstanceSelector from '../confluence_instance_selector';
+import ConfluenceSpaceSelector from '../confluence_space_selector';
 import Validator from '../validator';
 import ConfluenceField from '../confluence_field';
 import {getModalStyles} from 'src/utils/styles';
 import {getSpacesForConfluenceURL, createPageForConfluence, closeCreateConfluencePageModal} from 'src/actions';
 
-const getStyle = {
+const getStyle = () => ({
     typeFormControl: {
         resize: 'none',
         height: '10em',
     },
-};
+});
 
 const CreateConfluencePage = (theme) => {
     const dispatch = useDispatch();
     const validator = new Validator();
 
-    const createConfluencePageModalVisible = useSelector((state) => selectors.isCreateConfluencePageModalVisible(state));
+    const postMessage = useSelector((state) => selectors.isCreateConfluencePageModalVisible(state));
     const channelID = useSelector((state) => getCurrentChannelId(state));
 
-    const [isCreateConfluencePageModalVisible, setIsCreateConfluencePageModalVisible] = useState(false);
+    const [modalVisible, setModalVisible] = useState(false);
     const [instanceID, setInstanceID] = useState('');
     const [pageTitle, setPageTitle] = useState('');
-    const [pageDescription, setPageDescription] = useState(createConfluencePageModalVisible.message);
+    const [pageDescription, setPageDescription] = useState(postMessage.message);
     const [spaceKey, setSpaceKey] = useState('');
     const [saving, setSaving] = useState(false);
     const [error, setError] = useState(false);
 
     useEffect(() => {
-        if (createConfluencePageModalVisible && createConfluencePageModalVisible.message) {
-            setIsCreateConfluencePageModalVisible(true);
-            setPageDescription(createConfluencePageModalVisible.message);
+        if (postMessage && postMessage.message) {
+            setModalVisible(true);
+            setPageDescription(postMessage.message);
         } else {
-            setIsCreateConfluencePageModalVisible(false);
+            setModalVisible(false);
         }
-    }, [createConfluencePageModalVisible]);
+    }, [postMessage]);
 
     useEffect(() => {
-        if (instanceID === '') {
+        if (!instanceID) {
             return;
         }
         let response;
         (async () => {
             response = await getSpacesForConfluenceURL(instanceID)(dispatch);
-            if (response?.error !== null) {
+            if (response?.error) {
                 setError(response.error.response?.text);
             }
         })();
         setSpaceKey('');
-    }, [instanceID, dispatch]);
+    }, [instanceID]);
 
     const reset = () => {
         setSaving(false);
@@ -66,31 +66,31 @@ const CreateConfluencePage = (theme) => {
         setError('');
     };
 
-    const handleClose = (e) => {
-        if (e && e.preventDefault) {
+    const handleClose = useCallback((e) => {
+        if (e?.preventDefault) {
             e.preventDefault();
         }
         reset();
         dispatch(closeCreateConfluencePageModal());
-    };
+      }, [])
 
-    const handleInstanceChange = (currentInstanceID) => {
+    const handleInstanceChange = useCallback((currentInstanceID) => {
         setInstanceID(currentInstanceID);
         setSpaceKey('');
         setError('');
-    };
+      }, [instanceID])
 
-    const handleSpaceKeyChange = (currentSpaceKey) => {
+    const handleSpaceKeyChange = useCallback((currentSpaceKey) => {
         setSpaceKey(currentSpaceKey);
-    };
+      }, [spaceKey])
 
-    const handlePageTitle = (e) => {
+    const handlePageTitle = useCallback((e) => {
         setPageTitle(e.target.value);
-    };
+      }, [pageTitle])
 
-    const handlePageDescription = (e) => {
+    const handlePageDescription = useCallback((e) => {
         setPageDescription(e.target.value);
-    };
+      }, [pageDescription])
 
     const handleSubmit = () => {
         if (!validator.validate()) {
@@ -106,7 +106,7 @@ const CreateConfluencePage = (theme) => {
         (async () => {
             const response = await createPageForConfluence(instanceID, channelID, spaceKey, pageDetails)(dispatch);
             if (response?.error) {
-                setError(response.error?.response?.text);
+                setError(response.error.response?.text);
                 setSaving(false);
             } else {
                 reset();
@@ -118,7 +118,7 @@ const CreateConfluencePage = (theme) => {
     return (
         <Modal
             dialogClassName='modal--scroll'
-            show={isCreateConfluencePageModalVisible}
+            show={modalVisible}
             onHide={handleClose}
             onExited={handleClose}
             backdrop={'static'}
@@ -136,15 +136,13 @@ const CreateConfluencePage = (theme) => {
                     onInstanceChange={handleInstanceChange}
                 />
 
-                {instanceID !== '' &&
-                <ConfluenceSpaceSelector
+                {instanceID && <ConfluenceSpaceSelector
                     theme={theme}
                     selectedSpaceKey={spaceKey}
                     onSpaceKeyChange={handleSpaceKeyChange}
                 />}
 
-                {spaceKey !== '' &&
-                <ConfluenceField
+                {spaceKey && <ConfluenceField
                     label={'Page Title'}
                     type={'text'}
                     fieldType={'input'}
@@ -155,10 +153,9 @@ const CreateConfluencePage = (theme) => {
                     removeValidation={validator.removeValidation}
                     onChange={handlePageTitle}
                 />}
-                {spaceKey !== '' &&
-                <ConfluenceField
+                {spaceKey &&<ConfluenceField
                     label={'Page Description'}
-                    formControlStyle={getStyle.typeFormControl}
+                    formControlStyle={getStyle().typeFormControl}
                     type={'textarea'}
                     fieldType={'input'}
                     required={true}
@@ -167,8 +164,7 @@ const CreateConfluencePage = (theme) => {
                     removeValidation={validator.removeValidation}
                     onChange={handlePageDescription}
                 />}
-                {error &&
-                <p className='alert alert-danger'>
+                {error && <p className='alert alert-danger'>
                     <i
                         className='fa fa-warning'
                         title='Warning Icon'
@@ -177,7 +173,7 @@ const CreateConfluencePage = (theme) => {
                 </p>}
             </Modal.Body>
 
-            {spaceKey !== '' && <Modal.Footer style={getModalStyles.modalFooter}>
+            {spaceKey && <Modal.Footer style={getModalStyles.modalFooter}>
                 <Button
                     type='button'
                     bsStyle='link'

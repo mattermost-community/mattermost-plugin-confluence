@@ -536,3 +536,19 @@ func (p *Plugin) GetClientFromURL(url, userID string) (Client, error) {
 
 	return client, nil
 }
+
+func GetRequestBodyForCreatePage(spaceKey string, pageDetails *serializer.PageDetails) *PageRequestBody {
+	return &PageRequestBody{
+		Title: pageDetails.Title,
+		Type:  "page",
+		Space: PageCreateSpace{
+			Key: spaceKey,
+		},
+		Body: PageBody{
+			Storage: Storage{
+				Value:          pageDetails.Description,
+				Representation: "storage",
+			},
+		},
+	}
+}

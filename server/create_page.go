@@ -40,9 +40,9 @@ func (p *Plugin) handleCreatePage(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	createPageResponse, err := client.CreatePage(spaceKey, pageDetails)
+	createPageResponse, statusCode, err := client.CreatePage(spaceKey, pageDetails)
 	if err != nil {
-		p.LogAndRespondError(w, http.StatusInternalServerError, "not able to create page.", err)
+		p.LogAndRespondError(w, statusCode, "not able to create page.", err)
 		return
 	}
 

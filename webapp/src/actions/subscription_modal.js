@@ -98,7 +98,6 @@ export const createPageForConfluence = (instanceID, channelID, spaceKey, pageDet
             data = await Client.createPage(instanceID, channelID, spaceKey, pageDetails);
         } catch (error) {
             return {
-                data,
                 error,
             };
         }
