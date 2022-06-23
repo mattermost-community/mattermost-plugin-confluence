@@ -13,18 +13,14 @@ const ConfluenceSpaceSelector = (props) => {
     const spacesForConfluenceURL = useSelector((state) => selectors.spacesForConfluenceURL(state));
 
     const getSpaceOptions = useCallback(() => {
-        if (!spacesForConfluenceURL?.spaces) {
-            return;
-        }
-        return spacesForConfluenceURL.spaces.map((space) => ({label: space.name, value: space.key})); 
-      }, [spacesForConfluenceURL])
+        return spacesForConfluenceURL?.spaces?.map((space) => ({label: space.name, value: space.key}));
+    }, [spacesForConfluenceURL]);
 
     const handleEvents = useCallback((_, spaceKey) => {
-        if (spaceKey === props.selectedSpaceKey) {
-            return;
+        if (spaceKey !== props.selectedSpaceKey) {
+            props.onSpaceKeyChange(spaceKey);
         }
-        props.onSpaceKeyChange(spaceKey);
-      }, [props.selectedSpaceKey])
+    }, [props.selectedSpaceKey]);
 
     return (
         <React.Fragment>
@@ -33,7 +29,7 @@ const ConfluenceSpaceSelector = (props) => {
                 label={'Space'}
                 options={getSpaceOptions()}
                 onChange={handleEvents}
-                value={!props.selectedSpaceKey ? null : getSpaceOptions().find((option) => option.value === props.selectedSpaceKey)}
+                value={props.selectedSpaceKey ? getSpaceOptions().find((option) => option.value === props.selectedSpaceKey) : null}
                 required={true}
                 theme={props.theme}
                 addValidate={validator.addComponent}

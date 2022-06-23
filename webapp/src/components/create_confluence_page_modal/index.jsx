@@ -72,25 +72,25 @@ const CreateConfluencePage = (theme) => {
         }
         reset();
         dispatch(closeCreateConfluencePageModal());
-      }, [])
+    }, []);
 
     const handleInstanceChange = useCallback((currentInstanceID) => {
         setInstanceID(currentInstanceID);
         setSpaceKey('');
         setError('');
-      }, [instanceID])
+    }, [instanceID]);
 
     const handleSpaceKeyChange = useCallback((currentSpaceKey) => {
         setSpaceKey(currentSpaceKey);
-      }, [spaceKey])
+    }, [spaceKey]);
 
     const handlePageTitle = useCallback((e) => {
         setPageTitle(e.target.value);
-      }, [pageTitle])
+    }, [pageTitle]);
 
     const handlePageDescription = useCallback((e) => {
         setPageDescription(e.target.value);
-      }, [pageDescription])
+    }, [pageDescription]);
 
     const handleSubmit = () => {
         if (!validator.validate()) {
@@ -136,13 +136,15 @@ const CreateConfluencePage = (theme) => {
                     onInstanceChange={handleInstanceChange}
                 />
 
-                {instanceID && <ConfluenceSpaceSelector
+                {instanceID &&
+                <ConfluenceSpaceSelector
                     theme={theme}
                     selectedSpaceKey={spaceKey}
                     onSpaceKeyChange={handleSpaceKeyChange}
                 />}
 
-                {spaceKey && <ConfluenceField
+                {spaceKey &&
+                <ConfluenceField
                     label={'Page Title'}
                     type={'text'}
                     fieldType={'input'}
@@ -153,7 +155,8 @@ const CreateConfluencePage = (theme) => {
                     removeValidation={validator.removeValidation}
                     onChange={handlePageTitle}
                 />}
-                {spaceKey &&<ConfluenceField
+                {spaceKey &&
+                <ConfluenceField
                     label={'Page Description'}
                     formControlStyle={getStyle().typeFormControl}
                     type={'textarea'}
@@ -164,7 +167,8 @@ const CreateConfluencePage = (theme) => {
                     removeValidation={validator.removeValidation}
                     onChange={handlePageDescription}
                 />}
-                {error && <p className='alert alert-danger'>
+                {error &&
+                <p className='alert alert-danger'>
                     <i
                         className='fa fa-warning'
                         title='Warning Icon'

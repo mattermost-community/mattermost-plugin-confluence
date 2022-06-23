@@ -13,16 +13,14 @@ const ConfluenceInstanceSelector = (props) => {
     const installedInstances = useSelector((state) => selectors.isInstalledInstances(state));
 
     const getInstanceOptions = useCallback(() => {
-        return installedInstances?.map((instance) => ({label: instance.instance_id, value: instance.instance_id})); 
-      }, [installedInstances])
+        return installedInstances?.map((instance) => ({label: instance.instance_id, value: instance.instance_id}));
+    }, [installedInstances]);
 
     const handleEvents = useCallback((_, instanceID) => {
-        if (instanceID === props.selectedInstanceID) {
-            return;
+        if (instanceID !== props.selectedInstanceID) {
+            props.onInstanceChange(instanceID);
         }
-        props.onInstanceChange(instanceID);
-      }, [props.selectedInstanceID])
-
+    }, [props.selectedInstanceID]);
 
     return (
         <React.Fragment>
