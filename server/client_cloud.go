@@ -15,8 +15,9 @@ import (
 const (
 	PathAccessibleResources   = "/oauth/token/accessible-resources"
 	PathGetUserGroupsForCloud = "/rest/api/user/memberof?accountId=%s"
-	PathGetSpacesForCloud     = "/rest/api/space?limit=100"
+	PathGetSpacesForCloud     = "/rest/api/space"
 	PathCreatePageForCloud    = "/rest/api/content"
+	AccountID                 = "accountId"
 )
 
 type confluenceCloudClient struct {
@@ -53,15 +54,15 @@ func newCloudClient(url, instanceID string, httpClient *http.Client) Client {
 	}
 }
 
-func (ccc *confluenceCloudClient) GetSelf() (*ConfluenceUser, error) {
+func (ccc *confluenceCloudClient) GetSelf() (*ConfluenceUser, int, error) {
 	confluenceCloudUser := &ConfluenceCloudUser{}
 	url, err := utils.GetEndpointURL(ccc.URL, PathCurrentUser)
 	if err != nil {
-		return nil, errors.Wrap(err, "confluence GetSelf")
+		return nil, http.StatusInternalServerError, errors.Wrap(err, "confluence GetSelf")
 	}
-	_, err = utils.CallJSON(ccc.URL, http.MethodGet, url, nil, confluenceCloudUser, ccc.HTTPClient)
+	_, statusCode, err := utils.CallJSON(ccc.URL, http.MethodGet, url, nil, confluenceCloudUser, ccc.HTTPClient)
 	if err != nil {
-		return nil, errors.Wrap(err, "confluence GetSelf")
+		return nil, statusCode, errors.Wrap(err, "confluence GetSelf")
 	}
 
 	confluenceUser := &ConfluenceUser{
@@ -69,129 +70,143 @@ func (ccc *confluenceCloudClient) GetSelf() (*ConfluenceUser, error) {
 		Name:        confluenceCloudUser.PublicName,
 		DisplayName: confluenceCloudUser.DisplayName,
 	}
-	return confluenceUser, nil
+	return confluenceUser, statusCode, nil
 }
 
-func (ccc *confluenceCloudClient) GetCloudID() (string, error) {
+func (ccc *confluenceCloudClient) GetCloudID() (string, int, error) {
 	accessibleResources := []*AccessibleResources{}
 	url, err := utils.GetEndpointURL(ccc.URL, PathAccessibleResources)
 	if err != nil {
-		return "", errors.Wrap(err, "confluence GetCloudID")
+		return "", http.StatusInternalServerError, errors.Wrap(err, "confluence GetCloudID")
 	}
-	_, err = utils.CallJSON(ccc.URL, http.MethodGet, url, nil, &accessibleResources, ccc.HTTPClient)
+	_, statusCode, err := utils.CallJSON(ccc.URL, http.MethodGet, url, nil, &accessibleResources, ccc.HTTPClient)
 	if err != nil {
-		return "", errors.Wrap(err, "confluence GetCloudID")
+		return "", statusCode, errors.Wrap(err, "confluence GetCloudID")
 	}
 
 	for _, accessibleResource := range accessibleResources {
 		if accessibleResource.URL == ccc.InstanceID {
-			return accessibleResource.ID, nil
+			return accessibleResource.ID, statusCode, nil
 		}
 	}
 
-	return "", fmt.Errorf("cloudID not found for cloud instance: %s", ccc.InstanceID)
+	return "", statusCode, fmt.Errorf("cloudID not found for cloud instance: %s", ccc.InstanceID)
 }
 
-func (ccc *confluenceCloudClient) GetEventData(confluenceCloudEvent *serializer.ConfluenceCloudEvent, eventType string) (*ConfluenceCloudEvent, error) {
+func (ccc *confluenceCloudClient) GetEventData(confluenceCloudEvent *serializer.ConfluenceCloudEvent, eventType string) (*ConfluenceCloudEvent, int, error) {
 	var err error
+	var statusCode int
 	var confluenceCloudEventResponse ConfluenceCloudEvent
 	if strings.Contains(eventType, Comment) {
-		confluenceCloudEventResponse.Comment, err = ccc.GetCommentData(confluenceCloudEvent)
+		confluenceCloudEventResponse.Comment, statusCode, err = ccc.GetCommentData(confluenceCloudEvent)
 		if err != nil {
-			return nil, errors.Wrap(err, "confluence GetEventData")
+			return nil, statusCode, errors.Wrap(err, "confluence GetEventData")
 		}
 
 		confluenceCloudEvent.Comment.Body.View.Value = confluenceCloudEventResponse.Comment.Body.View.Value
 		confluenceCloudEvent.Comment.UserName = confluenceCloudEventResponse.Comment.History.CreatedBy.Username
 	}
 	if strings.Contains(eventType, Page) {
-		confluenceCloudEventResponse.Page, err = ccc.GetPageData(confluenceCloudEvent)
+		confluenceCloudEventResponse.Page, statusCode, err = ccc.GetPageData(confluenceCloudEvent)
 		if err != nil {
-			return nil, errors.Wrap(err, "confluence GetEventData")
+			return nil, statusCode, errors.Wrap(err, "confluence GetEventData")
 		}
 
 		confluenceCloudEvent.Page.Body.View.Value = confluenceCloudEventResponse.Page.Body.View.Value
 		confluenceCloudEvent.Page.UserName = confluenceCloudEventResponse.Page.History.CreatedBy.Username
 	}
 	if strings.Contains(eventType, Space) {
-		confluenceCloudEventResponse.Space, err = ccc.GetSpaceData(confluenceCloudEvent.Space.SpaceKey)
+		confluenceCloudEventResponse.Space, statusCode, err = ccc.GetSpaceData(confluenceCloudEvent.Space.SpaceKey)
 		if err != nil {
-			return nil, errors.Wrap(err, "confluence GetEventData")
+			return nil, statusCode, errors.Wrap(err, "confluence GetEventData")
 		}
 	}
 
-	return &confluenceCloudEventResponse, nil
+	return &confluenceCloudEventResponse, statusCode, nil
 }
 
-func (ccc *confluenceCloudClient) GetCommentData(confluenceCloudEvent *serializer.ConfluenceCloudEvent) (*CommentResponse, error) {
+func (ccc *confluenceCloudClient) GetCommentData(confluenceCloudEvent *serializer.ConfluenceCloudEvent) (*CommentResponse, int, error) {
 	commentResponse := &CommentResponse{}
 	url, err := utils.GetEndpointURL(ccc.URL, fmt.Sprintf(PathCommentData, strconv.Itoa(confluenceCloudEvent.Comment.ID)))
 	if err != nil {
-		return nil, errors.Wrap(err, "confluence GetCommentData")
+		return nil, http.StatusInternalServerError, errors.Wrap(err, "confluence GetCommentData")
 	}
-	_, err = utils.CallJSON(ccc.URL, http.MethodGet, url, nil, commentResponse, ccc.HTTPClient)
+	_, statusCode, err := utils.CallJSON(ccc.URL, http.MethodGet, url, nil, commentResponse, ccc.HTTPClient)
 	if err != nil {
-		return nil, errors.Wrap(err, "confluence GetCommentData")
+		return nil, statusCode, errors.Wrap(err, "confluence GetCommentData")
 	}
 	commentResponse.Body.View.Value = utils.GetBodyForExcerpt(commentResponse.Body.View.Value)
 
-	return commentResponse, nil
+	return commentResponse, statusCode, nil
 }
 
-func (ccc *confluenceCloudClient) GetPageData(confluenceCloudEvent *serializer.ConfluenceCloudEvent) (*PageResponse, error) {
+func (ccc *confluenceCloudClient) GetPageData(confluenceCloudEvent *serializer.ConfluenceCloudEvent) (*PageResponse, int, error) {
 	pageResponse := &PageResponse{}
 	url, err := utils.GetEndpointURL(ccc.URL, fmt.Sprintf(PathPageData, strconv.Itoa(confluenceCloudEvent.Page.ID)))
 	if err != nil {
-		return nil, errors.Wrap(err, "confluence GetPageData")
+		return nil, http.StatusInternalServerError, errors.Wrap(err, "confluence GetPageData")
 	}
-	_, err = utils.CallJSON(ccc.URL, http.MethodGet, url, nil, pageResponse, ccc.HTTPClient)
+	_, statusCode, err := utils.CallJSON(ccc.URL, http.MethodGet, url, nil, pageResponse, ccc.HTTPClient)
 	if err != nil {
-		return nil, errors.Wrap(err, "confluence GetPageData")
+		return nil, statusCode, errors.Wrap(err, "confluence GetPageData")
 	}
 	pageResponse.Body.View.Value = utils.GetBodyForExcerpt(pageResponse.Body.View.Value)
 
-	return pageResponse, nil
+	return pageResponse, statusCode, nil
 }
 
-func (ccc *confluenceCloudClient) GetSpaceData(spaceKey string) (*SpaceResponse, error) {
+func (ccc *confluenceCloudClient) GetSpaceData(spaceKey string) (*SpaceResponse, int, error) {
 	spaceResponse := &SpaceResponse{}
 	url, err := utils.GetEndpointURL(ccc.URL, fmt.Sprintf(PathSpaceData, spaceKey))
 	if err != nil {
-		return nil, errors.Wrap(err, "confluence GetSpaceData")
+		return nil, http.StatusInternalServerError, errors.Wrap(err, "confluence GetSpaceData")
 	}
-	_, err = utils.CallJSON(ccc.URL, http.MethodGet, url, nil, spaceResponse, ccc.HTTPClient)
+	_, statusCode, err := utils.CallJSON(ccc.URL, http.MethodGet, url, nil, spaceResponse, ccc.HTTPClient)
 	if err != nil {
-		return nil, errors.Wrap(err, "confluence GetSpaceData")
+		return nil, statusCode, errors.Wrap(err, "confluence GetSpaceData")
 	}
 
-	return spaceResponse, nil
+	return spaceResponse, statusCode, nil
 }
 
-func (ccc *confluenceCloudClient) GetUserGroups(connection *Connection) ([]*UserGroup, error) {
+func (ccc *confluenceCloudClient) GetUserGroups(connection *Connection) ([]*UserGroup, int, error) {
 	userGroups := UserGroups{}
-	url, err := utils.GetEndpointURL(ccc.URL, fmt.Sprintf(PathGetUserGroupsForCloud, connection.AccountID))
+	url, err := utils.GetEndpointURL(ccc.URL, PathGetUserGroupsForCloud)
 	if err != nil {
-		return nil, errors.Wrap(err, "confluence GetUserGroups")
-	}
-	_, err = utils.CallJSON(ccc.URL, http.MethodGet, url, nil, &userGroups, ccc.HTTPClient)
-	if err != nil {
-		return nil, errors.Wrap(err, "confluence GetUserGroups")
+		return nil, http.StatusInternalServerError, errors.Wrap(err, "confluence GetUserGroups")
 	}
 
-	return userGroups.Groups, nil
+	url, err = utils.AddQueryParams(url, map[string]interface{}{
+		AccountID: connection.AccountID,
+	})
+	if err != nil {
+		return nil, http.StatusInternalServerError, errors.Wrap(err, "confluence GetSpaces")
+	}
+	_, statusCode, err := utils.CallJSON(ccc.URL, http.MethodGet, url, nil, &userGroups, ccc.HTTPClient)
+	if err != nil {
+		return nil, statusCode, errors.Wrap(err, "confluence GetUserGroups")
+	}
+
+	return userGroups.Groups, statusCode, nil
 }
 
-func (ccc *confluenceCloudClient) GetSpaces() ([]*Spaces, error) {
+func (ccc *confluenceCloudClient) GetSpaces() ([]*Spaces, int, error) {
 	spacesForConfluenceURL := SpacesForConfluenceURL{}
 	url, err := utils.GetEndpointURL(ccc.URL, PathGetSpacesForCloud)
 	if err != nil {
-		return nil, errors.Wrap(err, "confluence GetSpaces")
+		return nil, http.StatusInternalServerError, errors.Wrap(err, "confluence GetSpaces")
 	}
-	_, err = utils.CallJSON(ccc.URL, http.MethodGet, url, nil, &spacesForConfluenceURL, ccc.HTTPClient)
+	url, err = utils.AddQueryParams(url, map[string]interface{}{
+		Limit: SpaceLimit,
+	})
 	if err != nil {
-		return nil, errors.Wrap(err, "confluence GetSpaces")
+		return nil, http.StatusInternalServerError, errors.Wrap(err, "confluence GetSpaces")
 	}
-	return spacesForConfluenceURL.Spaces, nil
+	_, statusCode, err := utils.CallJSON(ccc.URL, http.MethodGet, url, nil, &spacesForConfluenceURL, ccc.HTTPClient)
+	if err != nil {
+		return nil, statusCode, errors.Wrap(err, "confluence GetSpaces")
+	}
+	return spacesForConfluenceURL.Spaces, statusCode, nil
 }
 
 func (ccc *confluenceCloudClient) CreatePage(spaceKey string, pageDetails *serializer.PageDetails) (*CreatePageResponse, int, error) {
@@ -201,9 +216,9 @@ func (ccc *confluenceCloudClient) CreatePage(spaceKey string, pageDetails *seria
 	if err != nil {
 		return nil, http.StatusInternalServerError, errors.Wrap(err, "confluence CreatePage")
 	}
-	_, err = utils.CallJSON(ccc.URL, http.MethodPost, url, requestBody, createPageResponse, ccc.HTTPClient)
+	_, statusCode, err := utils.CallJSON(ccc.URL, http.MethodPost, url, requestBody, createPageResponse, ccc.HTTPClient)
 	if err != nil {
-		return nil, http.StatusInternalServerError, errors.Wrap(err, "confluence CreatePage")
+		return nil, statusCode, errors.Wrap(err, "confluence CreatePage")
 	}
 	return createPageResponse, http.StatusOK, nil
 }

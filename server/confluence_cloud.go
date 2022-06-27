@@ -48,12 +48,12 @@ func (p *Plugin) handleConfluenceCloudWebhook(w http.ResponseWriter, r *http.Req
 	instanceID := types.ID(instance.GetURL())
 
 	for _, userID := range userIDs {
-		resp, err := p.GetPermissionsForCloudEvent(event, instanceID, userID, instance, eventType)
+		resp, statusCode, err := p.GetPermissionsForCloudEvent(event, instanceID, userID, instance, eventType)
 		if err != nil {
-			http.Error(w, err.Error(), http.StatusBadRequest)
+			http.Error(w, err.Error(), statusCode)
 			return
 		} else if resp == nil {
-			http.Error(w, "Don't have the permission to view this event", http.StatusBadRequest)
+			http.Error(w, "Don't have the permission to view this event", statusCode)
 			return
 		}
 		notification.SendConfluenceNotifications(event, eventType, p.conf.botUserID, CloudInstance, userID)
@@ -63,26 +63,26 @@ func (p *Plugin) handleConfluenceCloudWebhook(w http.ResponseWriter, r *http.Req
 	ReturnStatusOK(w)
 }
 
-func (p *Plugin) GetPermissionsForCloudEvent(confluenceCloudEvent *serializer.ConfluenceCloudEvent, instanceID types.ID, userID string, instance Instance, eventType string) (*ConfluenceCloudEvent, error) {
+func (p *Plugin) GetPermissionsForCloudEvent(confluenceCloudEvent *serializer.ConfluenceCloudEvent, instanceID types.ID, userID string, instance Instance, eventType string) (*ConfluenceCloudEvent, int, error) {
 	conn, err := p.userStore.LoadConnection(instanceID, types.ID(userID))
 	if err != nil {
 		p.API.LogError("Error in loading connection.", "Error", err.Error())
-		return nil, err
+		return nil, http.StatusInternalServerError, err
 	}
 
 	client, err := instance.GetClient(conn)
 	if err != nil {
 		p.API.LogError("Error occurred while fetching client.", "Error", err.Error())
-		return nil, err
+		return nil, http.StatusInternalServerError, err
 	}
 
-	resp, err := client.(*confluenceCloudClient).GetEventData(confluenceCloudEvent, eventType)
+	resp, statusCode, err := client.(*confluenceCloudClient).GetEventData(confluenceCloudEvent, eventType)
 	if err != nil {
 		p.API.LogError("Error occurred while fetching event data.", "Error", err.Error())
-		return nil, err
+		return nil, statusCode, err
 	}
 
-	return resp, nil
+	return resp, statusCode, nil
 }
 
 func CreateConfluenceURL(event *serializer.ConfluenceCloudEvent, eventType string) (string, error) {

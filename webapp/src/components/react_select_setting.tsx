@@ -2,80 +2,77 @@
 // See LICENSE.txt for license information.
 
 import React from 'react';
-import PropTypes from 'prop-types';
-
 import ReactSelect from 'react-select';
-import AsyncSelect from 'react-select/async';
+import AsyncSelect, {Props as ReactSelectProps} from 'react-select/async';
 import CreatableSelect from 'react-select/creatable';
+
+import {Theme} from 'mattermost-redux/types/preferences';
+
+import {ActionMeta} from 'react-select/src/types';
+
+import Setting from 'src/components/setting';
 
 import {getStyleForReactSelect} from 'src/utils/styles';
 
-import Setting from './setting';
+import {ReactSelectOption} from 'src/types';
 
 const MAX_NUM_OPTIONS = 100;
 
-export default class ReactSelectSetting extends React.PureComponent {
-    static propTypes = {
-        name: PropTypes.string,
-        onChange: PropTypes.func,
-        theme: PropTypes.object.isRequired,
-        isClearable: PropTypes.bool,
-        options: PropTypes.array.isRequired,
-        value: PropTypes.oneOfType([
-            PropTypes.object,
-            PropTypes.array,
-            PropTypes.string,
-        ]),
-        addValidate: PropTypes.func,
-        removeValidate: PropTypes.func,
-        required: PropTypes.bool,
-        allowUserDefinedValue: PropTypes.bool,
-        limitOptions: PropTypes.bool,
-        resetInvalidOnChange: PropTypes.bool,
-    };
+type Omit<T, K extends keyof T> = Pick<T, Exclude<keyof T, K>>
 
-    constructor(props) {
-        super(props);
-        this.state = {invalid: false};
-    }
+export type Props = Omit<ReactSelectProps<ReactSelectOption>, 'theme'> & {
+    theme: Theme;
+    addValidate?: (isValid: () => boolean) => void;
+    removeValidate?: (isValid: () => boolean) => void;
+    allowUserDefinedValue?: boolean;
+    limitOptions?: boolean;
+    resetInvalidOnChange?: boolean;
+};
+
+type State = {
+    invalid: boolean;
+};
+
+export default class ReactSelectSetting extends React.PureComponent<Props, State> {
+    state: State = {invalid: false};
 
     componentDidMount() {
-        if (this.props.addValidate && this.props.name) {
-            this.props.addValidate(this.props.name, this.isValid);
+        if (this.props.addValidate) {
+            this.props.addValidate(this.isValid);
         }
     }
 
     componentWillUnmount() {
-        if (this.props.removeValidate && this.props.name) {
-            this.props.removeValidate(this.props.name);
+        if (this.props.removeValidate) {
+            this.props.removeValidate(this.isValid);
         }
     }
 
-    componentDidUpdate(prevProps, prevState) {
-        if (prevState.invalid && this.props.value?.value !== prevProps.value?.value) {
+    componentDidUpdate(prevProps: Props, prevState: State) {
+        if (prevState.invalid && (this.props.value && this.props.value.value) !== (prevProps.value && prevProps.value.value)) {
             this.setState({invalid: false}); //eslint-disable-line react/no-did-update-set-state
         }
     }
 
-    handleChange = (value) => {
+    handleChange = (value: ReactSelectOption | ReactSelectOption[], action: ActionMeta) => {
         if (this.props.onChange) {
             if (Array.isArray(value)) {
                 this.props.onChange(this.props.name, value.map((x) => x.value));
             } else {
-                this.props.onChange(this.props.name, value?.value);
+                const newValue = value ? value.value : null;
+                this.props.onChange(this.props.name, newValue);
             }
         }
-
         if (this.props.resetInvalidOnChange) {
             this.setState({invalid: false});
         }
     };
 
     // Standard search term matching plus reducing to < 100 items
-    filterOptions = (input) => {
+    filterOptions = (input: string) => {
         let options = this.props.options;
         if (input) {
-            options = options.filter((x) => x.label.toLowerCase().includes(input.toLowerCase()));
+            options = options.filter((opt: ReactSelectOption) => opt.label.toUpperCase().includes(input.toUpperCase()));
         }
         return Promise.resolve(options.slice(0, MAX_NUM_OPTIONS));
     };
@@ -85,24 +82,29 @@ export default class ReactSelectSetting extends React.PureComponent {
             return true;
         }
 
-        const valid = Boolean(this.props.value);
+        let valid = Boolean(this.props.value);
+        if (this.props.value && Array.isArray(this.props.value)) {
+            valid = Boolean(this.props.value.length);
+        }
+
         this.setState({invalid: !valid});
         return valid;
     };
 
     render() {
-        const requiredMessage = 'This field is required.';
+        const requiredMsg = 'This field is required.';
         let validationError = null;
+
         if (this.props.required && this.state.invalid) {
             validationError = (
                 <p className='help-text error-text'>
-                    <span>{requiredMessage}</span>
+                    <span>{requiredMsg}</span>
                 </p>
             );
         }
 
         let selectComponent = null;
-        if (this.props.limitOptions && this.props.options.size > MAX_NUM_OPTIONS) {
+        if (this.props.limitOptions && this.props.options.length > MAX_NUM_OPTIONS) {
             // The parent component has let us know that we may have a large number of options, and that
             // the dataset is static. In this case, we use the AsyncSelect component and synchronous func
             // this.filterOptions() to limit the number of options being rendered at a given time.
@@ -122,6 +124,7 @@ export default class ReactSelectSetting extends React.PureComponent {
                 <CreatableSelect
                     {...this.props}
                     noOptionsMessage={() => 'Start typing...'}
+                    formatCreateLabel={(value) => `Add "${value}"`}
                     placeholder=''
                     menuPortalTarget={document.body}
                     menuPlacement='auto'
@@ -140,7 +143,6 @@ export default class ReactSelectSetting extends React.PureComponent {
                 />
             );
         }
-
         return (
             <Setting
                 inputId={this.props.name}

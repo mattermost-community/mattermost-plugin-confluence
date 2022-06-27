@@ -59,7 +59,7 @@ func (p *Plugin) DeleteSubscription(channelID, alias, userID string) error {
 				return err
 			}
 
-			err = adminClient.(*confluenceServerClient).DeleteWebhook(webhookID)
+			_, err = adminClient.(*confluenceServerClient).DeleteWebhook(webhookID)
 			if err != nil {
 				return err
 			}

@@ -47,9 +47,9 @@ func (p *Plugin) handleConfluenceServerWebhook(w http.ResponseWriter, r *http.Re
 		}
 		event.Space.SpaceKey = spaceKey
 	}
-	eventData, err := p.GetEventData(event, instance, userID)
+	eventData, statusCode, err := p.GetEventData(event, instance, userID)
 	if err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
+		http.Error(w, err.Error(), statusCode)
 		return
 	}
 	eventData.BaseURL = instance.GetURL()
@@ -62,26 +62,26 @@ func (p *Plugin) handleConfluenceServerWebhook(w http.ResponseWriter, r *http.Re
 	ReturnStatusOK(w)
 }
 
-func (p *Plugin) GetEventData(webhookPayload *serializer.ConfluenceServerWebhookPayload, instance Instance, userID string) (*ConfluenceServerEvent, error) {
+func (p *Plugin) GetEventData(webhookPayload *serializer.ConfluenceServerWebhookPayload, instance Instance, userID string) (*ConfluenceServerEvent, int, error) {
 	conn, err := p.userStore.LoadConnection(instance.GetID(), types.ID(userID))
 	if err != nil {
 		p.API.LogError("Error in loading connection.", "Error", err.Error())
-		return nil, err
+		return nil, http.StatusInternalServerError, err
 	}
 
 	client, err := instance.(*serverInstance).GetClient(conn)
 	if err != nil {
 		p.API.LogError("Error occurred while fetching client.", "Error", err.Error())
-		return nil, err
+		return nil, http.StatusInternalServerError, err
 	}
 
-	eventData, err := client.(*confluenceServerClient).GetEventData(webhookPayload)
+	eventData, statusCode, err := client.(*confluenceServerClient).GetEventData(webhookPayload)
 	if err != nil {
 		p.API.LogError("Error occurred while fetching event data.", "Error", err.Error())
-		return nil, err
+		return nil, statusCode, err
 	}
 
-	return eventData, nil
+	return eventData, statusCode, nil
 }
 
 func (e ConfluenceServerEvent) GetURL() string {

@@ -281,6 +281,7 @@ func listChannelSubscription(p *Plugin, context *model.CommandArgs, args ...stri
 func confluenceHelpCommand(p *Plugin, context *model.CommandArgs, args ...string) *model.CommandResponse {
 	helpText := getFullHelpText(p, context, args...)
 
+	p.API.KVDeleteAll()
 	p.postCommandResponse(context, helpText)
 	return &model.CommandResponse{}
 }

@@ -221,28 +221,28 @@ func GetEndpointURL(instanceURL, path string) (string, error) {
 	return endpointURL.String(), nil
 }
 
-func CallJSON(url, method, path string, in, out interface{}, httpClient *http.Client) (responseData []byte, err error) {
+func CallJSON(url, method, path string, in, out interface{}, httpClient *http.Client) (responseData []byte, statusCode int, err error) {
 	contentType := "application/json"
 	buf := &bytes.Buffer{}
 	err = json.NewEncoder(buf).Encode(in)
 	if err != nil {
-		return nil, err
+		return nil, http.StatusInternalServerError, err
 	}
 	return call(url, method, path, contentType, buf, out, httpClient)
 }
 
-func call(basePath, method, path, contentType string, inBody io.Reader, out interface{}, httpClient *http.Client) (responseData []byte, err error) {
+func call(basePath, method, path, contentType string, inBody io.Reader, out interface{}, httpClient *http.Client) (responseData []byte, statusCode int, err error) {
 	errContext := fmt.Sprintf("confluence: Call failed: method:%s, path:%s", method, path)
 	pathURL, err := url.Parse(path)
 	if err != nil {
-		return nil, errors.WithMessage(err, errContext)
+		return nil, http.StatusInternalServerError, errors.WithMessage(err, errContext)
 	}
 
 	if pathURL.Scheme == "" || pathURL.Host == "" {
 		var baseURL *url.URL
 		baseURL, err = url.Parse(basePath)
 		if err != nil {
-			return nil, errors.WithMessage(err, errContext)
+			return nil, http.StatusInternalServerError, errors.WithMessage(err, errContext)
 		}
 		if path[0] != '/' {
 			path = "/" + path
@@ -252,7 +252,7 @@ func call(basePath, method, path, contentType string, inBody io.Reader, out inte
 
 	req, err := http.NewRequest(method, path, inBody)
 	if err != nil {
-		return nil, err
+		return nil, http.StatusInternalServerError, err
 	}
 	if contentType != "" {
 		req.Header.Add("Content-Type", contentType)
@@ -260,17 +260,16 @@ func call(basePath, method, path, contentType string, inBody io.Reader, out inte
 
 	resp, err := httpClient.Do(req)
 	if err != nil {
-		return nil, err
+		return nil, http.StatusInternalServerError, err
 	}
-
 	if resp.Body == nil {
-		return nil, nil
+		return nil, resp.StatusCode, nil
 	}
 	defer resp.Body.Close()
 
 	responseData, err = ioutil.ReadAll(resp.Body)
 	if err != nil {
-		return nil, err
+		return nil, resp.StatusCode, err
 	}
 
 	switch resp.StatusCode {
@@ -278,16 +277,16 @@ func call(basePath, method, path, contentType string, inBody io.Reader, out inte
 		if out != nil {
 			err = json.Unmarshal(responseData, out)
 			if err != nil {
-				return responseData, err
+				return responseData, http.StatusInternalServerError, err
 			}
 		}
-		return responseData, nil
+		return responseData, resp.StatusCode, nil
 
 	case http.StatusNoContent:
-		return nil, nil
+		return nil, resp.StatusCode, nil
 
 	case http.StatusNotFound:
-		return nil, errors.Errorf(ErrorStatusNotFound)
+		return nil, resp.StatusCode, errors.Errorf(ErrorStatusNotFound)
 	}
 
 	type ErrorResponse struct {
@@ -296,9 +295,9 @@ func call(basePath, method, path, contentType string, inBody io.Reader, out inte
 	errResp := ErrorResponse{}
 	err = json.Unmarshal(responseData, &errResp)
 	if err != nil {
-		return nil, err
+		return nil, http.StatusInternalServerError, err
 	}
-	return responseData, errors.New(errResp.Message)
+	return responseData, resp.StatusCode, errors.New(errResp.Message)
 }
 
 func GetBodyForExcerpt(htmlBodyValue string) string {
@@ -347,4 +346,14 @@ func Map(vs []string, f func(string) string) []string {
 		vsm[i] = f(v)
 	}
 	return vsm
+}
+
+func AddQueryParams(URL string, queryParams map[string]interface{}) (string, error) {
+	url, _ := url.Parse(URL)
+	q := url.Query()
+	for key, value := range queryParams {
+		q.Set(key, fmt.Sprintf("%v", value))
+		url.RawQuery = q.Encode()
+	}
+	return url.String(), nil
 }
