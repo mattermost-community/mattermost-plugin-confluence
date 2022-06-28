@@ -1,5 +1,5 @@
 import React, {useCallback, useMemo} from 'react';
-import {useSelector} from 'react-redux';
+import {DefaultRootState, useSelector} from 'react-redux';
 
 import PropTypes from 'prop-types';
 
@@ -18,7 +18,7 @@ type Props = {
 const ConfluenceSpaceSelector = (props: Props) => {
     const validator = new Validator();
 
-    const spacesForConfluenceURL = useSelector((state) =>
+    const spacesForConfluenceURL = useSelector((state:DefaultRootState) =>
         selectors.spacesForConfluenceURL(state),
     );
 
@@ -60,12 +60,6 @@ const ConfluenceSpaceSelector = (props: Props) => {
             />
         </React.Fragment>
     );
-};
-
-ConfluenceSpaceSelector.propTypes = {
-    theme: PropTypes.object.isRequired,
-    selectedSpaceKey: PropTypes.string.isRequired,
-    onSpaceKeyChange: PropTypes.func.isRequired,
 };
 
 export default ConfluenceSpaceSelector;

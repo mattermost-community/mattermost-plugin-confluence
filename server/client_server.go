@@ -324,26 +324,20 @@ func (csc *confluenceServerClient) GetUserGroups(connection *Connection) ([]*Use
 
 func (csc *confluenceServerClient) GetSpaces() ([]*Spaces, int, error) {
 	spacesForConfluenceURL := SpacesForConfluenceURL{}
-	fmt.Println("inside -1")
 	url, err := utils.GetEndpointURL(csc.URL, PathGetSpacesForServer)
 	if err != nil {
 		return nil, http.StatusInternalServerError, errors.Wrap(err, "confluence GetSpaces")
 	}
-	fmt.Println("inside -2")
-
 	url, err = utils.AddQueryParams(url, map[string]interface{}{
 		Limit: SpaceLimit,
 	})
 	if err != nil {
 		return nil, http.StatusInternalServerError, errors.Wrap(err, "confluence GetSpaces")
 	}
-	fmt.Println("inside -3")
-
 	_, statusCode, err := utils.CallJSON(csc.URL, http.MethodGet, url, nil, &spacesForConfluenceURL, csc.HTTPClient)
 	if err != nil {
 		return nil, statusCode, errors.Wrap(err, "confluence GetSpaces")
 	}
-	fmt.Println("inside -4")
 
 	return spacesForConfluenceURL.Spaces, statusCode, nil
 }

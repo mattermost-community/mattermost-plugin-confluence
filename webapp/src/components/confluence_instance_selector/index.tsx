@@ -1,5 +1,5 @@
 import React, {useCallback, useMemo} from 'react';
-import {useSelector} from 'react-redux';
+import {DefaultRootState, useSelector} from 'react-redux';
 
 import {Theme} from 'mattermost-redux/types/preferences';
 
@@ -16,7 +16,7 @@ type Props = {
 const ConfluenceInstanceSelector = (props: Props) => {
     const validator = new Validator();
 
-    const installedInstances = useSelector((state) =>
+    const installedInstances = useSelector((state:DefaultRootState) =>
         selectors.isInstalledInstances(state),
     );
 

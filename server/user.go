@@ -498,10 +498,7 @@ func (p *Plugin) CreateWebhook(instance Instance, subscription serializer.Subscr
 		return err
 	}
 
-	//redirectURL := fmt.Sprintf("%s/instance/%s/server/webhook/%s", p.GetPluginURL(), encode([]byte(instance.GetURL())), userID)
-
-	redirectURL := fmt.Sprintf("http://7d44-2405-201-4035-d009-8fa9-98d2-1e3b-c809.ngrok.io/plugins/com.mattermost.confluence/api/v1/instance/%s/server/webhook/%s", encode([]byte(instance.GetURL())), userID)
-	fmt.Print("\n redirectURL=", redirectURL)
+	redirectURL := fmt.Sprintf("%s/instance/%s/server/webhook/%s", p.GetPluginURL(), encode([]byte(instance.GetURL())), userID)
 
 	totalSubscriptions, err := service.GetSubscriptionFromURL(instance.GetURL(), userID)
 	if err != nil {

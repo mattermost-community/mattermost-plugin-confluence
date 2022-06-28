@@ -349,7 +349,10 @@ func Map(vs []string, f func(string) string) []string {
 }
 
 func AddQueryParams(URL string, queryParams map[string]interface{}) (string, error) {
-	url, _ := url.Parse(URL)
+	url, err := url.Parse(URL)
+	if err != nil {
+		return "", err
+	}
 	q := url.Query()
 	for key, value := range queryParams {
 		q.Set(key, fmt.Sprintf("%v", value))

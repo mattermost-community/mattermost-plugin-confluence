@@ -33,15 +33,15 @@ const CreateConfluencePage = (theme: Theme) => {
     const postMessage = useSelector((state:DefaultRootState) => selectors.postMessage(state));
     const channelID = useSelector((state:DefaultRootState) => getCurrentChannelId(state));
 
-    const [modalVisible, setModalVisible] = useState(false);
-    const [instanceID, setInstanceID] = useState('');
-    const [pageTitle, setPageTitle] = useState('');
-    const [pageDescription, setPageDescription] = useState(
+    const [modalVisible, setModalVisible] = useState<boolean>(false);
+    const [instanceID, setInstanceID] = useState<string>('');
+    const [pageTitle, setPageTitle] = useState<string>('');
+    const [pageDescription, setPageDescription] = useState<string>(
         postMessage?.message,
     );
-    const [spaceKey, setSpaceKey] = useState('');
-    const [saving, setSaving] = useState(false);
-    const [error, setError] = useState('');
+    const [spaceKey, setSpaceKey] = useState<string>('');
+    const [saving, setSaving] = useState<boolean>(false);
+    const [error, setError] = useState<string>('');
 
     useEffect(() => {
         if (postMessage?.message) {
@@ -56,9 +56,8 @@ const CreateConfluencePage = (theme: Theme) => {
         if (!instanceID) {
             return;
         }
-        let response;
         (async () => {
-            response = await getSpacesForConfluenceURL(instanceID)(dispatch);
+            const response = await getSpacesForConfluenceURL(instanceID)(dispatch);
             if (response?.error) {
                 setError(response.error.response?.text);
             }
@@ -88,32 +87,24 @@ const CreateConfluencePage = (theme: Theme) => {
             setInstanceID(currentInstanceID);
             setSpaceKey('');
             setError('');
-        },
-        [instanceID],
-    );
+        }, []);
 
     const handleSpaceKeyChange = useCallback(
         (currentSpaceKey:string) => {
             setSpaceKey(currentSpaceKey);
-        },
-        [spaceKey],
-    );
+        }, []);
 
     const handlePageTitle = useCallback(
         (e:SyntheticEvent) => {
             e.persist();
             setPageTitle(e.target.value);
-        },
-        [pageTitle],
-    );
+        }, []);
 
     const handlePageDescription = useCallback(
         (e:SyntheticEvent) => {
             e.persist();
             setPageDescription(e.target.value);
-        },
-        [pageDescription],
-    );
+        }, []);
 
     const handleSubmit = () => {
         if (!validator.validate()) {
