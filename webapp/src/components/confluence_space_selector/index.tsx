@@ -18,7 +18,7 @@ type Props = {
 const ConfluenceSpaceSelector = (props: Props) => {
     const validator = new Validator();
 
-    const spacesForConfluenceURL = useSelector((state:DefaultRootState) =>
+    const spacesForConfluenceURL = useSelector((state: DefaultRootState) =>
         selectors.spacesForConfluenceURL(state),
     );
 
@@ -48,7 +48,7 @@ const ConfluenceSpaceSelector = (props: Props) => {
                 value={
                     props.selectedSpaceKey ?
                         getSpaceOptions.find(
-                            (option: { value: any; }) =>
+                            (option: { value: string; }) =>
                                 option.value === props.selectedSpaceKey,
                         ) :
                         null

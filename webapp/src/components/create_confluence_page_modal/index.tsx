@@ -30,8 +30,8 @@ const CreateConfluencePage = (theme: Theme) => {
     const dispatch = useDispatch();
     const validator = new Validator();
 
-    const postMessage = useSelector((state:DefaultRootState) => selectors.postMessage(state));
-    const channelID = useSelector((state:DefaultRootState) => getCurrentChannelId(state));
+    const postMessage = useSelector((state: DefaultRootState) => selectors.postMessage(state));
+    const channelID = useSelector((state: DefaultRootState) => getCurrentChannelId(state));
 
     const [modalVisible, setModalVisible] = useState<boolean>(false);
     const [instanceID, setInstanceID] = useState<string>('');
@@ -74,7 +74,7 @@ const CreateConfluencePage = (theme: Theme) => {
         setError('');
     };
 
-    const handleClose = useCallback((e:PointerEvent) => {
+    const handleClose = useCallback((e: PointerEvent) => {
         if (e?.preventDefault) {
             e.preventDefault();
         }
@@ -90,18 +90,18 @@ const CreateConfluencePage = (theme: Theme) => {
         }, []);
 
     const handleSpaceKeyChange = useCallback(
-        (currentSpaceKey:string) => {
+        (currentSpaceKey: string) => {
             setSpaceKey(currentSpaceKey);
         }, []);
 
     const handlePageTitle = useCallback(
-        (e:SyntheticEvent) => {
+        (e: SyntheticEvent) => {
             e.persist();
             setPageTitle(e.target.value);
         }, []);
 
     const handlePageDescription = useCallback(
-        (e:SyntheticEvent) => {
+        (e: SyntheticEvent) => {
             e.persist();
             setPageDescription(e.target.value);
         }, []);

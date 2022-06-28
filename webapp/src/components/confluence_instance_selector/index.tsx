@@ -16,7 +16,7 @@ type Props = {
 const ConfluenceInstanceSelector = (props: Props) => {
     const validator = new Validator();
 
-    const installedInstances = useSelector((state:DefaultRootState) =>
+    const installedInstances = useSelector((state: DefaultRootState) =>
         selectors.isInstalledInstances(state),
     );
 
