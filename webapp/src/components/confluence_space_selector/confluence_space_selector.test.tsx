@@ -1,29 +1,31 @@
+/*eslint max-nested-callbacks: ["error", 3]*/
+
 import React from 'react';
 
 import {shallow} from 'enzyme';
 
-import configureStore from 'redux-mock-store';
-
 import {Provider} from 'react-redux';
 
-import ConfluenceInstanceSelector from './confluence_instance_selector';
+import {configureStore} from 'tests/setup';
 
-describe('components/ConfluenceInstanceSelector', () => {
+import ConfluenceSpaceSelector from './confluence_space_selector';
+
+describe('components/ConfluenceSpaceSelector', () => {
     const initialState = {};
     const baseProps = {
         theme: {},
-        selectedInstanceID: 'test-spaceKey',
-        onInstanceChange: jest.fn(),
+        selectedSpaceKey: 'test-spaceKey',
+        onSpaceKeyChange: jest.fn(),
     };
     const mockStore = configureStore();
-    test('confluence instance selector snapshot test', async () => {
+    test('confluence space selector snapshot test', async () => {
         const props = {
             ...baseProps,
         };
         const store = mockStore(initialState);
         const wrapper = shallow(
             <Provider store={store} >
-                <ConfluenceInstanceSelector {...props}/>
+                <ConfluenceSpaceSelector {...props}/>
             </Provider>,
         );
         expect(wrapper).toMatchSnapshot();

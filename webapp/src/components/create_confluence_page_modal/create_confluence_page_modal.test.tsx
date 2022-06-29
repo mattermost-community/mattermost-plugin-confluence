@@ -4,9 +4,9 @@ import React from 'react';
 
 import {shallow} from 'enzyme';
 
-import configureStore from 'redux-mock-store';
-
 import {Provider} from 'react-redux';
+
+import {configureStore} from 'tests/setup';
 
 import CreateConfluencePage from './create_confluence_page_modal';
 
