@@ -576,6 +576,12 @@ func (p *Plugin) checkAndRefreshToken(connection *Connection, instanceID types.I
 		if err != nil {
 			return nil, err
 		}
+
+		if connection.IsAdmin {
+			if err = p.userStore.StoreConnection(instanceID, Admin, connection); err != nil {
+				return nil, err
+			}
+		}
 		return newToken, nil
 	}
 
