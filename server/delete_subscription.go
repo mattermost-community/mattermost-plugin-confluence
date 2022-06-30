@@ -49,7 +49,7 @@ func (p *Plugin) DeleteSubscription(channelID, alias, userID string) error {
 				return err
 			}
 
-			adminClient, err := instance.GetClient(adminConn)
+			adminClient, err := instance.GetClient(adminConn, types.ID("admin"))
 			if err != nil {
 				return err
 			}

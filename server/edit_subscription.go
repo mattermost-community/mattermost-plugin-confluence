@@ -40,7 +40,7 @@ func (p *Plugin) handleEditChannelSubscription(w http.ResponseWriter, r *http.Re
 		return
 	}
 
-	client, err := instance.GetClient(conn)
+	client, err := instance.GetClient(conn, types.ID(userID))
 	if err != nil {
 		p.LogAndRespondError(w, http.StatusInternalServerError, "Not able to get Client.", err)
 		return
@@ -73,6 +73,18 @@ func (p *Plugin) handleEditChannelSubscription(w http.ResponseWriter, r *http.Re
 		subscription, err = serializer.PageSubscriptionFromJSON(body)
 		if err != nil {
 			p.LogAndRespondError(w, http.StatusBadRequest, "Error decoding request body for page subscription.", err)
+			return
+		}
+
+		pageID, err := strconv.Atoi(subscription.(*serializer.PageSubscription).GetSubscription().PageID)
+		if err != nil {
+			p.LogAndRespondError(w, http.StatusInternalServerError, "Error converting pageID to integer. Please make sure that pageID should only contain integers.", err)
+			return
+		}
+
+		_, statusCode, err := client.GetPageData(pageID)
+		if err != nil {
+			p.LogAndRespondError(w, statusCode, "Error getting page related data for page subscription.", err)
 			return
 		}
 

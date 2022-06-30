@@ -231,7 +231,7 @@ func (p *Plugin) CompleteOAuth2(mattermostUserID, code, state string, instance I
 		IsAdmin:       isAdmin,
 	}
 
-	client, err := instance.GetClient(connection)
+	client, err := instance.GetClient(connection, types.ID(mattermostUserID))
 	if err != nil {
 		return nil, nil, err
 	}
@@ -250,7 +250,7 @@ func (p *Plugin) CompleteOAuth2(mattermostUserID, code, state string, instance I
 			return nil, nil, err
 		}
 		// Create a client with new base URL containing cloudID
-		client, err = instance.GetClient(connection)
+		client, err = instance.GetClient(connection, types.ID(mattermostUserID))
 		if err != nil {
 			return nil, nil, err
 		}
@@ -345,7 +345,7 @@ func (p *Plugin) connectUser(instance Instance, mattermostUserID types.ID, conne
 	if err != nil {
 		return err
 	}
-	client, err := instance.GetClient(connection)
+	client, err := instance.GetClient(connection, mattermostUserID)
 	if err != nil {
 		return err
 	}
@@ -461,7 +461,7 @@ func (p *Plugin) HasPermissionToManageSubscriptionForConfluenceSide(instanceID, 
 		return nil
 	}
 
-	client, err := instance.GetClient(conn)
+	client, err := instance.GetClient(conn, types.ID(userID))
 	if err != nil {
 		return errors.Wrap(err, "could not get an authenticated confluence client")
 	}
@@ -484,7 +484,7 @@ func (p *Plugin) CreateWebhook(instance Instance, subscription serializer.Subscr
 		return err
 	}
 
-	adminClient, err := instance.GetClient(adminConn)
+	adminClient, err := instance.GetClient(adminConn, types.ID("admin"))
 	if err != nil {
 		return err
 	}

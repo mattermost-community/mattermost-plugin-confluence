@@ -70,7 +70,7 @@ func (p *Plugin) GetPermissionsForCloudEvent(confluenceCloudEvent *serializer.Co
 		return nil, err
 	}
 
-	client, err := instance.GetClient(conn)
+	client, err := instance.GetClient(conn, types.ID(userID))
 	if err != nil {
 		p.API.LogError("Error occurred while fetching client.", "Error", err.Error())
 		return nil, err
