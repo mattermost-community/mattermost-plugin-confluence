@@ -40,7 +40,7 @@ func (p *Plugin) handleEditChannelSubscription(w http.ResponseWriter, r *http.Re
 		return
 	}
 
-	client, err := instance.GetClient(conn, types.ID(userID))
+	client, err := instance.GetClient(conn)
 	if err != nil {
 		p.LogAndRespondError(w, http.StatusInternalServerError, "Not able to get Client.", err)
 		return

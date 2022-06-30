@@ -15,10 +15,11 @@ const (
 	ServerInstanceType = InstanceType("server")
 	CloudInstance      = "cloud"
 	ServerInstance     = "server"
+	Admin              = "admin"
 )
 
 type Instance interface {
-	GetClient(connection *Connection, mattermostUserID types.ID) (Client, error)
+	GetClient(connection *Connection) (Client, error)
 	GetManageAppsURL() string
 	GetManageWebhooksURL() string
 	GetURL() string

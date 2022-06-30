@@ -53,7 +53,7 @@ func (ti testInstance) GetPlugin() *Plugin {
 func (ti testInstance) GetMattermostKey() string {
 	return "jiraTestInstanceMattermostKey"
 }
-func (ti testInstance) GetClient(connection *Connection, mattermostUserID types.ID) (Client, error) {
+func (ti testInstance) GetClient(connection *Connection) (Client, error) {
 	return testClient{}, nil
 }
 

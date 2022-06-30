@@ -69,7 +69,7 @@ func (p *Plugin) GetEventData(webhookPayload *serializer.ConfluenceServerWebhook
 		return nil, err
 	}
 
-	client, err := instance.(*serverInstance).GetClient(conn, types.ID(userID))
+	client, err := instance.(*serverInstance).GetClient(conn)
 	if err != nil {
 		p.API.LogError("Error occurred while fetching client.", "Error", err.Error())
 		return nil, err

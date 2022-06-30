@@ -42,7 +42,7 @@ func (p *Plugin) handleSaveSubscription(w http.ResponseWriter, r *http.Request) 
 		return
 	}
 
-	client, err := instance.GetClient(conn, types.ID(userID))
+	client, err := instance.GetClient(conn)
 	if err != nil {
 		p.LogAndRespondError(w, http.StatusInternalServerError, "Not able to get Client.", err)
 		return
@@ -79,7 +79,7 @@ func (p *Plugin) handleSaveSubscription(w http.ResponseWriter, r *http.Request) 
 		}
 		pageID, err := strconv.Atoi(subscription.(*serializer.PageSubscription).GetSubscription().PageID)
 		if err != nil {
-			p.LogAndRespondError(w, http.StatusInternalServerError, "Error converting pageID to integer. Please make sure that pageID should only contain numbers.", err)
+			p.LogAndRespondError(w, http.StatusInternalServerError, "Error converting pageID to integer.", err)
 			return
 		}
 
