@@ -13,6 +13,7 @@ type Client interface {
 type RESTService interface {
 	GetSelf() (*ConfluenceUser, int, error)
 	GetSpaceData(string) (*SpaceResponse, int, error)
+	GetPageData(int) (*PageResponse, int, error)
 	GetUserGroups(*Connection) ([]*UserGroup, int, error)
 	GetSpaces() ([]*Spaces, int, error)
 	CreatePage(spaceKey string, pageDetails *serializer.PageDetails) (*CreatePageResponse, int, error)

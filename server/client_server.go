@@ -230,7 +230,7 @@ func (csc *confluenceServerClient) GetEventData(webhookPayload *serializer.Confl
 		}
 	}
 	if strings.Contains(webhookPayload.Event, Page) {
-		confluenceServerEvent.Page, statusCode, err = csc.GetPageData(webhookPayload)
+		confluenceServerEvent.Page, statusCode, err = csc.GetPageData(int(webhookPayload.Page.ID))
 		if err != nil {
 			return nil, statusCode, errors.Wrap(err, "confluence GetEventData")
 		}
@@ -260,9 +260,9 @@ func (csc *confluenceServerClient) GetCommentData(webhookPayload *serializer.Con
 	return commentResponse, statusCode, nil
 }
 
-func (csc *confluenceServerClient) GetPageData(webhookPayload *serializer.ConfluenceServerWebhookPayload) (*PageResponse, int, error) {
+func (csc *confluenceServerClient) GetPageData(pageID int) (*PageResponse, int, error) {
 	pageResponse := &PageResponse{}
-	url, err := utils.GetEndpointURL(csc.URL, fmt.Sprintf(PathPageData, strconv.FormatInt(webhookPayload.Page.ID, 10)))
+	url, err := utils.GetEndpointURL(csc.URL, fmt.Sprintf(PathPageData, strconv.Itoa(pageID)))
 	if err != nil {
 		return nil, http.StatusInternalServerError, errors.Wrap(err, "confluence GetPageData")
 	}
@@ -305,7 +305,7 @@ func (csc *confluenceServerClient) CheckConfluenceAdmin() (*AdminData, int, erro
 
 func (csc *confluenceServerClient) GetUserGroups(connection *Connection) ([]*UserGroup, int, error) {
 	userGroups := UserGroups{}
-	url, err := utils.GetEndpointURL(csc.URL, fmt.Sprintf(PathGetUserGroupsForServer, connection.Name))
+	url, err := utils.GetEndpointURL(csc.URL, PathGetUserGroupsForServer)
 	if err != nil {
 		return nil, http.StatusInternalServerError, errors.Wrap(err, "confluence GetUserGroups")
 	}

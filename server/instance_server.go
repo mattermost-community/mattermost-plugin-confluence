@@ -3,6 +3,7 @@ package main
 import (
 	"context"
 	"fmt"
+	"time"
 
 	"github.com/pkg/errors"
 	"golang.org/x/oauth2"
@@ -77,8 +78,12 @@ func (si *serverInstance) GetOAuth2Config(isAdmin bool) (*oauth2.Config, error) 
 	}, nil
 }
 
-func (si *serverInstance) GetClient(connection *Connection) (Client, error) {
+func (si *serverInstance) GetClient(connection *Connection, mattermostUserID types.ID) (Client, error) {
 	token, err := si.Plugin.ParseAuthToken(connection.OAuth2Token)
+	if err != nil {
+		return nil, err
+	}
+	token, err = si.checkAndRefreshToken(token, connection, si.InstanceID, mattermostUserID)
 	if err != nil {
 		return nil, err
 	}
@@ -90,4 +95,36 @@ func (si *serverInstance) GetClient(connection *Connection) (Client, error) {
 	httpClient := oconf.Client(context.Background(), token)
 
 	return newServerClient(si.GetURL(), httpClient), nil
+}
+
+func (si *serverInstance) checkAndRefreshToken(token *oauth2.Token, connection *Connection, instanceID types.ID, mattermostUserID types.ID) (*oauth2.Token, error) {
+	// If there is only one minute left for the token to expire, we are refreshing the token.
+	// We don't want the token to expire between the time when we decide that the old token is valid
+	// and the time at which we create the request. We are handling that by not letting the token expire.
+	if time.Until(token.Expiry) <= 1*time.Minute {
+		oconf, err := si.GetOAuth2Config(connection.IsAdmin)
+		if err != nil {
+			return nil, err
+		}
+		src := oconf.TokenSource(context.Background(), token)
+		newToken, err := src.Token() // this actually goes and renews the tokens
+		if err != nil {
+			return nil, errors.Wrap(err, "unable to get the new refreshed token")
+		}
+		if newToken.AccessToken != token.AccessToken {
+			encryptedToken, err := si.Plugin.NewEncodedAuthToken(newToken)
+			if err != nil {
+				return nil, err
+			}
+			connection.OAuth2Token = encryptedToken
+
+			err = si.Plugin.userStore.StoreConnection(instanceID, mattermostUserID, connection)
+			if err != nil {
+				return nil, err
+			}
+			return newToken, nil
+		}
+	}
+
+	return token, nil
 }

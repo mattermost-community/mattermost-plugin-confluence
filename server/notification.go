@@ -103,7 +103,7 @@ func (n *notification) GetSubscriptionUserIDs(event serializer.ConfluenceEvent, 
 	urlSpaceKeySubscriptionUserIDs := GetURLSubscriptionUserIDs(urlSpaceKeySubscriptions, eventType)
 	userIDs := append(urlSpaceKeySubscriptionUserIDs, urlPageIDSubscriptionUserIDs...)
 
-	return userIDs, nil
+	return utils.Deduplicate(userIDs), nil
 }
 
 func GetURLSubscriptionChannelIDs(urlSubscriptions serializer.StringStringArrayMap, eventType, userID string) []string {

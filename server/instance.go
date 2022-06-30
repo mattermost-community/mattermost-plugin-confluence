@@ -18,7 +18,7 @@ const (
 )
 
 type Instance interface {
-	GetClient(connection *Connection) (Client, error)
+	GetClient(connection *Connection, mattermostUserID types.ID) (Client, error)
 	GetManageAppsURL() string
 	GetManageWebhooksURL() string
 	GetURL() string
