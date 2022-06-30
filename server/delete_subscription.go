@@ -40,7 +40,7 @@ func (p *Plugin) DeleteSubscription(channelID, alias, userID string) error {
 		}
 
 		if totalSubscriptions == 1 {
-			adminConn, err := p.userStore.LoadConnection(types.ID(instance.GetURL()), types.ID("admin"))
+			adminConn, err := p.userStore.LoadConnection(types.ID(instance.GetURL()), types.ID(Admin))
 			if err != nil {
 				return err
 			}
@@ -49,7 +49,7 @@ func (p *Plugin) DeleteSubscription(channelID, alias, userID string) error {
 				return err
 			}
 
-			adminClient, err := instance.GetClient(adminConn, types.ID("admin"))
+			adminClient, err := instance.GetClient(adminConn)
 			if err != nil {
 				return err
 			}

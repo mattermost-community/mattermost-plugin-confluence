@@ -12,8 +12,8 @@ type Client interface {
 // or a fully-qualified URL, with a non-empty scheme.
 type RESTService interface {
 	GetSelf() (*ConfluenceUser, int, error)
-	GetSpaceData(string) (*SpaceResponse, int, error)
-	GetPageData(int) (*PageResponse, int, error)
+	GetSpaceData(spaceKey string) (*SpaceResponse, int, error)
+	GetPageData(pageID int) (*PageResponse, int, error)
 	GetUserGroups(*Connection) ([]*UserGroup, int, error)
 	GetSpaces() ([]*Spaces, int, error)
 	CreatePage(spaceKey string, pageDetails *serializer.PageDetails) (*CreatePageResponse, int, error)
