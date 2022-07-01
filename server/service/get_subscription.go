@@ -9,8 +9,8 @@ import (
 )
 
 const (
-	generalError         = "some error occurred. Please try again after some time"
-	subscriptionNotFound = "subscription with name **%s** not found"
+	generalError         = "Some error occurred. Please try again after some time"
+	subscriptionNotFound = "Subscription with name **%s** not found"
 )
 
 func GetChannelSubscription(channelID, alias string) (serializer.Subscription, int, error) {

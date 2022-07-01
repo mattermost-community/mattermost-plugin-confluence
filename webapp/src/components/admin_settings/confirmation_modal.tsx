@@ -1,5 +1,5 @@
 import React from 'react';
-import {Modal, Button} from 'react-bootstrap';
+import {Button, Modal} from 'react-bootstrap';
 
 type Props = {
     open: boolean,
@@ -28,7 +28,7 @@ export default function ConfirmationModal(props: Props) {
                 <Button onClick={props.handleClose}>{props.cancelText}</Button>
                 <Button
                     onClick={props.handleConfirm}
-                    bsStyle={props.approveButtonStyle}
+                    className={`btn btn-${props.approveButtonStyle}`}
                 >{props.confirmText}</Button>
             </Modal.Footer>
         </Modal>

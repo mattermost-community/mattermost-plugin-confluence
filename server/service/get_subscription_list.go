@@ -11,7 +11,7 @@ import (
 	"github.com/mattermost/mattermost-plugin-confluence/server/store"
 )
 
-const getChannelSubscriptionsError = " Error getting channel subscriptions."
+const getChannelSubscriptionsError = "Error getting channel subscriptions."
 
 func GetSubscriptions() (serializer.Subscriptions, error) {
 	key := store.GetSubscriptionKey()

@@ -1,5 +1,5 @@
 import React, {useState} from 'react';
-import {Modal, Button} from 'react-bootstrap';
+import {Button, Modal} from 'react-bootstrap';
 
 import {ConfluenceConfig} from '../../types';
 
@@ -74,7 +74,7 @@ export default function TokenModal(props: Props) {
                 <Button onClick={handleClose}>{'Close'}</Button>
                 <Button
                     onClick={onSubmit}
-                    bsStyle='primary'
+                    className='btn btn-primary'
                 >{'Save'}</Button>
             </Modal.Footer>
         </Modal>

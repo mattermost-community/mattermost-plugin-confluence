@@ -1,5 +1,5 @@
 import React, {useState} from 'react';
-import {FormGroup, Col, Table, Button, ControlLabel} from 'react-bootstrap';
+import {Button, Col, FormGroup, FormLabel, Table} from 'react-bootstrap';
 
 import {ConfluenceConfig} from '../../types';
 
@@ -89,15 +89,14 @@ export default function TokenSetting(props: Props) {
     return (
         <FormGroup>
             <Col
-                componentClass={ControlLabel}
+                componentClass={FormLabel}
                 sm={4}
             >{props.label}</Col>
             <Col sm={8}>
                 <Table
-                    className='table'
+                    className='table table-condensed'
                     striped={true}
                     bordered={true}
-                    condensed={true}
                     hover={true}
                 >
                     <thead>
@@ -128,13 +127,13 @@ export default function TokenSetting(props: Props) {
                                             >{val.clientSecret}</td>
                                             <td style={{whiteSpace: 'nowrap'}}>
                                                 <Button
-                                                    bsClass='btn transparent-button btn-default'
+                                                    className='btn transparent-button btn-default'
                                                     onClick={() => handleSelect(idx, val)}
                                                 >
                                                     <i className='button-icon fa fa-edit'/>
                                                 </Button>
                                                 <Button
-                                                    bsClass='btn transparent-button btn-default'
+                                                    className='btn transparent-button btn-default'
                                                     onClick={() => handleDeleteClick(idx)}
                                                 >
                                                     <i className='button-icon fa fa-trash'/>
