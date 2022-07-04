@@ -85,7 +85,7 @@ func (ci *cloudInstance) GetClient(connection *Connection) (Client, error) {
 		return nil, err
 	}
 
-	token, err := ci.Plugin.checkAndRefreshToken(connection, ci.InstanceID, oconf)
+	token, err := ci.Plugin.refreshAndStoreToken(connection, ci.InstanceID, oconf)
 	if err != nil {
 		return nil, err
 	}

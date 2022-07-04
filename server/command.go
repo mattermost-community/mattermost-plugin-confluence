@@ -306,7 +306,7 @@ func executeConnect(p *Plugin, context *model.CommandArgs, args ...string) *mode
 	if instance != nil {
 		confluenceURL = instance.InstanceID.String()
 	}
-	isAdmin := len(args) > 1 && strings.EqualFold(args[1], Admin)
+	isAdmin := len(args) > 1 && strings.EqualFold(args[1], AdminMattermostUserID)
 	info, err := p.GetUserInfo(types.ID(context.UserId), nil)
 	if err != nil {
 		return p.responsef(context, "Failed to connect. Error: %v", err)

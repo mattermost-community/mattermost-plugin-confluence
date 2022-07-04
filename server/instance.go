@@ -11,11 +11,11 @@ import (
 type InstanceType string
 
 const (
-	CloudInstanceType  = InstanceType("cloud")
-	ServerInstanceType = InstanceType("server")
-	CloudInstance      = "cloud"
-	ServerInstance     = "server"
-	Admin              = "admin"
+	CloudInstanceType     = InstanceType("cloud")
+	ServerInstanceType    = InstanceType("server")
+	CloudInstance         = "cloud"
+	ServerInstance        = "server"
+	AdminMattermostUserID = "admin"
 )
 
 type Instance interface {

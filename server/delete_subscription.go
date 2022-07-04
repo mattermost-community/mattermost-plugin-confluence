@@ -40,7 +40,7 @@ func (p *Plugin) DeleteSubscription(channelID, alias, userID string) error {
 		}
 
 		if totalSubscriptions == 1 {
-			adminConn, err := p.userStore.LoadConnection(types.ID(instance.GetURL()), types.ID(Admin))
+			adminConn, err := p.userStore.LoadConnection(types.ID(instance.GetURL()), types.ID(AdminMattermostUserID))
 			if err != nil {
 				return err
 			}
