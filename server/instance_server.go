@@ -83,7 +83,7 @@ func (si *serverInstance) GetClient(connection *Connection) (Client, error) {
 		return nil, err
 	}
 
-	token, err := si.Plugin.checkAndRefreshToken(connection, si.InstanceID, oconf)
+	token, err := si.Plugin.refreshAndStoreToken(connection, si.InstanceID, oconf)
 	if err != nil {
 		return nil, err
 	}

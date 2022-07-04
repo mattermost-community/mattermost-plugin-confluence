@@ -78,7 +78,7 @@ func (p *Plugin) handleEditChannelSubscription(w http.ResponseWriter, r *http.Re
 
 		pageID, err := strconv.Atoi(subscription.(*serializer.PageSubscription).GetSubscription().PageID)
 		if err != nil {
-			p.LogAndRespondError(w, http.StatusInternalServerError, "Error converting pageID to integer. Please make sure that pageID should only contain integers.", err)
+			p.LogAndRespondError(w, http.StatusInternalServerError, "Error converting pageID to integer.", err)
 			return
 		}
 
