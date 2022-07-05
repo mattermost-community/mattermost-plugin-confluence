@@ -31,7 +31,7 @@ const (
 	Page       = "page"
 	Limit      = "limit"
 	UserName   = "username"
-	SpaceLimit = 100
+	DefaultSpaceLimit = 100
 )
 
 var webhookEvents = []string{"space_created", "space_removed", "space_updated",
@@ -305,7 +305,7 @@ func (csc *confluenceServerClient) CheckConfluenceAdmin() (*AdminData, int, erro
 
 func (csc *confluenceServerClient) GetUserGroups(connection *Connection) ([]*UserGroup, int, error) {
 	userGroups := UserGroups{}
-	url, err := utils.GetEndpointURL(csc.URL, fmt.Sprintf(PathGetUserGroupsForServer, connection.Name))
+	url, err := utils.GetEndpointURL(csc.URL, PathGetUserGroupsForServer)
 	if err != nil {
 		return nil, http.StatusInternalServerError, errors.Wrap(err, "confluence GetUserGroups")
 	}
@@ -313,7 +313,7 @@ func (csc *confluenceServerClient) GetUserGroups(connection *Connection) ([]*Use
 		UserName: connection.Name,
 	})
 	if err != nil {
-		return nil, http.StatusInternalServerError, errors.Wrap(err, "confluence GetSpaces")
+		return nil, http.StatusInternalServerError, errors.Wrap(err, "confluence GetUserGroups")
 	}
 	_, statusCode, err := utils.CallJSON(csc.URL, http.MethodGet, url, nil, &userGroups, csc.HTTPClient)
 	if err != nil {
@@ -329,7 +329,7 @@ func (csc *confluenceServerClient) GetSpaces() ([]*Spaces, int, error) {
 		return nil, http.StatusInternalServerError, errors.Wrap(err, "confluence GetSpaces")
 	}
 	url, err = utils.AddQueryParams(url, map[string]interface{}{
-		Limit: SpaceLimit,
+		Limit: DefaultSpaceLimit,
 	})
 	if err != nil {
 		return nil, http.StatusInternalServerError, errors.Wrap(err, "confluence GetSpaces")

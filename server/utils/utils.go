@@ -260,7 +260,7 @@ func call(basePath, method, path, contentType string, inBody io.Reader, out inte
 
 	resp, err := httpClient.Do(req)
 	if err != nil {
-		return nil, http.StatusInternalServerError, err
+		return nil, resp.StatusCode, err
 	}
 	if resp.Body == nil {
 		return nil, resp.StatusCode, nil
@@ -356,7 +356,7 @@ func AddQueryParams(URL string, queryParams map[string]interface{}) (string, err
 	q := url.Query()
 	for key, value := range queryParams {
 		q.Set(key, fmt.Sprintf("%v", value))
-		url.RawQuery = q.Encode()
 	}
+	url.RawQuery = q.Encode()
 	return url.String(), nil
 }

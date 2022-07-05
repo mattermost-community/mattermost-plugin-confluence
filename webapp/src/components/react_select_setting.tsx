@@ -8,8 +8,6 @@ import CreatableSelect from 'react-select/creatable';
 
 import {Theme} from 'mattermost-redux/types/preferences';
 
-import {ActionMeta} from 'react-select/src/types';
-
 import Setting from 'src/components/setting';
 
 import {getStyleForReactSelect} from 'src/utils/styles';
@@ -26,7 +24,6 @@ export type Props = Omit<ReactSelectProps<ReactSelectOption>, 'theme'> & {
     removeValidate?: (isValid: () => boolean) => void;
     allowUserDefinedValue?: boolean;
     limitOptions?: boolean;
-    resetInvalidOnChange?: boolean;
 };
 
 type State = {
@@ -49,22 +46,18 @@ export default class ReactSelectSetting extends React.PureComponent<Props, State
     }
 
     componentDidUpdate(prevProps: Props, prevState: State) {
-        if (prevState.invalid && (this.props.value && this.props.value.value) !== (prevProps.value && prevProps.value.value)) {
+        if (prevState.invalid && this.props.value?.value !== prevProps.value?.value) {
             this.setState({invalid: false}); //eslint-disable-line react/no-did-update-set-state
         }
     }
 
-    handleChange = (value: ReactSelectOption | ReactSelectOption[], action: ActionMeta) => {
+    handleChange = (value: ReactSelectOption | ReactSelectOption[]) => {
         if (this.props.onChange) {
             if (Array.isArray(value)) {
                 this.props.onChange(this.props.name, value.map((x) => x.value));
             } else {
-                const newValue = value ? value.value : null;
-                this.props.onChange(this.props.name, newValue);
+                this.props.onChange(this.props.name, value?.value ?? null);
             }
-        }
-        if (this.props.resetInvalidOnChange) {
-            this.setState({invalid: false});
         }
     };
 
@@ -74,6 +67,7 @@ export default class ReactSelectSetting extends React.PureComponent<Props, State
         if (input) {
             options = options.filter((opt: ReactSelectOption) => opt.label.toUpperCase().includes(input.toUpperCase()));
         }
+
         return Promise.resolve(options.slice(0, MAX_NUM_OPTIONS));
     };
 
@@ -82,10 +76,7 @@ export default class ReactSelectSetting extends React.PureComponent<Props, State
             return true;
         }
 
-        let valid = Boolean(this.props.value);
-        if (this.props.value && Array.isArray(this.props.value)) {
-            valid = Boolean(this.props.value.length);
-        }
+        const valid = Array.isArray(this.props.value) ? Boolean(this.props.value.length) : Boolean(this.props.value);
 
         this.setState({invalid: !valid});
         return valid;
@@ -93,21 +84,13 @@ export default class ReactSelectSetting extends React.PureComponent<Props, State
 
     render() {
         const requiredMsg = 'This field is required.';
-        let validationError = null;
-
-        if (this.props.required && this.state.invalid) {
-            validationError = (
-                <p className='help-text error-text'>
-                    <span>{requiredMsg}</span>
-                </p>
-            );
-        }
+        const validationError = this.props.required && this.state.invalid ? <p className='help-text error-text'><span>{requiredMsg}</span></p> : null;
 
         let selectComponent = null;
         if (this.props.limitOptions && this.props.options.length > MAX_NUM_OPTIONS) {
-            // The parent component has let us know that we may have a large number of options, and that
-            // the dataset is static. In this case, we use the AsyncSelect component and synchronous func
-            // this.filterOptions() to limit the number of options being rendered at a given time.
+            // The parent component helps us know that we may have a large number of options, and that
+            // the data-set is static. In this case, we use the AsyncSelect component and synchronous func
+            // "filterOptions" to limit the number of options being rendered at a given time.
             selectComponent = (
                 <AsyncSelect
                     {...this.props}
@@ -143,6 +126,7 @@ export default class ReactSelectSetting extends React.PureComponent<Props, State
                 />
             );
         }
+
         return (
             <Setting
                 inputId={this.props.name}
