@@ -1,8 +1,6 @@
 import React, {useCallback, useMemo} from 'react';
 import {DefaultRootState, useSelector} from 'react-redux';
 
-import PropTypes from 'prop-types';
-
 import {Theme} from 'mattermost-redux/types/preferences';
 
 import Validator from 'src/components/validator';

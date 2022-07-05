@@ -5,7 +5,7 @@ import {changeOpacity} from 'mattermost-redux/utils/theme_utils';
 
 export const getStyleForReactSelect = (theme) => {
     if (!theme) {
-        return null;
+        return {};
     }
 
     return {
@@ -102,18 +102,20 @@ export const getStyleForReactSelect = (theme) => {
     };
 };
 
-export const getModalStyles = (theme) => ({
-    modalBody: {
-        padding: '32px 32px 48px',
-        color: theme.centerChannelColor,
-        backgroundColor: theme.centerChannelBg,
-    },
-    modalFooter: {
-        padding: '32px 15px',
-    },
-    descriptionArea: {
-        height: 'auto',
-        width: '100%',
-        color: '#000',
-    },
-});
+export const getModalStyles = (theme) => {
+    return {
+        modalBody: {
+            padding: '32px 32px 48px',
+            color: theme.centerChannelColor,
+            backgroundColor: theme.centerChannelBg,
+        },
+        modalFooter: {
+            padding: '32px 15px',
+        },
+        descriptionArea: {
+            height: 'auto',
+            width: '100%',
+            color: '#000',
+        },
+    };
+};

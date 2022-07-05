@@ -5,13 +5,10 @@ import React from 'react';
 import ReactSelect from 'react-select';
 import AsyncSelect, {Props as ReactSelectProps} from 'react-select/async';
 import CreatableSelect from 'react-select/creatable';
-
-import {Theme} from 'mattermost-redux/types/preferences';
+import {ValueType} from 'react-select/src/types';
 
 import Setting from 'src/components/setting';
-
 import {getStyleForReactSelect} from 'src/utils/styles';
-
 import {ReactSelectOption} from 'src/types';
 
 const MAX_NUM_OPTIONS = 100;
@@ -19,7 +16,7 @@ const MAX_NUM_OPTIONS = 100;
 type Omit<T, K extends keyof T> = Pick<T, Exclude<keyof T, K>>
 
 export type Props = Omit<ReactSelectProps<ReactSelectOption>, 'theme'> & {
-    theme: Theme;
+    theme: any;
     addValidate?: (isValid: () => boolean) => void;
     removeValidate?: (isValid: () => boolean) => void;
     allowUserDefinedValue?: boolean;
@@ -51,12 +48,13 @@ export default class ReactSelectSetting extends React.PureComponent<Props, State
         }
     }
 
-    handleChange = (value: ReactSelectOption | ReactSelectOption[]) => {
+    handleChange = (value: ValueType<ReactSelectOption> | ReactSelectOption | ReactSelectOption[]) => {
         if (this.props.onChange) {
             if (Array.isArray(value)) {
                 this.props.onChange(this.props.name, value.map((x) => x.value));
             } else {
-                this.props.onChange(this.props.name, value?.value ?? null);
+                const newValue = value ? (value as ReactSelectOption).value : null;
+                this.props.onChange(this.props.name, newValue);
             }
         }
     };
@@ -65,7 +63,7 @@ export default class ReactSelectSetting extends React.PureComponent<Props, State
     filterOptions = (input: string) => {
         let options = this.props.options;
         if (input) {
-            options = options.filter((opt: ReactSelectOption) => opt.label.toUpperCase().includes(input.toUpperCase()));
+            options = options.filter((opt: ReactSelectOption) => `${opt.label}`.toUpperCase().includes(input.toUpperCase()));
         }
 
         return Promise.resolve(options.slice(0, MAX_NUM_OPTIONS));
@@ -130,7 +128,7 @@ export default class ReactSelectSetting extends React.PureComponent<Props, State
         return (
             <Setting
                 inputId={this.props.name}
-                {...this.props}
+                {...this.props as any}
             >
                 {selectComponent}
                 {validationError}

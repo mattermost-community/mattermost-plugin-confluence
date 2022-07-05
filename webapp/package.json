@@ -34,6 +34,7 @@
     "@types/react-intl": "3.0.0",
     "@types/react-redux": "7.1.9",
     "@types/react-router-dom": "5.1.5",
+    "@types/react-select": "3.0.4",
     "@types/react-transition-group": "4.4.0",
     "@typescript-eslint/eslint-plugin": "3.6.0",
     "@typescript-eslint/parser": "3.6.0",
@@ -71,7 +72,7 @@
     "react-bootstrap": "2.4.0",
     "react-dom": "16.13.1",
     "react-redux": "7.2.0",
-    "react-select": "3.1.0",
+    "react-select": "3.0.4",
     "redux": "4.0.5",
     "superagent": "5.3.1",
     "typescript": "3.9.6"

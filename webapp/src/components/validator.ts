@@ -17,7 +17,7 @@ export default class Validator {
         }
     };
 
-    validate = (): boolean => {
+    validate = () => {
         return Array.from(this.components.values()).reduce((accum, validateField) => {
             return validateField() && accum;
         }, true);
