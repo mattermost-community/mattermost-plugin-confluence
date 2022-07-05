@@ -557,20 +557,20 @@ func GetRequestBodyForCreatePage(spaceKey string, pageDetails *serializer.PageDe
 }
 
 // refreshAndStoreToken checks whether the current access token is expired or not. If it is,
-// then it refreshes the token and store the new pair of access and refresh token in kv store.
+// then it refreshes the token and stores the new pair of access and refresh tokens in kv store.
 func (p *Plugin) refreshAndStoreToken(connection *Connection, instanceID types.ID, oconf *oauth2.Config) (*oauth2.Token, error) {
 	token, err := p.ParseAuthToken(connection.OAuth2Token)
 	if err != nil {
 		return nil, err
 	}
 
+	// If there is only one minute left for the token to expire, we are refreshing the token.
+	// We don't want the token to expire between the time when we decide that the old token is valid
+	// and the time at which we create the request. We are handling that by not letting the token expire.
 	if time.Until(token.Expiry) > 1*time.Minute {
 		return token, nil
 	}
 
-	// If there is only one minute left for the token to expire, we are refreshing the token.
-	// We don't want the token to expire between the time when we decide that the old token is valid
-	// and the time at which we create the request. We are handling that by not letting the token expire.
 	src := oconf.TokenSource(context.Background(), token)
 	newToken, err := src.Token() // this actually goes and renews the tokens
 	if err != nil {
