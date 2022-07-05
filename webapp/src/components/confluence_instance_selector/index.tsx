@@ -17,41 +17,37 @@ const ConfluenceInstanceSelector = (props: Props) => {
     const validator = new Validator();
 
     const installedInstances = useSelector((state: DefaultRootState) =>
-        selectors.isInstalledInstances(state),
+        selectors.installedInstances(state),
     );
 
     const getInstanceOptions = useMemo(() => {
-        return installedInstances?.map((instance: { instance_id: string; }) => ({
+        return installedInstances?.map((instance: {instance_id: string}) => ({
             label: instance.instance_id,
             value: instance.instance_id,
         }));
     }, [installedInstances]);
 
-    const handleEvents = useCallback(
-        (_, instanceID) => {
-            if (instanceID !== props.selectedInstanceID) {
-                props.onInstanceChange(instanceID);
-            }
-        },
-        [props.selectedInstanceID],
+    const handleEvents = useCallback((_, instanceID) => {
+        if (instanceID !== props.selectedInstanceID) {
+            props.onInstanceChange(instanceID);
+        }
+    }, [props.selectedInstanceID],
     );
 
     return (
-        <React.Fragment>
+        <>
             <ReactSelectSetting
                 name={'instance'}
                 label={'Instance'}
                 options={getInstanceOptions}
                 onChange={handleEvents}
-                value={getInstanceOptions.find(
-                    (option: { value: string; }) => option.value === props.selectedInstanceID,
-                )}
+                value={getInstanceOptions.find((option: {value: string}) => option.value === props.selectedInstanceID)}
                 required={true}
                 theme={props.theme}
                 addValidate={validator.addComponent}
                 removeValidate={validator.removeComponent}
             />
-        </React.Fragment>
+        </>
     );
 };
 

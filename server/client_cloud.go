@@ -180,7 +180,7 @@ func (ccc *confluenceCloudClient) GetUserGroups(connection *Connection) ([]*User
 		AccountID: connection.AccountID,
 	})
 	if err != nil {
-		return nil, http.StatusInternalServerError, errors.Wrap(err, "confluence GetSpaces")
+		return nil, http.StatusInternalServerError, errors.Wrap(err, "confluence GetUserGroups")
 	}
 	_, statusCode, err := utils.CallJSON(ccc.URL, http.MethodGet, url, nil, &userGroups, ccc.HTTPClient)
 	if err != nil {
@@ -197,7 +197,7 @@ func (ccc *confluenceCloudClient) GetSpaces() ([]*Spaces, int, error) {
 		return nil, http.StatusInternalServerError, errors.Wrap(err, "confluence GetSpaces")
 	}
 	url, err = utils.AddQueryParams(url, map[string]interface{}{
-		Limit: SpaceLimit,
+		Limit: DefaultSpaceLimit,
 	})
 	if err != nil {
 		return nil, http.StatusInternalServerError, errors.Wrap(err, "confluence GetSpaces")

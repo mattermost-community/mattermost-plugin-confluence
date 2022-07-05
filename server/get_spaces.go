@@ -28,7 +28,7 @@ func (p *Plugin) handleGetSpacesForConfluenceURL(w http.ResponseWriter, r *http.
 	}
 
 	w.Header().Set("Content-Type", "application/json")
-	if _, err := w.Write([]byte(string(responseBody))); err != nil {
+	if _, err := w.Write(responseBody); err != nil {
 		p.LogAndRespondError(w, http.StatusInternalServerError, "failed to write response body.", err)
 	}
 }
