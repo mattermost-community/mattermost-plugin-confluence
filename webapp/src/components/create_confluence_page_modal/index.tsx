@@ -38,16 +38,14 @@ const CreateConfluencePage = (theme: Theme) => {
     const [spaceKey, setSpaceKey] = useState<string>('');
     const [saving, setSaving] = useState<boolean>(false);
     const [error, setError] = useState<string>('');
-    const validator = useMemo(() => {
-        return new Validator();
-    }, []);
+    const validator = useMemo(() => (new Validator()), []);
 
-    const getSpaces = async () => {
+    const getSpaces = useCallback(async () => {
         const response = await getSpacesForConfluenceURL(instanceID)(dispatch);
         if (response?.error) {
             setError((response.error as any).response?.text);
         }
-    };
+    }, [dispatch, instanceID]);
 
     useEffect(() => {
         if (postMessage?.message) {
@@ -62,6 +60,7 @@ const CreateConfluencePage = (theme: Theme) => {
         if (!instanceID) {
             return;
         }
+
         getSpaces();
         setSpaceKey('');
     }, [instanceID]);
@@ -128,10 +127,11 @@ const CreateConfluencePage = (theme: Theme) => {
         if (response?.error) {
             setError((response.error as any).response?.text);
             setSaving(false);
-        } else {
-            reset();
-            dispatch(closeCreateConfluencePageModal());
+            return;
         }
+
+        reset();
+        dispatch(closeCreateConfluencePageModal());
     }, [channelID, dispatch, instanceID, pageDescription, pageTitle, spaceKey, validator]);
 
     return (
@@ -215,9 +215,7 @@ const CreateConfluencePage = (theme: Theme) => {
                         onClick={handleSubmit}
                         disabled={saving}
                     >
-                        {saving && (
-                            <span className='fa fa-spinner fa-fw fa-pulse spinner'/>
-                        )}
+                        {saving && <span className='fa fa-spinner fa-fw fa-pulse spinner'/>}
                         {'Save Subscription'}
                     </Button>
                 </Modal.Footer>

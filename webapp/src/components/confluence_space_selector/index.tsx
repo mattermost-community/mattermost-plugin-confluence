@@ -13,7 +13,7 @@ type Props = {
     theme: Theme;
 };
 
-const ConfluenceSpaceSelector = (props: Props) => {
+const ConfluenceSpaceSelector = ({selectedSpaceKey, onSpaceKeyChange, theme}: Props) => {
     const validator = new Validator();
 
     const spacesForConfluenceURL = useSelector((state: DefaultRootState) =>
@@ -28,10 +28,10 @@ const ConfluenceSpaceSelector = (props: Props) => {
     }, [spacesForConfluenceURL]);
 
     const handleEvents = useCallback((_, spaceKey) => {
-        if (spaceKey !== props.selectedSpaceKey) {
-            props.onSpaceKeyChange(spaceKey);
+        if (spaceKey !== selectedSpaceKey) {
+            onSpaceKeyChange(spaceKey);
         }
-    }, [props.selectedSpaceKey]);
+    }, [selectedSpaceKey, onSpaceKeyChange]);
 
     return (
         <>
@@ -41,15 +41,15 @@ const ConfluenceSpaceSelector = (props: Props) => {
                 options={getSpaceOptions}
                 onChange={handleEvents}
                 value={
-                    props.selectedSpaceKey ?
+                    selectedSpaceKey ?
                         getSpaceOptions.find(
                             (option: {value: string}) =>
-                                option.value === props.selectedSpaceKey,
+                                option.value === selectedSpaceKey,
                         ) :
                         null
                 }
                 required={true}
-                theme={props.theme}
+                theme={theme}
                 addValidate={validator.addComponent}
                 removeValidate={validator.removeComponent}
             />

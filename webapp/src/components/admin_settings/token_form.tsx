@@ -13,75 +13,75 @@ type Props = {
     reset: () => void
 }
 
-export default function TokenForm(props: Props) {
+export default function TokenForm({state, errors, setState, setErrors, reset}: Props) {
     const handleURLChange = useCallback((e: React.ChangeEvent<typeof FormControl & HTMLInputElement>) => {
-        props.setState({...props.state, serverURL: e.target.value});
-        props.setErrors({...props.errors, serverURL: ''});
-    }, [props]);
+        setState({...state, serverURL: e.target.value});
+        setErrors({...errors, serverURL: ''});
+    }, [errors, setErrors, setState, state]);
 
     const handleClientIDChange = useCallback((e: React.ChangeEvent<typeof FormControl & HTMLInputElement>) => {
-        props.setState({...props.state, clientID: e.target.value});
-        props.setErrors({...props.errors, clientID: ''});
-    }, [props]);
+        setState({...state, clientID: e.target.value});
+        setErrors({...errors, clientID: ''});
+    }, [errors, setErrors, setState, state]);
 
     const handleClientSecretChange = useCallback((e: React.ChangeEvent<typeof FormControl & HTMLInputElement>) => {
-        props.setState({...props.state, clientSecret: e.target.value});
-        props.setErrors({...props.errors, clientSecret: ''});
-    }, [props]);
+        setState({...state, clientSecret: e.target.value});
+        setErrors({...errors, clientSecret: ''});
+    }, [errors, setErrors, setState, state]);
 
     useEffect(() => {
-        props.reset();
+        reset();
     }, []);
 
     return (
         <Form>
             <FormGroup>
                 <label
-                    className={'form-label ' + (props.errors.serverURL ? 'text-danger' : '')}
+                    className={'form-label ' + (errors.serverURL ? 'text-danger' : '')}
                 >{'Server URL'}
                 </label>
                 <FormControl
-                    className={props.errors.serverURL ? 'error' : ''}
+                    className={errors.serverURL ? 'error' : ''}
                     type='text'
-                    value={props.state.serverURL}
+                    value={state.serverURL}
                     onChange={handleURLChange}
                     placeholder='<https://example.com>'
                 />
                 <small
-                    className={props.errors.serverURL ? 'form-text text-danger' : ''}
-                >{props.errors.serverURL && <p>{`* ${props.errors.serverURL}`}</p>}</small>
+                    className={errors.serverURL ? 'form-text text-danger' : ''}
+                >{errors.serverURL && <p>{`* ${errors.serverURL}`}</p>}</small>
             </FormGroup>
             <FormGroup>
                 <label
-                    className={'form-label ' + (props.errors.clientID ? 'text-danger' : '')}
+                    className={'form-label ' + (errors.clientID ? 'text-danger' : '')}
                 >{'Client ID'}
                 </label>
                 <FormControl
-                    className={props.errors.clientID ? 'error' : ''}
+                    className={errors.clientID ? 'error' : ''}
                     type='text'
-                    value={props.state.clientID}
+                    value={state.clientID}
                     onChange={handleClientIDChange}
                     placeholder='<client-id>'
                 />
                 <small
-                    className={props.errors.clientID ? 'form-text text-danger' : ''}
-                >{props.errors.clientID && <p>{`* ${props.errors.clientID}`}</p>}</small>
+                    className={errors.clientID ? 'form-text text-danger' : ''}
+                >{errors.clientID && <p>{`* ${errors.clientID}`}</p>}</small>
             </FormGroup>
             <FormGroup>
                 <label
-                    className={'form-label ' + (props.errors.clientSecret ? 'text-danger' : '')}
+                    className={'form-label ' + (errors.clientSecret ? 'text-danger' : '')}
                 >{'Client Secret'}
                 </label>
                 <FormControl
-                    className={props.errors.clientSecret ? 'error' : ''}
+                    className={errors.clientSecret ? 'error' : ''}
                     type='text'
-                    value={props.state.clientSecret}
+                    value={state.clientSecret}
                     onChange={handleClientSecretChange}
                     placeholder='<client-secret>'
                 />
                 <small
-                    className={props.errors.clientSecret ? 'form-text text-danger' : ''}
-                >{props.errors.clientSecret && <p>{`* ${props.errors.clientSecret}`}</p>}</small>
+                    className={errors.clientSecret ? 'form-text text-danger' : ''}
+                >{errors.clientSecret && <p>{`* ${errors.clientSecret}`}</p>}</small>
             </FormGroup>
         </Form>
     );
