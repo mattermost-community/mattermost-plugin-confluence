@@ -82,7 +82,7 @@ export default class ReactSelectSetting extends React.PureComponent<Props, State
     };
 
     render() {
-        const {theme} = this.props;
+        const {theme} = this.props.theme;
         const requiredMsg = 'This field is required.';
         const validationError = this.props.required && this.state.invalid ? (
             <p className='help-text error-text'>
