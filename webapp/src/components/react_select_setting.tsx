@@ -22,7 +22,6 @@ export type Props = Omit<ReactSelectProps<ReactSelectOption>, 'theme'> & {
     theme: Theme;
     addValidate?: (isValid: () => boolean) => void;
     removeValidate?: (isValid: () => boolean) => void;
-    allowUserDefinedValue?: boolean;
     limitOptions?: boolean;
 };
 
@@ -83,15 +82,18 @@ export default class ReactSelectSetting extends React.PureComponent<Props, State
     };
 
     render() {
+        const {theme} = this.props;
         const requiredMsg = 'This field is required.';
-        const validationError = this.props.required && this.state.invalid ? <p className='help-text error-text'><span>{requiredMsg}</span></p> : null;
+        const validationError = this.props.required && this.state.invalid ? (
+            <p className='help-text error-text'>
+                <span>{requiredMsg}</span>
+            </p>) : null;
 
-        let selectComponent = null;
-        if (this.props.limitOptions && this.props.options.length > MAX_NUM_OPTIONS) {
-            // The parent component helps us know that we may have a large number of options, and that
-            // the data-set is static. In this case, we use the AsyncSelect component and synchronous func
-            // "filterOptions" to limit the number of options being rendered at a given time.
-            selectComponent = (
+        const selectComponent = this.props.limitOptions && this.props.options.length > MAX_NUM_OPTIONS ?
+            (
+                // The parent component helps us know that we may have a large number of options, and that
+                // the data-set is static. In this case, we use the AsyncSelect component and synchronous func
+                // "filterOptions" to limit the number of options being rendered at a given time.
                 <AsyncSelect
                     {...this.props}
                     loadOptions={this.filterOptions}
@@ -100,32 +102,15 @@ export default class ReactSelectSetting extends React.PureComponent<Props, State
                     menuPlacement='auto'
                     onChange={this.handleChange}
                     styles={getStyleForReactSelect(this.props.theme)}
-                />
-            );
-        } else if (this.props.allowUserDefinedValue) {
-            selectComponent = (
-                <CreatableSelect
-                    {...this.props}
-                    noOptionsMessage={() => 'Start typing...'}
-                    formatCreateLabel={(value) => `Add "${value}"`}
-                    placeholder=''
-                    menuPortalTarget={document.body}
-                    menuPlacement='auto'
-                    onChange={this.handleChange}
-                    styles={getStyleForReactSelect(this.props.theme)}
-                />
-            );
-        } else {
-            selectComponent = (
+                />) :
+            (
                 <ReactSelect
                     {...this.props}
                     menuPortalTarget={document.body}
                     menuPlacement='auto'
                     onChange={this.handleChange}
-                    styles={getStyleForReactSelect(this.props.theme)}
-                />
-            );
-        }
+                    styles={getStyleForReactSelect(theme)}
+                />);
 
         return (
             <Setting

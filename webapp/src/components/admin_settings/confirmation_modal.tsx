@@ -12,24 +12,25 @@ type Props = {
     handleConfirm: () => void
 }
 
-export default function ConfirmationModal(props: Props) {
+export default function ConfirmationModal({open, title, body, confirmText,
+    cancelText, approveButtonStyle, handleClose, handleConfirm}: Props) {
     return (
         <Modal
-            show={props.open}
-            onHide={props.handleClose}
+            show={open}
+            onHide={handleClose}
         >
             <Modal.Header>
-                <Modal.Title>{props.title}</Modal.Title>
+                <Modal.Title>{title}</Modal.Title>
             </Modal.Header>
             <Modal.Body>
-                {props.body}
+                {body}
             </Modal.Body>
             <Modal.Footer>
-                <Button onClick={props.handleClose}>{props.cancelText}</Button>
+                <Button onClick={handleClose}>{cancelText}</Button>
                 <Button
-                    onClick={props.handleConfirm}
-                    bsStyle={props.approveButtonStyle}
-                >{props.confirmText}</Button>
+                    onClick={handleConfirm}
+                    bsStyle={approveButtonStyle}
+                >{confirmText}</Button>
             </Modal.Footer>
         </Modal>
     );

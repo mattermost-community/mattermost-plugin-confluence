@@ -11,63 +11,63 @@ type Props = {
     reset: () => void
 }
 
-export default function TokenForm(props: Props) {
+export default function TokenForm({state, errors, setState, setErrors, reset}: Props) {
     const handleURLChange = useCallback((e: React.ChangeEvent<FormControl & HTMLInputElement>) => {
-        props.setState({...props.state, serverURL: e.target.value});
-        props.setErrors({...props.errors, serverURL: ''});
-    }, [props]);
+        setState({...state, serverURL: e.target.value});
+        setErrors({...errors, serverURL: ''});
+    }, [errors, setErrors, setState, state]);
 
     const handleClientIDChange = useCallback((e: React.ChangeEvent<FormControl & HTMLInputElement>) => {
-        props.setState({...props.state, clientID: e.target.value});
-        props.setErrors({...props.errors, clientID: ''});
-    }, [props]);
+        setState({...state, clientID: e.target.value});
+        setErrors({...errors, clientID: ''});
+    }, [errors, setErrors, setState, state]);
 
     const handleClientSecretChange = useCallback((e: React.ChangeEvent<FormControl & HTMLInputElement>) => {
-        props.setState({...props.state, clientSecret: e.target.value});
-        props.setErrors({...props.errors, clientSecret: ''});
-    }, [props]);
+        setState({...state, clientSecret: e.target.value});
+        setErrors({...errors, clientSecret: ''});
+    }, [errors, setErrors, setState, state]);
 
     useEffect(() => {
-        props.reset();
+        reset();
     }, []);
 
     return (
         <Form>
-            <FormGroup validationState={props.errors.serverURL ? 'error' : null}>
+            <FormGroup validationState={errors.serverURL ? 'error' : null}>
                 <ControlLabel>
                     {'Server URL'}
                 </ControlLabel>
                 <FormControl
                     type='text'
-                    value={props.state.serverURL}
+                    value={state.serverURL}
                     onChange={handleURLChange}
                     placeholder='<https://example.com>'
                 />
-                <HelpBlock>{props.errors.serverURL && <p>{`* ${props.errors.serverURL}`}</p>}</HelpBlock>
+                <HelpBlock>{errors.serverURL && <p>{`* ${errors.serverURL}`}</p>}</HelpBlock>
             </FormGroup>
-            <FormGroup validationState={props.errors.clientID ? 'error' : null}>
+            <FormGroup validationState={errors.clientID ? 'error' : null}>
                 <ControlLabel >
                     {'Client ID'}
                 </ControlLabel>
                 <FormControl
                     type='text'
-                    value={props.state.clientID}
+                    value={state.clientID}
                     onChange={handleClientIDChange}
                     placeholder='<client-id>'
                 />
-                <HelpBlock>{props.errors.clientID && <p>{`* ${props.errors.clientID}`}</p>}</HelpBlock>
+                <HelpBlock>{errors.clientID && <p>{`* ${errors.clientID}`}</p>}</HelpBlock>
             </FormGroup>
-            <FormGroup validationState={props.errors.clientSecret ? 'error' : null}>
+            <FormGroup validationState={errors.clientSecret ? 'error' : null}>
                 <ControlLabel >
                     {'Client Secret'}
                 </ControlLabel>
                 <FormControl
                     type='text'
-                    value={props.state.clientSecret}
+                    value={state.clientSecret}
                     onChange={handleClientSecretChange}
                     placeholder='<client-secret>'
                 />
-                <HelpBlock>{props.errors.clientSecret && <p>{`* ${props.errors.clientSecret}`}</p>}</HelpBlock>
+                <HelpBlock>{errors.clientSecret && <p>{`* ${errors.clientSecret}`}</p>}</HelpBlock>
             </FormGroup>
         </Form>
     );
