@@ -49,14 +49,14 @@ export default function TokenModal({open, edit, value, handleClose, onSave, entr
         onSave(state);
     };
 
-    const handleCloseFunction = () => {
+    const closeHandler = () => {
         setErrors({serverURL: '', clientID: '', clientSecret: ''});
         handleClose();
     };
     return (
         <Modal
             show={open}
-            onHide={handleCloseFunction}
+            onHide={closeHandler}
         >
             <Modal.Header>
                 <Modal.Title>{edit ? 'Update Confluence Config' : 'Add Confluence Config'}</Modal.Title>
@@ -71,14 +71,16 @@ export default function TokenModal({open, edit, value, handleClose, onSave, entr
                 />
             </Modal.Body>
             <Modal.Footer>
-                <Button onClick={handleCloseFunction}>{'Close'}</Button>
+                <Button onClick={closeHandler}>{'Close'}</Button>
                 <Button
                     onClick={onSubmit}
 
                     // Removed bsStyle from here, as it was used in older versions of react-bootstrap.
                     // Variant property was not working, so updated it with the className property.
                     className='btn btn-primary'
-                >{'Save'}</Button>
+                >
+                    {'Save'}
+                </Button>
             </Modal.Footer>
         </Modal>
     );

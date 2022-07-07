@@ -30,7 +30,9 @@ export default function ConfirmationModal({open, title, body, confirmText,
                 <Button
                     onClick={handleConfirm}
                     className={`btn btn-${approveButtonStyle}`}
-                >{confirmText}</Button>
+                >
+                    {confirmText}
+                </Button>
             </Modal.Footer>
         </Modal>
     );
