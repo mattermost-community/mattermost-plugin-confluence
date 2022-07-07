@@ -44,7 +44,7 @@ const CreateConfluencePage = (theme: Theme) => {
         if (response?.error) {
             setError(response.error.response?.text);
         }
-    }, [dispatch, instanceID]);
+    }, [instanceID]);
 
     useEffect(() => {
         if (postMessage?.message) {

@@ -75,7 +75,9 @@ export default function TokenModal({open, edit, value, handleClose, onSave, entr
                 <Button
                     onClick={onSubmit}
                     bsStyle='primary'
-                >{'Save'}</Button>
+                >
+                    {'Save'}
+                </Button>
             </Modal.Footer>
         </Modal>
     );

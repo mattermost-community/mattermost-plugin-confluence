@@ -1,9 +1,8 @@
 import React, {useCallback, useMemo} from 'react';
-import {DefaultRootState, useSelector} from 'react-redux';
-
-import PropTypes from 'prop-types';
+import {useSelector} from 'react-redux';
 
 import {Theme} from 'mattermost-redux/types/preferences';
+import {GlobalState} from 'mattermost-redux/types/store';
 
 import Validator from 'src/components/validator';
 import ReactSelectSetting from 'src/components/react_select_setting';
@@ -18,7 +17,7 @@ type Props = {
 const ConfluenceSpaceSelector = ({selectedSpaceKey, onSpaceKeyChange, theme}: Props) => {
     const validator = new Validator();
 
-    const spacesForConfluenceURL = useSelector((state: DefaultRootState) =>
+    const spacesForConfluenceURL = useSelector((state: GlobalState) =>
         selectors.spacesForConfluenceURL(state),
     );
 

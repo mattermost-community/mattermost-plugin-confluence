@@ -1,4 +1,3 @@
-/* eslint-disable multiline-ternary */
 import React, {useState} from 'react';
 import {FormGroup, Col, Table, Button, ControlLabel} from 'react-bootstrap';
 

@@ -48,7 +48,7 @@ jobs:
             ${{ runner.os }}-node-
 
       - name: Install webapp dependencies
-        run: make webapp/.npminstall
+        run: make webapp/node_modules
         env:
           TERM: dumb
 
