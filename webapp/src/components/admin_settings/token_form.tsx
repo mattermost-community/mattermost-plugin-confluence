@@ -51,7 +51,8 @@ export default function TokenForm({state, errors, setState, setErrors, reset}: P
                 <small
                     className={errors.serverURL ? 'form-text text-danger' : ''}
                 >
-                    {errors.serverURL && <p>{`* ${errors.serverURL}`}</p>}</small>
+                    {errors.serverURL && <p>{`* ${errors.serverURL}`}</p>}
+                </small>
             </FormGroup>
             <FormGroup>
                 <label
@@ -69,7 +70,8 @@ export default function TokenForm({state, errors, setState, setErrors, reset}: P
                 <small
                     className={errors.clientID ? 'form-text text-danger' : ''}
                 >
-                    {errors.clientID && <p>{`* ${errors.clientID}`}</p>}</small>
+                    {errors.clientID && <p>{`* ${errors.clientID}`}</p>}
+                </small>
             </FormGroup>
             <FormGroup>
                 <label
@@ -87,7 +89,8 @@ export default function TokenForm({state, errors, setState, setErrors, reset}: P
                 <small
                     className={errors.clientSecret ? 'form-text text-danger' : ''}
                 >
-                    {errors.clientSecret && <p>{`* ${errors.clientSecret}`}</p>}</small>
+                    {errors.clientSecret && <p>{`* ${errors.clientSecret}`}</p>}
+                </small>
             </FormGroup>
         </Form>
     );

@@ -133,7 +133,7 @@ const CreateConfluencePage = (theme: Theme) => {
 
         reset();
         dispatch(closeCreateConfluencePageModal());
-    }, [channelID, dispatch, instanceID, pageDescription, pageTitle, spaceKey, validator]);
+    }, [channelID, instanceID, pageDescription, pageTitle, spaceKey, validator]);
 
     return (
         <Modal

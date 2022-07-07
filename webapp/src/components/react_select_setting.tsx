@@ -6,6 +6,8 @@ import ReactSelect from 'react-select';
 import AsyncSelect, {Props as ReactSelectProps} from 'react-select/async';
 import {ValueType} from 'react-select/src/types';
 
+import {Theme} from 'mattermost-redux/types/preferences';
+
 import Setting from 'src/components/setting';
 import {getStyleForReactSelect} from 'src/utils/styles';
 import {ReactSelectOption} from 'src/types';
@@ -15,7 +17,7 @@ const MAX_NUM_OPTIONS = 100;
 type Omit<T, K extends keyof T> = Pick<T, Exclude<keyof T, K>>
 
 export type Props = Omit<ReactSelectProps<ReactSelectOption>, 'theme'> & {
-    theme: any;
+    theme: Theme;
     addValidate?: (isValid: () => boolean) => void;
     removeValidate?: (isValid: () => boolean) => void;
     limitOptions?: boolean;
@@ -51,8 +53,7 @@ export default class ReactSelectSetting extends React.PureComponent<Props, State
             if (Array.isArray(value)) {
                 this.props.onChange(this.props.name, value.map((x) => x.value));
             } else {
-                const newValue = value ? (value as ReactSelectOption).value : null;
-                this.props.onChange(this.props.name, newValue);
+                this.props.onChange(this.props.name, value ? (value as ReactSelectOption).value : null);
             }
         }
     };
@@ -77,7 +78,6 @@ export default class ReactSelectSetting extends React.PureComponent<Props, State
         this.setState({invalid: !valid});
         return valid;
     };
-
     render() {
         const {theme} = this.props;
         const requiredMsg = 'This field is required.';
@@ -87,13 +87,12 @@ export default class ReactSelectSetting extends React.PureComponent<Props, State
             </p>) : null;
 
         const selectComponent = (this.props.limitOptions && this.props.options.length > MAX_NUM_OPTIONS) ?
-
-            // The parent component helps us know that we may have a large number of options, and that
-            // the data-set is static. In this case, we use the AsyncSelect component and synchronous func
-            // "filterOptions" to limit the number of options being rendered at a given time.
             (
+
+                // The parent component helps us know that we may have a large number of options, and that
+                // the data-set is static. In this case, we use the AsyncSelect component and synchronous func
+                // "filterOptions" to limit the number of options being rendered at a given time.
                 <AsyncSelect
-                    {...this.props}
                     loadOptions={this.filterOptions}
                     defaultOptions={true}
                     menuPortalTarget={document.body}
@@ -103,7 +102,7 @@ export default class ReactSelectSetting extends React.PureComponent<Props, State
                 />
             ) : (
                 <ReactSelect
-                    {...this.props}
+                    options={this.props.options}
                     menuPortalTarget={document.body}
                     menuPlacement='auto'
                     onChange={this.handleChange}
