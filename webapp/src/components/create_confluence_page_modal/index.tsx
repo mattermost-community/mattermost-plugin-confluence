@@ -16,6 +16,7 @@ import ConfluenceInstanceSelector from 'src/components/confluence_instance_selec
 import ConfluenceSpaceSelector from 'src/components/confluence_space_selector';
 import Validator from 'src/components/validator';
 import selectors from 'src/selectors';
+import {ErrorResponse} from 'src/types';
 import {getModalStyles} from 'src/utils/styles';
 
 const getStyle = () => ({
@@ -43,7 +44,7 @@ const CreateConfluencePage = (theme: Theme) => {
     const getSpaces = useCallback(async () => {
         const response = await getSpacesForConfluenceURL(instanceID)(dispatch);
         if (response?.error) {
-            setError((response.error as any).response?.text);
+            setError((response.error as ErrorResponse).response?.text);
         }
     }, [dispatch, instanceID]);
 
@@ -125,7 +126,7 @@ const CreateConfluencePage = (theme: Theme) => {
             pageDetails,
         )();
         if (response?.error) {
-            setError((response.error as any).response?.text);
+            setError((response.error as ErrorResponse).response?.text);
             setSaving(false);
             return;
         }

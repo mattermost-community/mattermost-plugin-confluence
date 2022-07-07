@@ -5,11 +5,11 @@ import React from 'react';
 
 type Props = {
     inputId: string;
-    label: Node;
-    children?: Node;
-    helpText: Node;
-    required: boolean;
-    hideRequiredStar: boolean;
+    label?: string;
+    children: JSX.Element | null;
+    helpText?: Node;
+    required?: boolean;
+    hideRequiredStar?: boolean;
 };
 
 export default class Setting extends React.PureComponent<Props> {

@@ -38,7 +38,8 @@ export default function TokenForm({state, errors, setState, setErrors, reset}: P
             <FormGroup>
                 <label
                     className={'form-label ' + (errors.serverURL ? 'text-danger' : '')}
-                >{'Server URL'}
+                >
+                    {'Server URL'}
                 </label>
                 <FormControl
                     className={errors.serverURL ? 'error' : ''}
@@ -49,12 +50,14 @@ export default function TokenForm({state, errors, setState, setErrors, reset}: P
                 />
                 <small
                     className={errors.serverURL ? 'form-text text-danger' : ''}
-                >{errors.serverURL && <p>{`* ${errors.serverURL}`}</p>}</small>
+                >
+                    {errors.serverURL && <p>{`* ${errors.serverURL}`}</p>}</small>
             </FormGroup>
             <FormGroup>
                 <label
                     className={'form-label ' + (errors.clientID ? 'text-danger' : '')}
-                >{'Client ID'}
+                >
+                    {'Client ID'}
                 </label>
                 <FormControl
                     className={errors.clientID ? 'error' : ''}
@@ -65,12 +68,14 @@ export default function TokenForm({state, errors, setState, setErrors, reset}: P
                 />
                 <small
                     className={errors.clientID ? 'form-text text-danger' : ''}
-                >{errors.clientID && <p>{`* ${errors.clientID}`}</p>}</small>
+                >
+                    {errors.clientID && <p>{`* ${errors.clientID}`}</p>}</small>
             </FormGroup>
             <FormGroup>
                 <label
                     className={'form-label ' + (errors.clientSecret ? 'text-danger' : '')}
-                >{'Client Secret'}
+                >
+                    {'Client Secret'}
                 </label>
                 <FormControl
                     className={errors.clientSecret ? 'error' : ''}
@@ -81,7 +86,8 @@ export default function TokenForm({state, errors, setState, setErrors, reset}: P
                 />
                 <small
                     className={errors.clientSecret ? 'form-text text-danger' : ''}
-                >{errors.clientSecret && <p>{`* ${errors.clientSecret}`}</p>}</small>
+                >
+                    {errors.clientSecret && <p>{`* ${errors.clientSecret}`}</p>}</small>
             </FormGroup>
         </Form>
     );

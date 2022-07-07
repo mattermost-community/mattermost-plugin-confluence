@@ -79,7 +79,7 @@ export default class ReactSelectSetting extends React.PureComponent<Props, State
     };
 
     render() {
-        const {theme} = this.props.theme;
+        const {theme} = this.props;
         const requiredMsg = 'This field is required.';
         const validationError = this.props.required && this.state.invalid ? (
             <p className='help-text error-text'>
@@ -99,7 +99,7 @@ export default class ReactSelectSetting extends React.PureComponent<Props, State
                     menuPortalTarget={document.body}
                     menuPlacement='auto'
                     onChange={this.handleChange}
-                    styles={getStyleForReactSelect(this.props.theme)}
+                    styles={getStyleForReactSelect(theme)}
                 />
             ) : (
                 <ReactSelect
@@ -107,17 +107,19 @@ export default class ReactSelectSetting extends React.PureComponent<Props, State
                     menuPortalTarget={document.body}
                     menuPlacement='auto'
                     onChange={this.handleChange}
-                    styles={getStyleForReactSelect(this.props.theme)}
+                    styles={getStyleForReactSelect(theme)}
                 />
             );
 
         return (
             <Setting
                 inputId={this.props.name}
-                {...this.props as any}
+                {...this.props}
             >
-                {selectComponent}
-                {validationError}
+                <>
+                    {selectComponent}
+                    {validationError}
+                </>
             </Setting>
         );
     }
