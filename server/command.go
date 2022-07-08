@@ -26,8 +26,6 @@ type Handler struct {
 
 const commandTrigger = "confluence"
 
-const helpTextHeader = "###### Mattermost Confluence Plugin - Slash Command Help\n"
-
 const (
 	specifyAlias              = "Please specify a subscription name."
 	subscriptionDeleteSuccess = "Subscription **%s** has been deleted."
@@ -205,7 +203,7 @@ func (ch Handler) Handle(p *Plugin, context *model.CommandArgs, args ...string) 
 func (p *Plugin) help(args *model.CommandArgs) *model.CommandResponse {
 	authorized := utils.IsSystemAdmin(args.UserId)
 
-	helpText := helpTextHeader + commonHelpText
+	helpText := commonHelpText
 	if authorized {
 		helpText += sysAdminHelpText
 	}
@@ -219,7 +217,10 @@ func showInstallCloudHelp(p *Plugin, context *model.CommandArgs, args ...string)
 		p.postCommandResponse(context, installOnlySystemAdmin)
 		return &model.CommandResponse{}
 	}
-
+	if len(args) == 0 {
+		response := executeConfluenceDefault(p, context, args...)
+		return response
+	}
 	confluenceURL, instance, err := p.installCloudInstance(args[0])
 	if err != nil {
 		return p.responsef(context, err.Error())
@@ -236,6 +237,10 @@ func showInstallServerHelp(p *Plugin, context *model.CommandArgs, args ...string
 	if !utils.IsSystemAdmin(context.UserId) {
 		p.postCommandResponse(context, installOnlySystemAdmin)
 		return &model.CommandResponse{}
+	}
+	if len(args) == 0 {
+		response := executeConfluenceDefault(p, context, args...)
+		return response
 	}
 	confluenceURL, instance, err := p.installServerInstance(args[0])
 	if err != nil {
@@ -306,7 +311,7 @@ func executeConnect(p *Plugin, context *model.CommandArgs, args ...string) *mode
 	if instance != nil {
 		confluenceURL = instance.InstanceID.String()
 	}
-	isAdmin := len(args) > 1 && strings.EqualFold(args[1], "admin")
+	isAdmin := len(args) > 1 && strings.EqualFold(args[1], AdminMattermostUserID)
 	info, err := p.GetUserInfo(types.ID(context.UserId), nil)
 	if err != nil {
 		return p.responsef(context, "Failed to connect. Error: %v", err)

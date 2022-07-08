@@ -8,7 +8,7 @@ import {Provider} from 'react-redux';
 
 import {configureStore} from 'tests/setup';
 
-import ConfluenceSpaceSelector from './confluence_space_selector';
+import ConfluenceSpaceSelector from '.';
 
 describe('components/ConfluenceSpaceSelector', () => {
     const initialState = {};

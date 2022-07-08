@@ -4,18 +4,20 @@ import {Modal, Button} from 'react-bootstrap';
 
 import {getCurrentChannelId} from 'mattermost-redux/selectors/entities/common';
 import {Theme} from 'mattermost-redux/types/preferences';
+import {GlobalState} from 'mattermost-redux/types/store';
 
-import selectors from 'src/selectors';
-import ConfluenceInstanceSelector from 'src/components/confluence_instance_selector';
-import ConfluenceSpaceSelector from 'src/components/confluence_space_selector';
-import Validator from 'src/components/validator';
-import ConfluenceField from 'src/components/confluence_field';
-import {getModalStyles} from 'src/utils/styles';
 import {
     getSpacesForConfluenceURL,
     createPageForConfluence,
     closeCreateConfluencePageModal,
 } from 'src/actions';
+import ConfluenceField from 'src/components/confluence_field';
+import ConfluenceInstanceSelector from 'src/components/confluence_instance_selector';
+import ConfluenceSpaceSelector from 'src/components/confluence_space_selector';
+import Validator from 'src/components/validator';
+import selectors from 'src/selectors';
+import {ErrorResponse} from 'src/types';
+import {getModalStyles} from 'src/utils/styles';
 
 const getStyle = () => ({
     typeFormControl: {
@@ -28,7 +30,7 @@ const CreateConfluencePage = (theme: Theme) => {
     const dispatch = useDispatch();
 
     const postMessage = useSelector((state: DefaultRootState) => selectors.postMessage(state));
-    const channelID = useSelector((state: DefaultRootState) => getCurrentChannelId(state));
+    const channelID = useSelector((state: GlobalState) => getCurrentChannelId(state));
 
     const [modalVisible, setModalVisible] = useState<boolean>(false);
     const [instanceID, setInstanceID] = useState<string>('');
@@ -38,11 +40,12 @@ const CreateConfluencePage = (theme: Theme) => {
     const [saving, setSaving] = useState<boolean>(false);
     const [error, setError] = useState<string>('');
     const validator = useMemo(() => (new Validator()), []);
+    const styles = useMemo(() => getModalStyles(theme), [theme]);
 
     const getSpaces = useCallback(async () => {
         const response = await getSpacesForConfluenceURL(instanceID)(dispatch);
         if (response?.error) {
-            setError(response.error.response?.text);
+            setError((response.error as ErrorResponse).response?.text);
         }
     }, [instanceID]);
 
@@ -73,13 +76,17 @@ const CreateConfluencePage = (theme: Theme) => {
         setError('');
     };
 
-    const handleClose = useCallback((e?: PointerEvent) => {
+    const handleClose = useCallback((e?: React.MouseEvent) => {
         if (e?.preventDefault) {
             e.preventDefault();
         }
 
         reset();
         dispatch(closeCreateConfluencePageModal());
+    }, []);
+
+    const handleModalClose = useCallback(() => {
+        setModalVisible(false);
     }, []);
 
     const handleInstanceChange = useCallback((currentInstanceID: string) => {
@@ -94,12 +101,12 @@ const CreateConfluencePage = (theme: Theme) => {
 
     const handlePageTitle = useCallback((e: SyntheticEvent) => {
         e.persist();
-        setPageTitle(e.target.value);
+        setPageTitle((e.target as HTMLInputElement).value);
     }, []);
 
     const handlePageDescription = useCallback((e: SyntheticEvent) => {
         e.persist();
-        setPageDescription(e.target.value);
+        setPageDescription((e.target as HTMLInputElement).value);
     }, []);
 
     const handleSubmit = useCallback(async () => {
@@ -120,28 +127,28 @@ const CreateConfluencePage = (theme: Theme) => {
             pageDetails,
         )();
         if (response?.error) {
-            setError(response.error.response?.text);
+            setError((response.error as ErrorResponse).response?.text);
             setSaving(false);
             return;
         }
 
         reset();
         dispatch(closeCreateConfluencePageModal());
-    }, [channelID, dispatch, instanceID, pageDescription, pageTitle, spaceKey, validator]);
+    }, [channelID, instanceID, pageDescription, pageTitle, spaceKey, validator]);
 
     return (
         <Modal
             dialogClassName='modal--scroll'
             show={modalVisible}
-            onHide={handleClose}
-            onExited={handleClose}
+            onHide={handleModalClose}
+            onExited={handleModalClose}
             backdrop={'static'}
             bsSize='large'
         >
             <Modal.Header closeButton={true}>
                 <Modal.Title>{'Create Confluence Page'}</Modal.Title>
             </Modal.Header>
-            <Modal.Body style={getModalStyles.modalBody}>
+            <Modal.Body style={styles.modalBody}>
                 <ConfluenceInstanceSelector
                     theme={theme}
                     selectedInstanceID={instanceID}
@@ -196,17 +203,20 @@ const CreateConfluencePage = (theme: Theme) => {
             </Modal.Body>
 
             {spaceKey && (
-                <Modal.Footer style={getModalStyles.modalFooter}>
+                <Modal.Footer style={styles.modalFooter}>
                     <Button
                         type='button'
-                        bsStyle='link'
+
+                        // Removed "bsStyle" prop from here, as it was used in older versions of react-bootstrap
+                        // and "variant" prop was also not working, so updated it with the className prop.
+                        className='btn btn-link'
                         onClick={handleClose}
                     >
                         {'Cancel'}
                     </Button>
                     <Button
                         type='submit'
-                        bsStyle='primary'
+                        className='btn btn-primary'
                         onClick={handleSubmit}
                         disabled={saving}
                     >

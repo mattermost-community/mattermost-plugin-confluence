@@ -8,7 +8,7 @@ import {Provider} from 'react-redux';
 
 import {configureStore} from 'tests/setup';
 
-import CreateConfluencePage from './create_confluence_page_modal';
+import CreateConfluencePage from '.';
 
 describe('components/CreateCofluencePageModal', () => {
     const initialState = {

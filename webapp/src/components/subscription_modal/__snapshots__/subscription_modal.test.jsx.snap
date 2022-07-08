@@ -29,7 +29,6 @@ exports[`components/ChannelSettingsModal subscription modal snapshot test 1`] = 
   <ModalBody>
     <div>
       <ConfluenceField
-        addValidation={[Function]}
         fieldType="input"
         formControlStyle={Object {}}
         formGroupStyle={Object {}}
@@ -37,13 +36,11 @@ exports[`components/ChannelSettingsModal subscription modal snapshot test 1`] = 
         onChange={[Function]}
         placeholder="Enter a name for this subscription."
         readOnly={false}
-        removeValidation={[Function]}
         required={true}
         type="text"
         value=""
       />
       <ConfluenceField
-        addValidation={[Function]}
         fieldType="input"
         formControlStyle={Object {}}
         formGroupStyle={Object {}}
@@ -51,7 +48,6 @@ exports[`components/ChannelSettingsModal subscription modal snapshot test 1`] = 
         onChange={[Function]}
         placeholder="Enter the Confluence Base URL."
         readOnly={false}
-        removeValidation={[Function]}
         required={true}
         type="text"
         value=""
@@ -65,7 +61,6 @@ exports[`components/ChannelSettingsModal subscription modal snapshot test 1`] = 
           }
         >
           <ConfluenceField
-            addValidation={[Function]}
             fieldType="dropDown"
             formControlStyle={Object {}}
             formGroupStyle={
@@ -92,7 +87,6 @@ exports[`components/ChannelSettingsModal subscription modal snapshot test 1`] = 
               ]
             }
             readOnly={false}
-            removeValidation={[Function]}
             required={true}
             theme={Object {}}
             value={
@@ -103,7 +97,6 @@ exports[`components/ChannelSettingsModal subscription modal snapshot test 1`] = 
             }
           />
           <ConfluenceField
-            addValidation={[Function]}
             fieldType="input"
             formControlStyle={
               Object {
@@ -119,14 +112,12 @@ exports[`components/ChannelSettingsModal subscription modal snapshot test 1`] = 
             onChange={[Function]}
             placeholder="Enter the Confluence Space Key."
             readOnly={false}
-            removeValidation={[Function]}
             required={true}
             type="text"
             value=""
           />
         </div>
         <ConfluenceField
-          addValidation={[Function]}
           fieldType="dropDown"
           formControlStyle={Object {}}
           formGroupStyle={Object {}}
@@ -167,7 +158,6 @@ exports[`components/ChannelSettingsModal subscription modal snapshot test 1`] = 
             ]
           }
           readOnly={false}
-          removeValidation={[Function]}
           required={true}
           theme={Object {}}
           value={

@@ -6,12 +6,11 @@ import {Provider} from 'react-redux';
 
 import {configureStore} from 'tests/setup';
 
-import ConfluenceInstanceSelector from './confluence_instance_selector';
+import ConfluenceInstanceSelector from '.';
 
 describe('components/ConfluenceInstanceSelector', () => {
     const initialState = {};
     const baseProps = {
-        theme: {},
         selectedInstanceID: 'test-spaceKey',
         onInstanceChange: jest.fn(),
     };
@@ -23,7 +22,33 @@ describe('components/ConfluenceInstanceSelector', () => {
         const store = mockStore(initialState);
         const wrapper = shallow(
             <Provider store={store} >
-                <ConfluenceInstanceSelector {...props}/>
+                <ConfluenceInstanceSelector theme={{
+                    type: undefined,
+                    sidebarBg: '',
+                    sidebarText: '',
+                    sidebarUnreadText: '',
+                    sidebarTextHoverBg: '',
+                    sidebarTextActiveBorder: '',
+                    sidebarTextActiveColor: '',
+                    sidebarHeaderBg: '',
+                    sidebarHeaderTextColor: '',
+                    onlineIndicator: '',
+                    awayIndicator: '',
+                    dndIndicator: '',
+                    mentionBg: '',
+                    mentionBj: '',
+                    mentionColor: '',
+                    centerChannelBg: '',
+                    centerChannelColor: '',
+                    newMessageSeparator: '',
+                    linkColor: '',
+                    buttonBg: '',
+                    buttonColor: '',
+                    errorTextColor: '',
+                    mentionHighlightBg: '',
+                    mentionHighlightLink: '',
+                    codeTheme: ''
+                }} {...props}/>
             </Provider>,
         );
         expect(wrapper).toMatchSnapshot();

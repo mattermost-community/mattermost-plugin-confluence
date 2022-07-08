@@ -1,7 +1,9 @@
 import React, {useEffect, useCallback} from 'react';
-import {Form, FormGroup, HelpBlock, ControlLabel, FormControl} from 'react-bootstrap';
+import {Form, FormControl, FormGroup} from 'react-bootstrap';
 
 import {ConfluenceConfig} from '../../types';
+
+import './style.scss';
 
 type Props = {
     state: ConfluenceConfig
@@ -12,17 +14,17 @@ type Props = {
 }
 
 export default function TokenForm({state, errors, setState, setErrors, reset}: Props) {
-    const handleURLChange = useCallback((e: React.ChangeEvent<FormControl & HTMLInputElement>) => {
+    const handleURLChange = useCallback((e: React.ChangeEvent<typeof FormControl & HTMLInputElement>) => {
         setState({...state, serverURL: e.target.value});
         setErrors({...errors, serverURL: ''});
     }, [errors, setErrors, setState, state]);
 
-    const handleClientIDChange = useCallback((e: React.ChangeEvent<FormControl & HTMLInputElement>) => {
+    const handleClientIDChange = useCallback((e: React.ChangeEvent<typeof FormControl & HTMLInputElement>) => {
         setState({...state, clientID: e.target.value});
         setErrors({...errors, clientID: ''});
     }, [errors, setErrors, setState, state]);
 
-    const handleClientSecretChange = useCallback((e: React.ChangeEvent<FormControl & HTMLInputElement>) => {
+    const handleClientSecretChange = useCallback((e: React.ChangeEvent<typeof FormControl & HTMLInputElement>) => {
         setState({...state, clientSecret: e.target.value});
         setErrors({...errors, clientSecret: ''});
     }, [errors, setErrors, setState, state]);
@@ -33,43 +35,69 @@ export default function TokenForm({state, errors, setState, setErrors, reset}: P
 
     return (
         <Form>
-            <FormGroup validationState={errors.serverURL ? 'error' : null}>
-                <ControlLabel>
+            <FormGroup>
+                {/* Removed "ControlLabel" component from here, as it was used in older versions of react-bootstrap
+                and "FormLabel" component was also not working, so updated it with the "label" component
+                and using className prop to use "FormLabel" styling. */}
+                <label
+                    className={`form-label ${errors.serverURL ? 'text-danger' : ''}`}
+                >
                     {'Server URL'}
-                </ControlLabel>
+                </label>
                 <FormControl
+                    className={errors.serverURL ? 'error' : ''}
                     type='text'
                     value={state.serverURL}
                     onChange={handleURLChange}
                     placeholder='<https://example.com>'
                 />
-                <HelpBlock>{errors.serverURL && <p>{`* ${errors.serverURL}`}</p>}</HelpBlock>
+                {/* Removed "HelpBlock" component from here, as it was used in older versions of react-bootstrap
+                and "FormText" component was also not working, so updated it with the "small" component
+                and using className prop to use "FormText" styling. */}
+                <small
+                    className={errors.serverURL ? 'form-text text-danger' : ''}
+                >
+                    {errors.serverURL && <p>{`* ${errors.serverURL}`}</p>}
+                </small>
             </FormGroup>
-            <FormGroup validationState={errors.clientID ? 'error' : null}>
-                <ControlLabel >
+            <FormGroup>
+                <label
+                    className={`form-label ${errors.clientID ? 'text-danger' : ''}`}
+                >
                     {'Client ID'}
-                </ControlLabel>
+                </label>
                 <FormControl
+                    className={errors.clientID ? 'error' : ''}
                     type='text'
                     value={state.clientID}
                     onChange={handleClientIDChange}
                     placeholder='<client-id>'
                 />
-                <HelpBlock>{errors.clientID && <p>{`* ${errors.clientID}`}</p>}</HelpBlock>
+                <small
+                    className={errors.clientID ? 'form-text text-danger' : ''}
+                >
+                    {errors.clientID && <p>{`* ${errors.clientID}`}</p>}
+                </small>
             </FormGroup>
-            <FormGroup validationState={errors.clientSecret ? 'error' : null}>
-                <ControlLabel >
+            <FormGroup>
+                <label
+                    className={`{form-label ${errors.clientSecret ? 'text-danger' : ''}`}
+                >
                     {'Client Secret'}
-                </ControlLabel>
+                </label>
                 <FormControl
+                    className={errors.clientSecret ? 'error' : ''}
                     type='text'
                     value={state.clientSecret}
                     onChange={handleClientSecretChange}
                     placeholder='<client-secret>'
                 />
-                <HelpBlock>{errors.clientSecret && <p>{`* ${errors.clientSecret}`}</p>}</HelpBlock>
+                <small
+                    className={errors.clientSecret ? 'form-text text-danger' : ''}
+                >
+                    {errors.clientSecret && <p>{`* ${errors.clientSecret}`}</p>}
+                </small>
             </FormGroup>
         </Form>
     );
 }
-

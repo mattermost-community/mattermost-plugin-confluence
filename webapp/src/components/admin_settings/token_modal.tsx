@@ -1,5 +1,5 @@
 import React, {useState} from 'react';
-import {Modal, Button} from 'react-bootstrap';
+import {Button, Modal} from 'react-bootstrap';
 
 import {ConfluenceConfig} from '../../types';
 
@@ -74,7 +74,10 @@ export default function TokenModal({open, edit, value, handleClose, onSave, entr
                 <Button onClick={closeHandler}>{'Close'}</Button>
                 <Button
                     onClick={onSubmit}
-                    bsStyle='primary'
+
+                    // Removed "bsStyle" prop from here, as it was used in older versions of react-bootstrap
+                    // and "variant" prop was also not working, so updated it with the className prop.
+                    className='btn btn-primary'
                 >
                     {'Save'}
                 </Button>

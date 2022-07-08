@@ -78,12 +78,12 @@ func (si *serverInstance) GetOAuth2Config(isAdmin bool) (*oauth2.Config, error) 
 }
 
 func (si *serverInstance) GetClient(connection *Connection) (Client, error) {
-	token, err := si.Plugin.ParseAuthToken(connection.OAuth2Token)
+	oconf, err := si.GetOAuth2Config(connection.IsAdmin)
 	if err != nil {
 		return nil, err
 	}
 
-	oconf, err := si.GetOAuth2Config(connection.IsAdmin)
+	token, err := si.Plugin.refreshAndStoreToken(connection, si.InstanceID, oconf)
 	if err != nil {
 		return nil, err
 	}

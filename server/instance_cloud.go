@@ -80,15 +80,16 @@ func cloudManageWebhooksURL(confluenceURL string) string {
 }
 
 func (ci *cloudInstance) GetClient(connection *Connection) (Client, error) {
-	token, err := ci.Plugin.ParseAuthToken(connection.OAuth2Token)
-	if err != nil {
-		return nil, err
-	}
-
 	oconf, err := ci.GetOAuth2Config(connection.IsAdmin)
 	if err != nil {
 		return nil, err
 	}
+
+	token, err := ci.Plugin.refreshAndStoreToken(connection, ci.InstanceID, oconf)
+	if err != nil {
+		return nil, err
+	}
+
 	httpClient := oconf.Client(context.Background(), token)
 
 	baseURL := "https://api.atlassian.com"

@@ -6,6 +6,7 @@ import (
 	"net/http"
 	"strconv"
 	"strings"
+	"time"
 
 	"github.com/mattermost/mattermost-server/v6/model"
 	"github.com/pkg/errors"
@@ -55,6 +56,7 @@ type Connection struct {
 	OAuth2Token       string `json:"token,omitempty"`
 	DefaultProjectKey string `json:"default_project_key,omitempty"`
 	IsAdmin           bool   `json:"is_admin,omitempty"`
+	MattermostUserID  string `json:"mattermost_user_id,omitempty"`
 }
 
 func (c *Connection) ConfluenceAccountID() types.ID {
@@ -79,7 +81,7 @@ func (p *Plugin) httpOAuth2Connect(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	isAdminParam := r.URL.Query().Get("admin")
+	isAdminParam := r.URL.Query().Get(AdminMattermostUserID)
 	if isAdminParam == "" {
 		http.Error(w, "missing isAdmin query param", http.StatusBadRequest)
 		return
@@ -127,7 +129,7 @@ func (p *Plugin) getUserConnectURL(instance Instance, mattermostUserID string, i
 	}
 	state := fmt.Sprintf("%v_%v", model.NewId()[0:15], mattermostUserID)
 	if isAdmin {
-		state = fmt.Sprintf("%v_%v", state, "admin")
+		state = fmt.Sprintf("%v_%v", state, AdminMattermostUserID)
 	}
 	err = p.otsStore.StoreOAuth2State(state)
 	if err != nil {
@@ -184,7 +186,7 @@ func (p *Plugin) httpOAuth2Complete(w http.ResponseWriter, r *http.Request) {
 	}
 
 	isAdmin := false
-	if strings.Contains(state, "admin") {
+	if strings.Contains(state, AdminMattermostUserID) {
 		isAdmin = true
 	}
 
@@ -235,9 +237,10 @@ func (p *Plugin) CompleteOAuth2(mattermostUserID, code, state string, instance I
 	}
 
 	connection := &Connection{
-		PluginVersion: manifest.Version,
-		OAuth2Token:   encryptedToken,
-		IsAdmin:       isAdmin,
+		PluginVersion:    manifest.Version,
+		OAuth2Token:      encryptedToken,
+		IsAdmin:          isAdmin,
+		MattermostUserID: mattermostUserID,
 	}
 
 	client, err := instance.GetClient(connection)
@@ -363,7 +366,7 @@ func (p *Plugin) connectUser(instance Instance, mattermostUserID types.ID, conne
 		if _, _, err := client.(*confluenceServerClient).CheckConfluenceAdmin(); err != nil {
 			return errors.New("user is not a confluence admin")
 		}
-		if err = p.userStore.StoreConnection(instance.GetID(), "admin", connection); err != nil {
+		if err = p.userStore.StoreConnection(instance.GetID(), AdminMattermostUserID, connection); err != nil {
 			return err
 		}
 	}
@@ -488,7 +491,7 @@ func (p *Plugin) HasPermissionToManageSubscriptionForConfluenceSide(instanceID, 
 }
 
 func (p *Plugin) CreateWebhook(instance Instance, subscription serializer.Subscription, userID string) error {
-	adminConn, err := p.userStore.LoadConnection(types.ID(instance.GetURL()), types.ID("admin"))
+	adminConn, err := p.userStore.LoadConnection(types.ID(instance.GetURL()), types.ID(AdminMattermostUserID))
 	if err != nil {
 		return err
 	}
@@ -551,4 +554,47 @@ func GetRequestBodyForCreatePage(spaceKey string, pageDetails *serializer.PageDe
 			},
 		},
 	}
+}
+
+// refreshAndStoreToken checks whether the current access token is expired or not. If it is,
+// then it refreshes the token and stores the new pair of access and refresh tokens in kv store.
+func (p *Plugin) refreshAndStoreToken(connection *Connection, instanceID types.ID, oconf *oauth2.Config) (*oauth2.Token, error) {
+	token, err := p.ParseAuthToken(connection.OAuth2Token)
+	if err != nil {
+		return nil, err
+	}
+
+	// If there is only one minute left for the token to expire, we are refreshing the token.
+	// We don't want the token to expire between the time when we decide that the old token is valid
+	// and the time at which we create the request. We are handling that by not letting the token expire.
+	if time.Until(token.Expiry) > 1*time.Minute {
+		return token, nil
+	}
+
+	src := oconf.TokenSource(context.Background(), token)
+	newToken, err := src.Token() // this actually goes and renews the tokens
+	if err != nil {
+		return nil, errors.Wrap(err, "unable to get the new refreshed token")
+	}
+	if newToken.AccessToken != token.AccessToken {
+		encryptedToken, err := p.NewEncodedAuthToken(newToken)
+		if err != nil {
+			return nil, err
+		}
+		connection.OAuth2Token = encryptedToken
+
+		err = p.userStore.StoreConnection(instanceID, types.ID(connection.MattermostUserID), connection)
+		if err != nil {
+			return nil, err
+		}
+
+		if connection.IsAdmin {
+			if err = p.userStore.StoreConnection(instanceID, AdminMattermostUserID, connection); err != nil {
+				return nil, err
+			}
+		}
+		return newToken, nil
+	}
+
+	return token, nil
 }
