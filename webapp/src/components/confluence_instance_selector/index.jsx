@@ -1,39 +1,35 @@
-import React, {useEffect, useState} from 'react';
+import React, {useCallback} from 'react';
 import {useSelector} from 'react-redux';
 
 import PropTypes from 'prop-types';
 
 import Validator from '../validator';
 import ReactSelectSetting from '../react_select_setting';
-import selectors from 'src/selectors';
+import selectors from '../../selectors';
 
 const ConfluenceInstanceSelector = (props) => {
     const validator = new Validator();
 
-    const isInstalledInstances = useSelector((state) => selectors.isInstalledInstances(state));
+    const installedInstances = useSelector((state) => selectors.isInstalledInstances(state));
 
-    const [installedInstancesOptions, setInstalledInstancesOptions] = useState([]);
+    const getInstanceOptions = useCallback(() => {
+        return installedInstances?.map((instance) => ({label: instance.instance_id, value: instance.instance_id}));
+    }, [installedInstances]);
 
-    useEffect(() => {
-        const issueOptions = isInstalledInstances?.map((it) => ({label: it.instance_id, value: it.instance_id}));
-        setInstalledInstancesOptions(issueOptions);
-    }, [isInstalledInstances]);
-
-    const handleEvents = (_, instanceID) => {
-        if (instanceID === props.selectedInstanceID) {
-            return;
+    const handleEvents = useCallback((_, instanceID) => {
+        if (instanceID !== props.selectedInstanceID) {
+            props.onInstanceChange(instanceID);
         }
-        props.onInstanceChange(instanceID);
-    };
+    }, [props.selectedInstanceID]);
 
     return (
         <React.Fragment>
             <ReactSelectSetting
                 name={'instance'}
                 label={'Instance'}
-                options={installedInstancesOptions}
+                options={getInstanceOptions()}
                 onChange={handleEvents}
-                value={installedInstancesOptions.find((option) => option.value === props.selectedInstanceID)}
+                value={getInstanceOptions().find((option) => option.value === props.selectedInstanceID)}
                 required={true}
                 theme={props.theme}
                 addValidate={validator.addComponent}

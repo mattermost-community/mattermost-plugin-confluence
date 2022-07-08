@@ -33,7 +33,7 @@ export const spacesForConfluenceURL = (state = {}, action) => {
     switch (action.type) {
     case Constants.ACTION_TYPES.RECEIVED_CONFLUENCE_INSTANCE:
         return {
-            spaces: action.data ? action.data : [],
+            spaces: action.data ?? [],
         };
     default:
         return state;

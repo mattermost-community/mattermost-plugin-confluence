@@ -14,6 +14,6 @@ type RESTService interface {
 	GetSelf() (*ConfluenceUser, error)
 	GetSpaceData(string) (*SpaceResponse, error)
 	GetUserGroups(*Connection) ([]*UserGroup, error)
-	GetSpacesForConfluenceURL() ([]*SpaceForConfluenceURL, error)
-	CreatePage(string, *serializer.PageDetails) (*CreatePageResponse, error)
+	GetSpaces() ([]*Spaces, error)
+	CreatePage(spaceKey string, pageDetails *serializer.PageDetails) (*CreatePageResponse, int, error)
 }

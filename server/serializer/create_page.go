@@ -8,9 +8,9 @@ type PageDetails struct {
 }
 
 func PageDetailsFromJSON(body []byte) (*PageDetails, error) {
-	var pd PageDetails
-	if err := json.Unmarshal(body, &pd); err != nil {
+	var pageDetails PageDetails
+	if err := json.Unmarshal(body, &pageDetails); err != nil {
 		return nil, err
 	}
-	return &pd, nil
+	return &pageDetails, nil
 }

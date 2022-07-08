@@ -104,12 +104,12 @@ export const getStyleForReactSelect = (theme) => {
 
 export const getModalStyles = (theme) => ({
     modalBody: {
-        padding: '2em 2em 3em',
+        padding: '32px 32px 48px',
         color: theme.centerChannelColor,
         backgroundColor: theme.centerChannelBg,
     },
     modalFooter: {
-        padding: '2rem 15px',
+        padding: '32px 15px',
     },
     descriptionArea: {
         height: 'auto',

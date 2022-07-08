@@ -5,36 +5,30 @@ import (
 	"net/http"
 
 	"github.com/mattermost/mattermost-plugin-confluence/server/config"
-	"github.com/mattermost/mattermost-plugin-confluence/server/utils/types"
 )
 
 func (p *Plugin) handleGetSpacesForConfluenceURL(w http.ResponseWriter, r *http.Request) {
 	userID := r.Header.Get(config.HeaderMattermostUserID)
 
-	instance, err := p.getInstanceFromURL(r.URL.Path)
+	client, err := p.GetClientFromURL(r.URL.Path, userID)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
 
-	conn, err := p.userStore.LoadConnection(types.ID(instance.GetURL()), types.ID(userID))
+	spaces, err := client.GetSpaces()
 	if err != nil {
-		p.LogAndRespondError(w, http.StatusInternalServerError, "error in loading connection.", err)
+		p.LogAndRespondError(w, http.StatusInternalServerError, "not able to get spaces for confluence url.", err)
+		return
+	}
+	responseBody, err := json.Marshal(spaces)
+	if err != nil {
+		p.LogAndRespondError(w, http.StatusInternalServerError, "failed to marshal confluence spaces.", err)
 		return
 	}
 
-	client, err := instance.GetClient(conn)
-	if err != nil {
-		p.LogAndRespondError(w, http.StatusInternalServerError, "not able to get Client.", err)
-		return
-	}
-
-	spaces, err := client.GetSpacesForConfluenceURL()
-	if err != nil {
-		p.LogAndRespondError(w, http.StatusInternalServerError, "not able to get Spaces for confluence url.", err)
-		return
-	}
-	b, _ := json.Marshal(spaces)
 	w.Header().Set("Content-Type", "application/json")
-	_, _ = w.Write([]byte(string(b)))
+	if _, err := w.Write(responseBody); err != nil {
+		_, _ = w.Write([]byte(string(responseBody)))
+	}
 }

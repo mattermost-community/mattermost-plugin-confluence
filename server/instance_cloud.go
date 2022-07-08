@@ -50,6 +50,7 @@ func (ci *cloudInstance) GetOAuth2Config(isAdmin bool) (*oauth2.Config, error) {
 		ClientSecret: config.ClientSecret,
 		RedirectURL:  fmt.Sprintf("%s%s", ci.GetPluginURL(), instancePath(routeUserComplete, ci.InstanceID)),
 		Scopes: []string{
+			"offline_access",
 			"read:confluence-user",
 			"read:confluence-content.all",
 			"read:content-details:confluence",

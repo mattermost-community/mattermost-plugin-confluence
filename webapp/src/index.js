@@ -5,7 +5,7 @@ import reducer from './reducers';
 
 import SubscriptionModal from './components/subscription_modal';
 import TokenSetting from './components/admin_settings/token_setting';
-import CreateConfluencePage from './components/create_confluence_page_modal/create_confluence_page_modal';
+import CreateConfluencePage from './components/create_confluence_page_modal';
 
 //
 // Define the plugin class that will register

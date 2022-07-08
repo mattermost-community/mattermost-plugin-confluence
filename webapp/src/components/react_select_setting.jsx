@@ -36,7 +36,6 @@ export default class ReactSelectSetting extends React.PureComponent {
 
     constructor(props) {
         super(props);
-
         this.state = {invalid: false};
     }
 
@@ -53,7 +52,7 @@ export default class ReactSelectSetting extends React.PureComponent {
     }
 
     componentDidUpdate(prevProps, prevState) {
-        if (prevState.invalid && (this.props.value && this.props.value.value) !== (prevProps.value && prevProps.value.value)) {
+        if (prevState.invalid && this.props.value?.value !== prevProps.value?.value) {
             this.setState({invalid: false}); //eslint-disable-line react/no-did-update-set-state
         }
     }
@@ -63,8 +62,7 @@ export default class ReactSelectSetting extends React.PureComponent {
             if (Array.isArray(value)) {
                 this.props.onChange(this.props.name, value.map((x) => x.value));
             } else {
-                const newValue = value ? value.value : null;
-                this.props.onChange(this.props.name, newValue);
+                this.props.onChange(this.props.name, value?.value);
             }
         }
 
@@ -88,18 +86,17 @@ export default class ReactSelectSetting extends React.PureComponent {
         }
 
         const valid = Boolean(this.props.value);
-
         this.setState({invalid: !valid});
         return valid;
     };
 
     render() {
-        const requiredMsg = 'This field is required.';
+        const requiredMessage = 'This field is required.';
         let validationError = null;
         if (this.props.required && this.state.invalid) {
             validationError = (
                 <p className='help-text error-text'>
-                    <span>{requiredMsg}</span>
+                    <span>{requiredMessage}</span>
                 </p>
             );
         }
