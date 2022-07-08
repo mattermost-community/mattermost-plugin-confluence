@@ -26,11 +26,11 @@ const (
 )
 
 const (
-	Comment    = "comment"
-	Space      = "space"
-	Page       = "page"
-	Limit      = "limit"
-	UserName   = "username"
+	Comment           = "comment"
+	Space             = "space"
+	Page              = "page"
+	Limit             = "limit"
+	UserName          = "username"
 	DefaultSpaceLimit = 100
 )
 

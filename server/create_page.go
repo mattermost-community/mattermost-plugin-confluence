@@ -36,13 +36,13 @@ func (p *Plugin) handleCreatePage(w http.ResponseWriter, r *http.Request) {
 
 	pageDetails, err := serializer.PageDetailsFromJSON(body)
 	if err != nil {
-		p.LogAndRespondError(w, http.StatusInternalServerError, "error decoding request body for page details.", err)
+		p.LogAndRespondError(w, http.StatusInternalServerError, "Error decoding request body for page details.", err)
 		return
 	}
 
 	createPageResponse, statusCode, err := client.CreatePage(spaceKey, pageDetails)
 	if err != nil {
-		p.LogAndRespondError(w, statusCode, "not able to create page.", err)
+		p.LogAndRespondError(w, statusCode, "Not able to create page.", err)
 		return
 	}
 

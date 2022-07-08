@@ -108,7 +108,7 @@ func (p *Plugin) handleEditChannelSubscription(w http.ResponseWriter, r *http.Re
 	}
 
 	if err := p.DeleteSubscription(subscription.GetChannelID(), oldSubscription.GetAlias(), userID); err != nil {
-		p.LogAndRespondError(w, http.StatusBadRequest, "not able to delete subscription.", err)
+		p.LogAndRespondError(w, http.StatusBadRequest, "Not able to delete subscription.", err)
 		return
 	}
 
