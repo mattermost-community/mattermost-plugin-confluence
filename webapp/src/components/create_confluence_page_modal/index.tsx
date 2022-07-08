@@ -40,7 +40,7 @@ const CreateConfluencePage = (theme: Theme) => {
     const [saving, setSaving] = useState<boolean>(false);
     const [error, setError] = useState<string>('');
     const validator = useMemo(() => (new Validator()), []);
-    const getTheme = useMemo(() => (getModalStyles(theme)), [theme]);
+    const styles = useMemo(() => getModalStyles(theme), [theme]);
 
     const getSpaces = useCallback(async () => {
         const response = await getSpacesForConfluenceURL(instanceID)(dispatch);
@@ -148,7 +148,7 @@ const CreateConfluencePage = (theme: Theme) => {
             <Modal.Header closeButton={true}>
                 <Modal.Title>{'Create Confluence Page'}</Modal.Title>
             </Modal.Header>
-            <Modal.Body style={getTheme.modalBody}>
+            <Modal.Body style={styles.modalBody}>
                 <ConfluenceInstanceSelector
                     theme={theme}
                     selectedInstanceID={instanceID}
@@ -203,7 +203,7 @@ const CreateConfluencePage = (theme: Theme) => {
             </Modal.Body>
 
             {spaceKey && (
-                <Modal.Footer style={getTheme.modalFooter}>
+                <Modal.Footer style={styles.modalFooter}>
                     <Button
                         type='button'
 
@@ -216,9 +216,6 @@ const CreateConfluencePage = (theme: Theme) => {
                     </Button>
                     <Button
                         type='submit'
-
-                        // Removed "bsStyle" prop from here, as it was used in older versions of react-bootstrap
-                        // and "variant" prop was also not working, so updated it with the className prop.
                         className='btn btn-primary'
                         onClick={handleSubmit}
                         disabled={saving}

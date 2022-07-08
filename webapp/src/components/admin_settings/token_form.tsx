@@ -36,10 +36,9 @@ export default function TokenForm({state, errors, setState, setErrors, reset}: P
     return (
         <Form>
             <FormGroup>
-
                 {/* Removed "ControlLabel" component from here, as it was used in older versions of react-bootstrap
                 and "FormLabel" component was also not working, so updated it with the "label" component
-                and using className prop to use "FormLabel" component. */}
+                and using className prop to use "FormLabel" styling. */}
                 <label
                     className={`form-label ${errors.serverURL ? 'text-danger' : ''}`}
                 >
@@ -54,7 +53,7 @@ export default function TokenForm({state, errors, setState, setErrors, reset}: P
                 />
                 {/* Removed "HelpBlock" component from here, as it was used in older versions of react-bootstrap
                 and "FormText" component was also not working, so updated it with the "small" component
-                and using className prop to use "FormText" component. */}
+                and using className prop to use "FormText" styling. */}
                 <small
                     className={errors.serverURL ? 'form-text text-danger' : ''}
                 >
@@ -62,9 +61,6 @@ export default function TokenForm({state, errors, setState, setErrors, reset}: P
                 </small>
             </FormGroup>
             <FormGroup>
-                {/* Removed "ControlLabel" component from here, as it was used in older versions of react-bootstrap
-                and "FormLabel" component was also not working, so updated it with the "label" component
-                and using className prop to use "FormLabel" component. */}
                 <label
                     className={`form-label ${errors.clientID ? 'text-danger' : ''}`}
                 >
@@ -77,9 +73,6 @@ export default function TokenForm({state, errors, setState, setErrors, reset}: P
                     onChange={handleClientIDChange}
                     placeholder='<client-id>'
                 />
-                {/* Removed "HelpBlock" component from here, as it was used in older versions of react-bootstrap
-                and "FormText" component was also not working, so updated it with the "small" component
-                and using className prop to use "FormText" component. */}
                 <small
                     className={errors.clientID ? 'form-text text-danger' : ''}
                 >
@@ -87,9 +80,6 @@ export default function TokenForm({state, errors, setState, setErrors, reset}: P
                 </small>
             </FormGroup>
             <FormGroup>
-                {/* Removed "ControlLabel" component from here, as it was used in older versions of react-bootstrap
-                and "FormLabel" component was also not working, so updated it with the "label" component
-                and using className prop to use "FormLabel" component. */}
                 <label
                     className={`{form-label ${errors.clientSecret ? 'text-danger' : ''}`}
                 >
@@ -102,9 +92,6 @@ export default function TokenForm({state, errors, setState, setErrors, reset}: P
                     onChange={handleClientSecretChange}
                     placeholder='<client-secret>'
                 />
-                {/* Removed "HelpBlock" component from here, as it was used in older versions of react-bootstrap
-                and "FormText" component was also not working, so updated it with the "small" component
-                and using className prop to use "FormText" component. */}
                 <small
                     className={errors.clientSecret ? 'form-text text-danger' : ''}
                 >
