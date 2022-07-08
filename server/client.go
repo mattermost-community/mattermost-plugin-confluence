@@ -11,9 +11,9 @@ type Client interface {
 // Endpoint can be a "short" API URL path, including the version desired, like "v3/user",
 // or a fully-qualified URL, with a non-empty scheme.
 type RESTService interface {
-	GetSelf() (*ConfluenceUser, error)
-	GetSpaceData(string) (*SpaceResponse, error)
-	GetUserGroups(*Connection) ([]*UserGroup, error)
-	GetSpaces() ([]*Spaces, error)
+	GetSelf() (*ConfluenceUser, int, error)
+	GetSpaceData(string) (*SpaceResponse, int, error)
+	GetUserGroups(*Connection) ([]*UserGroup, int, error)
+	GetSpaces() ([]*Spaces, int, error)
 	CreatePage(spaceKey string, pageDetails *serializer.PageDetails) (*CreatePageResponse, int, error)
 }

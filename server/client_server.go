@@ -19,16 +19,19 @@ const (
 	PathPageData               = "/rest/api/content/%s?status=any&expand=body.view,container,space,history"
 	PathSpaceData              = "/rest/api/space/%s?status=any"
 	PathDeleteWebhook          = "/rest/api/webhooks/%s"
-	PathGetUserGroupsForServer = "/rest/api/user/memberof?username=%s"
+	PathGetUserGroupsForServer = "/rest/api/user/memberof"
 	PathAdminData              = "/rest/api/audit/retention"
-	PathGetSpacesForServer     = "/rest/api/space?limit=100"
+	PathGetSpacesForServer     = "/rest/api/space"
 	PathCreatePageForServer    = "/rest/api/content"
 )
 
 const (
-	Comment = "comment"
-	Space   = "space"
-	Page    = "page"
+	Comment    = "comment"
+	Space      = "space"
+	Page       = "page"
+	Limit      = "limit"
+	UserName   = "username"
+	DefaultSpaceLimit = 100
 )
 
 var webhookEvents = []string{"space_created", "space_removed", "space_updated",
@@ -162,7 +165,7 @@ func newServerClient(url string, httpClient *http.Client) Client {
 	}
 }
 
-func (csc *confluenceServerClient) CreateWebhook(subscription serializer.Subscription, redirectURL, secret string) (*WebhookResponse, error) {
+func (csc *confluenceServerClient) CreateWebhook(subscription serializer.Subscription, redirectURL, secret string) (*WebhookResponse, int, error) {
 	requestBody := &CreateWebhookRequestBody{
 		Name:   subscription.GetAlias(),
 		Events: webhookEvents,
@@ -175,36 +178,36 @@ func (csc *confluenceServerClient) CreateWebhook(subscription serializer.Subscri
 	webhookResponse := &WebhookResponse{}
 	url, err := utils.GetEndpointURL(csc.URL, PathCreateWebhook)
 	if err != nil {
-		return nil, errors.Wrap(err, "confluence CreateWebhook")
+		return nil, http.StatusInternalServerError, errors.Wrap(err, "confluence CreateWebhook")
 	}
-	_, err = utils.CallJSON(csc.URL, http.MethodPost, url, requestBody, webhookResponse, csc.HTTPClient)
+	_, statusCode, err := utils.CallJSON(csc.URL, http.MethodPost, url, requestBody, webhookResponse, csc.HTTPClient)
 	if err != nil {
-		return nil, errors.Wrap(err, "confluence CreateWebhook")
+		return nil, statusCode, errors.Wrap(err, "confluence CreateWebhook")
 	}
-	return webhookResponse, nil
+	return webhookResponse, statusCode, nil
 }
 
-func (csc *confluenceServerClient) DeleteWebhook(webhookID string) error {
+func (csc *confluenceServerClient) DeleteWebhook(webhookID string) (int, error) {
 	url, err := utils.GetEndpointURL(csc.URL, fmt.Sprintf(PathDeleteWebhook, webhookID))
 	if err != nil {
-		return errors.Wrap(err, "confluence DeleteWebhook")
+		return http.StatusInternalServerError, errors.Wrap(err, "confluence DeleteWebhook")
 	}
-	_, err = utils.CallJSON(csc.URL, http.MethodDelete, url, nil, nil, csc.HTTPClient)
+	_, statusCode, err := utils.CallJSON(csc.URL, http.MethodDelete, url, nil, nil, csc.HTTPClient)
 	if err != nil && err.Error() != utils.ErrorStatusNotFound {
-		return errors.Wrap(err, "confluence DeleteWebhook")
+		return statusCode, errors.Wrap(err, "confluence DeleteWebhook")
 	}
-	return nil
+	return statusCode, nil
 }
 
-func (csc *confluenceServerClient) GetSelf() (*ConfluenceUser, error) {
+func (csc *confluenceServerClient) GetSelf() (*ConfluenceUser, int, error) {
 	confluenceServerUser := &ConfluenceServerUser{}
 	url, err := utils.GetEndpointURL(csc.URL, PathCurrentUser)
 	if err != nil {
-		return nil, errors.Wrap(err, "confluence GetSelf")
+		return nil, http.StatusInternalServerError, errors.Wrap(err, "confluence GetSelf")
 	}
-	_, err = utils.CallJSON(csc.URL, http.MethodGet, url, nil, confluenceServerUser, csc.HTTPClient)
+	_, statusCode, err := utils.CallJSON(csc.URL, http.MethodGet, url, nil, confluenceServerUser, csc.HTTPClient)
 	if err != nil {
-		return nil, errors.Wrap(err, "confluence GetSelf")
+		return nil, statusCode, errors.Wrap(err, "confluence GetSelf")
 	}
 
 	confluenceUser := &ConfluenceUser{
@@ -213,116 +216,130 @@ func (csc *confluenceServerClient) GetSelf() (*ConfluenceUser, error) {
 		DisplayName: confluenceServerUser.DisplayName,
 	}
 
-	return confluenceUser, nil
+	return confluenceUser, statusCode, nil
 }
 
-func (csc *confluenceServerClient) GetEventData(webhookPayload *serializer.ConfluenceServerWebhookPayload) (*ConfluenceServerEvent, error) {
+func (csc *confluenceServerClient) GetEventData(webhookPayload *serializer.ConfluenceServerWebhookPayload) (*ConfluenceServerEvent, int, error) {
 	var confluenceServerEvent ConfluenceServerEvent
 	var err error
+	var statusCode int
 	if strings.Contains(webhookPayload.Event, Comment) {
-		confluenceServerEvent.Comment, err = csc.GetCommentData(webhookPayload)
+		confluenceServerEvent.Comment, statusCode, err = csc.GetCommentData(webhookPayload)
 		if err != nil {
-			return nil, errors.Wrap(err, "confluence GetEventData")
+			return nil, statusCode, errors.Wrap(err, "confluence GetEventData")
 		}
 	}
 	if strings.Contains(webhookPayload.Event, Page) {
-		confluenceServerEvent.Page, err = csc.GetPageData(webhookPayload)
+		confluenceServerEvent.Page, statusCode, err = csc.GetPageData(webhookPayload)
 		if err != nil {
-			return nil, errors.Wrap(err, "confluence GetEventData")
+			return nil, statusCode, errors.Wrap(err, "confluence GetEventData")
 		}
 	}
 	if strings.Contains(webhookPayload.Event, Space) {
-		confluenceServerEvent.Space, err = csc.GetSpaceData(webhookPayload.Space.SpaceKey)
+		confluenceServerEvent.Space, statusCode, err = csc.GetSpaceData(webhookPayload.Space.SpaceKey)
 		if err != nil {
-			return nil, errors.Wrap(err, "confluence GetEventData")
+			return nil, statusCode, errors.Wrap(err, "confluence GetEventData")
 		}
 	}
 
-	return &confluenceServerEvent, nil
+	return &confluenceServerEvent, statusCode, nil
 }
 
-func (csc *confluenceServerClient) GetCommentData(webhookPayload *serializer.ConfluenceServerWebhookPayload) (*CommentResponse, error) {
+func (csc *confluenceServerClient) GetCommentData(webhookPayload *serializer.ConfluenceServerWebhookPayload) (*CommentResponse, int, error) {
 	commentResponse := &CommentResponse{}
 	url, err := utils.GetEndpointURL(csc.URL, fmt.Sprintf(PathCommentData, strconv.FormatInt(webhookPayload.Comment.ID, 10)))
 	if err != nil {
-		return nil, errors.Wrap(err, "confluence GetCommentData")
+		return nil, http.StatusInternalServerError, errors.Wrap(err, "confluence GetCommentData")
 	}
-	_, err = utils.CallJSON(csc.URL, http.MethodGet, url, nil, commentResponse, csc.HTTPClient)
+	_, statusCode, err := utils.CallJSON(csc.URL, http.MethodGet, url, nil, commentResponse, csc.HTTPClient)
 	if err != nil {
-		return nil, errors.Wrap(err, "confluence GetCommentData")
+		return nil, statusCode, errors.Wrap(err, "confluence GetCommentData")
 	}
 	commentResponse.Body.View.Value = utils.GetBodyForExcerpt(commentResponse.Body.View.Value)
 
-	return commentResponse, nil
+	return commentResponse, statusCode, nil
 }
 
-func (csc *confluenceServerClient) GetPageData(webhookPayload *serializer.ConfluenceServerWebhookPayload) (*PageResponse, error) {
+func (csc *confluenceServerClient) GetPageData(webhookPayload *serializer.ConfluenceServerWebhookPayload) (*PageResponse, int, error) {
 	pageResponse := &PageResponse{}
 	url, err := utils.GetEndpointURL(csc.URL, fmt.Sprintf(PathPageData, strconv.FormatInt(webhookPayload.Page.ID, 10)))
 	if err != nil {
-		return nil, errors.Wrap(err, "confluence GetPageData")
+		return nil, http.StatusInternalServerError, errors.Wrap(err, "confluence GetPageData")
 	}
-	_, err = utils.CallJSON(csc.URL, http.MethodGet, url, nil, pageResponse, csc.HTTPClient)
+	_, statusCode, err := utils.CallJSON(csc.URL, http.MethodGet, url, nil, pageResponse, csc.HTTPClient)
 	if err != nil {
-		return nil, errors.Wrap(err, "confluence GetPageData")
+		return nil, statusCode, errors.Wrap(err, "confluence GetPageData")
 	}
 	pageResponse.Body.View.Value = utils.GetBodyForExcerpt(pageResponse.Body.View.Value)
 
-	return pageResponse, nil
+	return pageResponse, statusCode, nil
 }
 
-func (csc *confluenceServerClient) GetSpaceData(spaceKey string) (*SpaceResponse, error) {
+func (csc *confluenceServerClient) GetSpaceData(spaceKey string) (*SpaceResponse, int, error) {
 	spaceResponse := &SpaceResponse{}
 	url, err := utils.GetEndpointURL(csc.URL, fmt.Sprintf(PathSpaceData, spaceKey))
 	if err != nil {
-		return nil, errors.Wrap(err, "confluence GetSpaceData")
+		return nil, http.StatusInternalServerError, errors.Wrap(err, "confluence GetSpaceData")
 	}
-	_, err = utils.CallJSON(csc.URL, http.MethodGet, url, nil, spaceResponse, csc.HTTPClient)
+	_, statusCode, err := utils.CallJSON(csc.URL, http.MethodGet, url, nil, spaceResponse, csc.HTTPClient)
 	if err != nil {
-		return nil, errors.Wrap(err, "confluence GetSpaceData")
+		return nil, statusCode, errors.Wrap(err, "confluence GetSpaceData")
 	}
 
-	return spaceResponse, nil
+	return spaceResponse, statusCode, nil
 }
 
-func (csc *confluenceServerClient) CheckConfluenceAdmin() (*AdminData, error) {
+func (csc *confluenceServerClient) CheckConfluenceAdmin() (*AdminData, int, error) {
 	adminData := &AdminData{}
 	url, err := utils.GetEndpointURL(csc.URL, PathAdminData)
 	if err != nil {
-		return nil, errors.Wrap(err, "confluence CheckConfluenceAdmin")
+		return nil, http.StatusInternalServerError, errors.Wrap(err, "confluence CheckConfluenceAdmin")
 	}
-	_, err = utils.CallJSON(csc.URL, http.MethodGet, url, nil, adminData, csc.HTTPClient)
+	_, statusCode, err := utils.CallJSON(csc.URL, http.MethodGet, url, nil, adminData, csc.HTTPClient)
 	if err != nil {
-		return nil, errors.Wrap(err, "confluence CheckConfluenceAdmin")
+		return nil, statusCode, errors.Wrap(err, "confluence CheckConfluenceAdmin")
 	}
 
-	return adminData, nil
+	return adminData, statusCode, nil
 }
 
-func (csc *confluenceServerClient) GetUserGroups(connection *Connection) ([]*UserGroup, error) {
+func (csc *confluenceServerClient) GetUserGroups(connection *Connection) ([]*UserGroup, int, error) {
 	userGroups := UserGroups{}
-	url, err := utils.GetEndpointURL(csc.URL, fmt.Sprintf(PathGetUserGroupsForServer, connection.Name))
+	url, err := utils.GetEndpointURL(csc.URL, PathGetUserGroupsForServer)
 	if err != nil {
-		return nil, errors.Wrap(err, "confluence GetUserGroups")
+		return nil, http.StatusInternalServerError, errors.Wrap(err, "confluence GetUserGroups")
 	}
-	_, err = utils.CallJSON(csc.URL, http.MethodGet, url, nil, &userGroups, csc.HTTPClient)
+	url, err = utils.AddQueryParams(url, map[string]interface{}{
+		UserName: connection.Name,
+	})
 	if err != nil {
-		return nil, errors.Wrap(err, "confluence GetUserGroups")
+		return nil, http.StatusInternalServerError, errors.Wrap(err, "confluence GetUserGroups")
 	}
-	return userGroups.Groups, nil
+	_, statusCode, err := utils.CallJSON(csc.URL, http.MethodGet, url, nil, &userGroups, csc.HTTPClient)
+	if err != nil {
+		return nil, statusCode, errors.Wrap(err, "confluence GetUserGroups")
+	}
+	return userGroups.Groups, statusCode, nil
 }
 
-func (csc *confluenceServerClient) GetSpaces() ([]*Spaces, error) {
+func (csc *confluenceServerClient) GetSpaces() ([]*Spaces, int, error) {
 	spacesForConfluenceURL := SpacesForConfluenceURL{}
 	url, err := utils.GetEndpointURL(csc.URL, PathGetSpacesForServer)
 	if err != nil {
-		return nil, errors.Wrap(err, "confluence GetSpaces")
+		return nil, http.StatusInternalServerError, errors.Wrap(err, "confluence GetSpaces")
 	}
-	_, err = utils.CallJSON(csc.URL, http.MethodGet, url, nil, &spacesForConfluenceURL, csc.HTTPClient)
+	url, err = utils.AddQueryParams(url, map[string]interface{}{
+		Limit: DefaultSpaceLimit,
+	})
 	if err != nil {
-		return nil, errors.Wrap(err, "confluence GetSpaces")
+		return nil, http.StatusInternalServerError, errors.Wrap(err, "confluence GetSpaces")
 	}
-	return spacesForConfluenceURL.Spaces, nil
+	_, statusCode, err := utils.CallJSON(csc.URL, http.MethodGet, url, nil, &spacesForConfluenceURL, csc.HTTPClient)
+	if err != nil {
+		return nil, statusCode, errors.Wrap(err, "confluence GetSpaces")
+	}
+
+	return spacesForConfluenceURL.Spaces, statusCode, nil
 }
 
 func (csc *confluenceServerClient) CreatePage(spaceKey string, pageDetails *serializer.PageDetails) (*CreatePageResponse, int, error) {
@@ -332,9 +349,9 @@ func (csc *confluenceServerClient) CreatePage(spaceKey string, pageDetails *seri
 	if err != nil {
 		return nil, http.StatusInternalServerError, errors.Wrap(err, "confluence CreatePage")
 	}
-	_, err = utils.CallJSON(csc.URL, http.MethodPost, url, requestBody, createPageResponse, csc.HTTPClient)
+	_, statusCode, err := utils.CallJSON(csc.URL, http.MethodPost, url, requestBody, createPageResponse, csc.HTTPClient)
 	if err != nil {
-		return nil, http.StatusInternalServerError, errors.Wrap(err, "confluence CreatePage")
+		return nil, statusCode, errors.Wrap(err, "confluence CreatePage")
 	}
 	return createPageResponse, http.StatusOK, nil
 }

@@ -247,7 +247,7 @@ func (p *Plugin) CompleteOAuth2(mattermostUserID, code, state string, instance I
 
 	// Fetch the cloudid for cloud instance if not already present
 	if instance.Common().Type == CloudInstanceType && instance.(*cloudInstance).CloudID == "" {
-		cloudID, err := client.(*confluenceCloudClient).GetCloudID()
+		cloudID, _, err := client.(*confluenceCloudClient).GetCloudID()
 		if err != nil {
 			return nil, nil, err
 		}
@@ -265,7 +265,7 @@ func (p *Plugin) CompleteOAuth2(mattermostUserID, code, state string, instance I
 		}
 	}
 
-	confluenceUser, err := client.GetSelf()
+	confluenceUser, _, err := client.GetSelf()
 	if err != nil {
 		return nil, nil, err
 	}
@@ -360,7 +360,7 @@ func (p *Plugin) connectUser(instance Instance, mattermostUserID types.ID, conne
 	}
 
 	if connection.IsAdmin {
-		if _, err := client.(*confluenceServerClient).CheckConfluenceAdmin(); err != nil {
+		if _, _, err := client.(*confluenceServerClient).CheckConfluenceAdmin(); err != nil {
 			return errors.New("user is not a confluence admin")
 		}
 		if err = p.userStore.StoreConnection(instance.GetID(), "admin", connection); err != nil {
@@ -475,7 +475,7 @@ func (p *Plugin) HasPermissionToManageSubscriptionForConfluenceSide(instanceID, 
 		return errors.Wrap(err, "could not get an authenticated confluence client")
 	}
 
-	groups, err := client.GetUserGroups(conn)
+	groups, _, err := client.GetUserGroups(conn)
 	if err != nil {
 		return errors.Wrap(err, "could not get confluence user groups")
 	}
@@ -506,7 +506,7 @@ func (p *Plugin) CreateWebhook(instance Instance, subscription serializer.Subscr
 	}
 
 	if totalSubscriptions == 0 {
-		resp, err := adminClient.(*confluenceServerClient).CreateWebhook(subscription, redirectURL, p.conf.Secret)
+		resp, _, err := adminClient.(*confluenceServerClient).CreateWebhook(subscription, redirectURL, p.conf.Secret)
 		if err != nil {
 			return err
 		}

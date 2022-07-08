@@ -21,9 +21,9 @@ const defaultValue: ConfluenceConfig = {
     clientSecret: '',
 };
 
-export default function TokenSetting(props: Props) {
+export default function TokenSetting({id, label, value, onChange}: Props) {
     const [state, setState] = useState({
-        values: props.value,
+        values: value,
     });
     const [editModalState, setEditModalState] = useState({open: false, edit: false, value: defaultValue, index: 0});
     const [deleteModalState, setDeleteModalState] = useState({open: false, index: 0});
@@ -38,14 +38,14 @@ export default function TokenSetting(props: Props) {
         });
     };
 
-    const handleSave = (idx: number, value: ConfluenceConfig) => {
-        const resultArr = [...props.value];
+    const handleSave = (idx: number, newValue: ConfluenceConfig) => {
+        const resultArr = [...value];
         if (idx >= resultArr.length) {
-            resultArr.push(value);
+            resultArr.push(newValue);
         } else {
-            resultArr[idx] = value;
+            resultArr[idx] = newValue;
         }
-        props.onChange(props.id, resultArr);
+        onChange(id, resultArr);
         setState({values: resultArr});
         setEditModalState({
             open: false,
@@ -56,20 +56,20 @@ export default function TokenSetting(props: Props) {
     };
 
     const handleDelete = (idx: number) => {
-        const resultArr = [...props.value];
+        const resultArr = [...value];
         resultArr.splice(idx, 1);
-        props.onChange(props.id, resultArr);
+        onChange(id, resultArr);
         setState({
             values: resultArr,
         });
         setDeleteModalState({open: false, index: 0});
     };
 
-    const handleSelect = (idx: number, value: ConfluenceConfig) => {
+    const handleSelect = (idx: number, newValue: ConfluenceConfig) => {
         setEditModalState({
             open: true,
             edit: true,
-            value: {...editModalState.value, ...value},
+            value: {...editModalState.value, ...newValue},
             index: idx,
         });
     };
@@ -83,7 +83,7 @@ export default function TokenSetting(props: Props) {
     };
 
     const entryExists = (serverURL: string): boolean => {
-        return Boolean(state.values.find((value: ConfluenceConfig, idx: number) => idx !== editModalState.index && value.serverURL.toLowerCase() === serverURL.toLowerCase()));
+        return Boolean(state.values.find((newValue: ConfluenceConfig, idx: number) => idx !== editModalState.index && newValue.serverURL.toLowerCase() === serverURL.toLowerCase()));
     };
 
     return (
@@ -91,7 +91,7 @@ export default function TokenSetting(props: Props) {
             <Col
                 componentClass={ControlLabel}
                 sm={4}
-            >{props.label}</Col>
+            >{label}</Col>
             <Col sm={8}>
                 <Table
                     className='table'

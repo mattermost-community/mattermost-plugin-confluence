@@ -6,9 +6,9 @@ const isSubscriptionModalVisible = (state) => getPluginState(state).subscription
 
 const isSubscriptionEditModalVisible = (state) => getPluginState(state).subscriptionEditModal;
 
-const isCreateConfluencePageModalVisible = (state) => getPluginState(state).createConfluencePageModal;
+const postMessage = (state) => getPluginState(state).createConfluencePageModal;
 
-const isInstalledInstances = (state) => getPluginState(state).installedInstances;
+const installedInstances = (state) => getPluginState(state).installedInstances;
 
 const spacesForConfluenceURL = (state) => getPluginState(state).spacesForConfluenceURL;
 
@@ -17,8 +17,8 @@ const isUserConnected = (state) => getPluginState(state).userConnected;
 export default {
     isSubscriptionModalVisible,
     isSubscriptionEditModalVisible,
-    isCreateConfluencePageModalVisible,
+    postMessage,
     isUserConnected,
-    isInstalledInstances,
+    installedInstances,
     spacesForConfluenceURL,
 };

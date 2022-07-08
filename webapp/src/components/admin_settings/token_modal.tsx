@@ -14,8 +14,8 @@ type Props = {
     entryExists: (name: string) => boolean
 }
 
-export default function TokenModal(props: Props) {
-    const [state, setState] = useState(props.value);
+export default function TokenModal({open, edit, value, handleClose, onSave, entryExists}: Props) {
+    const [state, setState] = useState(value);
     const [errors, setErrors] = useState({
         serverURL: '',
         clientID: '',
@@ -23,7 +23,7 @@ export default function TokenModal(props: Props) {
     });
 
     const reset = () => {
-        setState(props.value);
+        setState(value);
     };
 
     const onSubmit = () => {
@@ -42,24 +42,24 @@ export default function TokenModal(props: Props) {
             return;
         }
 
-        if (props.entryExists(state.serverURL)) {
+        if (entryExists(state.serverURL)) {
             setErrors({...errors, serverURL: 'Server URL already exists'});
             return;
         }
-        props.onSave(state);
+        onSave(state);
     };
 
-    const handleClose = () => {
+    const closeHandler = () => {
         setErrors({serverURL: '', clientID: '', clientSecret: ''});
-        props.handleClose();
+        handleClose();
     };
     return (
         <Modal
-            show={props.open}
-            onHide={handleClose}
+            show={open}
+            onHide={closeHandler}
         >
             <Modal.Header>
-                <Modal.Title>{props.edit ? 'Update Confluence Config' : 'Add Confluence Config'}</Modal.Title>
+                <Modal.Title>{edit ? 'Update Confluence Config' : 'Add Confluence Config'}</Modal.Title>
             </Modal.Header>
             <Modal.Body>
                 <TokenForm
@@ -71,11 +71,13 @@ export default function TokenModal(props: Props) {
                 />
             </Modal.Body>
             <Modal.Footer>
-                <Button onClick={handleClose}>{'Close'}</Button>
+                <Button onClick={closeHandler}>{'Close'}</Button>
                 <Button
                     onClick={onSubmit}
                     bsStyle='primary'
-                >{'Save'}</Button>
+                >
+                    {'Save'}
+                </Button>
             </Modal.Footer>
         </Modal>
     );
