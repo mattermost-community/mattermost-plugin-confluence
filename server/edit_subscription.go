@@ -76,6 +76,18 @@ func (p *Plugin) handleEditChannelSubscription(w http.ResponseWriter, r *http.Re
 			return
 		}
 
+		pageID, err := strconv.Atoi(subscription.(*serializer.PageSubscription).GetSubscription().PageID)
+		if err != nil {
+			p.LogAndRespondError(w, http.StatusInternalServerError, "Error converting pageID to integer.", err)
+			return
+		}
+
+		_, statusCode, err := client.GetPageData(pageID)
+		if err != nil {
+			p.LogAndRespondError(w, statusCode, "Error getting page related data for page subscription.", err)
+			return
+		}
+
 		newSubscription := subscription.(*serializer.PageSubscription).GetSubscription().UpdateUserID(userID)
 		subscription = newSubscription.GetSubscription()
 	}

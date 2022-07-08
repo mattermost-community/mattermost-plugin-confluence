@@ -345,14 +345,14 @@ func (store store) DeleteConnection(instanceID, mattermostUserID types.ID) (retu
 
 	// Check for whether the admin token stored for each confluenceURL is of the current user or not. If it is then delete that admin connection also
 	if c.IsAdmin {
-		adminConnection, err := store.LoadConnection(instanceID, "admin")
+		adminConnection, err := store.LoadConnection(instanceID, AdminMattermostUserID)
 		if err != nil {
 			return err
 		}
 
 		// Check if both the tokens are same or not
 		if c.OAuth2Token == adminConnection.OAuth2Token {
-			if err = store.DeleteConnectionFromKVStore(instanceID, "admin", c); err != nil {
+			if err = store.DeleteConnectionFromKVStore(instanceID, AdminMattermostUserID, c); err != nil {
 				return err
 			}
 		}

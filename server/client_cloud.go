@@ -107,7 +107,7 @@ func (ccc *confluenceCloudClient) GetEventData(confluenceCloudEvent *serializer.
 		confluenceCloudEvent.Comment.UserName = confluenceCloudEventResponse.Comment.History.CreatedBy.Username
 	}
 	if strings.Contains(eventType, Page) {
-		confluenceCloudEventResponse.Page, statusCode, err = ccc.GetPageData(confluenceCloudEvent)
+		confluenceCloudEventResponse.Page, statusCode, err = ccc.GetPageData(confluenceCloudEvent.Page.ID)
 		if err != nil {
 			return nil, statusCode, errors.Wrap(err, "confluence GetEventData")
 		}
@@ -140,9 +140,9 @@ func (ccc *confluenceCloudClient) GetCommentData(confluenceCloudEvent *serialize
 	return commentResponse, statusCode, nil
 }
 
-func (ccc *confluenceCloudClient) GetPageData(confluenceCloudEvent *serializer.ConfluenceCloudEvent) (*PageResponse, int, error) {
+func (ccc *confluenceCloudClient) GetPageData(pageID int) (*PageResponse, int, error) {
 	pageResponse := &PageResponse{}
-	url, err := utils.GetEndpointURL(ccc.URL, fmt.Sprintf(PathPageData, strconv.Itoa(confluenceCloudEvent.Page.ID)))
+	url, err := utils.GetEndpointURL(ccc.URL, fmt.Sprintf(PathPageData, strconv.Itoa(pageID)))
 	if err != nil {
 		return nil, http.StatusInternalServerError, errors.Wrap(err, "confluence GetPageData")
 	}
