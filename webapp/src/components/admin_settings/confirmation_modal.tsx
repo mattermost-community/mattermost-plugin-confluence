@@ -29,6 +29,9 @@ export default function ConfirmationModal({open, title, body, confirmText,
                 <Button onClick={handleClose}>{cancelText}</Button>
                 <Button
                     onClick={handleConfirm}
+
+                    // Removed "bsStyle" prop from here, as it was used in older versions of react-bootstrap
+                    // and "variant" prop was also not working, so updated it with the className prop.
                     className={`btn btn-${approveButtonStyle}`}
                 >
                     {confirmText}

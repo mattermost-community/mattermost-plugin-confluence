@@ -348,8 +348,8 @@ func Map(vs []string, f func(string) string) []string {
 	return vsm
 }
 
-func AddQueryParams(URL string, queryParams map[string]interface{}) (string, error) {
-	url, err := url.Parse(URL)
+func AddQueryParams(urlParam string, queryParams map[string]interface{}) (string, error) {
+	url, err := url.Parse(urlParam)
 	if err != nil {
 		return "", err
 	}

@@ -40,6 +40,7 @@ const CreateConfluencePage = (theme: Theme) => {
     const [saving, setSaving] = useState<boolean>(false);
     const [error, setError] = useState<string>('');
     const validator = useMemo(() => (new Validator()), []);
+    const getTheme = useMemo(() => (getModalStyles(theme)), [theme]);
 
     const getSpaces = useCallback(async () => {
         const response = await getSpacesForConfluenceURL(instanceID)(dispatch);
@@ -84,9 +85,9 @@ const CreateConfluencePage = (theme: Theme) => {
         dispatch(closeCreateConfluencePageModal());
     }, []);
 
-    const handleModalClose = () => {
+    const handleModalClose = useCallback(() => {
         setModalVisible(false);
-    };
+    }, []);
 
     const handleInstanceChange = useCallback((currentInstanceID: string) => {
         setInstanceID(currentInstanceID);
@@ -147,7 +148,7 @@ const CreateConfluencePage = (theme: Theme) => {
             <Modal.Header closeButton={true}>
                 <Modal.Title>{'Create Confluence Page'}</Modal.Title>
             </Modal.Header>
-            <Modal.Body style={getModalStyles(theme).modalBody}>
+            <Modal.Body style={getTheme.modalBody}>
                 <ConfluenceInstanceSelector
                     theme={theme}
                     selectedInstanceID={instanceID}
@@ -202,9 +203,12 @@ const CreateConfluencePage = (theme: Theme) => {
             </Modal.Body>
 
             {spaceKey && (
-                <Modal.Footer style={getModalStyles(theme).modalFooter}>
+                <Modal.Footer style={getTheme.modalFooter}>
                     <Button
                         type='button'
+
+                        // Removed "bsStyle" prop from here, as it was used in older versions of react-bootstrap
+                        // and "variant" prop was also not working, so updated it with the className prop.
                         className='btn btn-link'
                         onClick={handleClose}
                     >
@@ -212,6 +216,9 @@ const CreateConfluencePage = (theme: Theme) => {
                     </Button>
                     <Button
                         type='submit'
+
+                        // Removed "bsStyle" prop from here, as it was used in older versions of react-bootstrap
+                        // and "variant" prop was also not working, so updated it with the className prop.
                         className='btn btn-primary'
                         onClick={handleSubmit}
                         disabled={saving}

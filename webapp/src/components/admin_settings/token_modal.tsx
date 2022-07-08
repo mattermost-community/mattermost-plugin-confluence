@@ -75,8 +75,8 @@ export default function TokenModal({open, edit, value, handleClose, onSave, entr
                 <Button
                     onClick={onSubmit}
 
-                    // Removed bsStyle from here, as it was used in older versions of react-bootstrap.
-                    // Variant property was not working, so updated it with the className property.
+                    // Removed "bsStyle" prop from here, as it was used in older versions of react-bootstrap
+                    // and "variant" prop was also not working, so updated it with the className prop.
                     className='btn btn-primary'
                 >
                     {'Save'}

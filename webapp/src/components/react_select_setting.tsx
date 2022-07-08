@@ -62,7 +62,7 @@ export default class ReactSelectSetting extends React.PureComponent<Props, State
     filterOptions = (input: string) => {
         let options = this.props.options;
         if (input) {
-            options = options.filter((opt: ReactSelectOption) => `${opt.label}`.toUpperCase().includes(input.toUpperCase()));
+            options = options.filter((opt: ReactSelectOption) => (opt.label as string).toUpperCase().includes(input.toUpperCase()));
         }
 
         return Promise.resolve(options.slice(0, MAX_NUM_OPTIONS));
@@ -86,7 +86,7 @@ export default class ReactSelectSetting extends React.PureComponent<Props, State
                 <span>{requiredMsg}</span>
             </p>) : null;
 
-        const selectComponent = (this.props.limitOptions && this.props.options.length > MAX_NUM_OPTIONS) ?
+        const selectComponent = this.props.limitOptions && this.props.options.length > MAX_NUM_OPTIONS ?
             (
 
                 // The parent component helps us know that we may have a large number of options, and that
