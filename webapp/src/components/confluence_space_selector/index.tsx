@@ -28,7 +28,7 @@ const ConfluenceSpaceSelector = ({selectedSpaceKey, onSpaceKeyChange, theme}: Pr
         }));
     }, [spacesForConfluenceURL]);
 
-    const handleEvents = useCallback((_, spaceKey) => {
+    const handleEvents = useCallback((spaceKey: string) => {
         if (spaceKey !== selectedSpaceKey) {
             onSpaceKeyChange(spaceKey);
         }

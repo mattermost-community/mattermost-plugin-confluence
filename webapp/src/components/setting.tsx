@@ -7,7 +7,7 @@ type Props = {
     inputId: string;
     label?: string;
     children: JSX.Element | null;
-    helpText?: Node;
+    helpText?: string;
     required?: boolean;
     hideRequiredStar?: boolean;
 };

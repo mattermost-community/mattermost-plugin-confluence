@@ -6,6 +6,8 @@ import {shallow} from 'enzyme';
 
 import {Provider} from 'react-redux';
 
+import {Theme} from 'mattermost-redux/types/preferences';
+
 import {configureStore} from 'tests/setup';
 
 import ConfluenceSpaceSelector from '.';
@@ -13,7 +15,7 @@ import ConfluenceSpaceSelector from '.';
 describe('components/ConfluenceSpaceSelector', () => {
     const initialState = {};
     const baseProps = {
-        theme: {},
+        theme: {} as Theme,
         selectedSpaceKey: 'test-spaceKey',
         onSpaceKeyChange: jest.fn(),
     };

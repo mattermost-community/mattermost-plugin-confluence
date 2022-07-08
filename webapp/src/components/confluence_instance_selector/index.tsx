@@ -13,7 +13,7 @@ type Props = {
     theme: Theme;
 };
 
-const ConfluenceInstanceSelector = ({selectedInstanceID, onInstanceChange, theme}: Props) => {
+const ConfluenceInstanceSelector = ({selectedInstanceID, onInstanceChange, theme}: Props): any => {
     const validator = useMemo(() => (new Validator()), []);
 
     const installedInstances = useSelector((state: DefaultRootState) =>
@@ -26,7 +26,7 @@ const ConfluenceInstanceSelector = ({selectedInstanceID, onInstanceChange, theme
             value: instance.instance_id,
         }))), [installedInstances]);
 
-    const handleEvents = useCallback((_, instanceID) => {
+    const handleEvents = useCallback((instanceID: string) => {
         if (instanceID !== selectedInstanceID) {
             onInstanceChange(instanceID);
         }
