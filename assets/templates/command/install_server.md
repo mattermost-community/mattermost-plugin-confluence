@@ -13,7 +13,5 @@ Select **Continue**
 5. Copy the `clientID` and `clientSecret` and paste them into the plugin configuration.
 6. In Mattermost, use the "/confluence connect" slash command to connect your Mattermost account with your
    Confluence account.
-7. Click the "More Actions" (...) option of any message in the channel
-   (available when you hover over a message).
 
 If you see an option to create a Confluence issue, you're all set! If not, refer to our [documentation](https://mattermost.gitbook.io/plugin-confluence) for troubleshooting help.

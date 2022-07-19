@@ -1,7 +1,7 @@
 {{ .ConfluenceURL }} has been successfully added. To finish the configuration, create a new app in your Confluence instance following these steps:
 
 1. Go to the Atlassian [Developer Console](https://developer.atlassian.com/console/myapps/).
-2. Click **Create > OAuth2.0 integration**.
+2. Select **Create > OAuth2.0 integration**.
 3. Select **Authorization** in the left menu.
 4. Next to OAuth 2.0 (3LO), select **Configure**.
 5. In the **Callback URL** field enter:
@@ -12,7 +12,6 @@
 7. Add the **Confluence API**, and then select `Read user`, `Write Confluence content`, `Read Confluence content all`, and `Read Confluence detailed content` scopes, and select **Save**.
 8. Copy the `clientID` and `clientSecret` from **Settings**, and paste them into the plugin configuration.
 9. In Mattermost, use the "/confluence connect" slash command to connect your Mattermost account with your Confluence account.
-10. Click the "More Actions" (...) option of any message in the channel (available when you hover over a message).
 To finish the configuration, add a new app in your Confluence Cloud instance by following these steps:
 1. Go to **Settings > Apps > Manage Apps**.
 2. Select **Settings** at the bottom of the page, enable development mode, and apply the change. Development mode allows you to install apps from outside of the Atlassian Marketplace.
