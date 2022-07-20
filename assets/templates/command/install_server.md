@@ -5,11 +5,10 @@
 2. Select **Create link**.
 3. On the **Create Link** screen, select **External Application** and **Incoming** as
    `Application type` and `Direction` respectively. Select **Continue**.
-4. On the **Link Applications** screen, set the following values:
-**Name**: `Mattermost`
-**Redirect URL**: ```{{ .RedirectURL }}```.
-**Application Permissions**: `Admin`
-Select **Continue**
+4. On the **Link Applications** screen, set the following values, then select **Continue**:
+   **Name**: `Mattermost`
+   **Redirect URL**: ```{{ .RedirectURL }}```.
+   **Application Permissions**: `Admin`
 5. Copy the `clientID` and `clientSecret` and paste them into the plugin configuration.
 6. In Mattermost, use the "/confluence connect" slash command to connect your Mattermost account with your
    Confluence account.
