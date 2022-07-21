@@ -531,22 +531,6 @@ func (p *Plugin) GetClientFromURL(url, userID string) (Client, error) {
 	return client, nil
 }
 
-func GetRequestBodyForCreatePage(spaceKey string, pageDetails *serializer.PageDetails) *PageRequestBody {
-	return &PageRequestBody{
-		Title: pageDetails.Title,
-		Type:  "page",
-		Space: PageCreateSpace{
-			Key: spaceKey,
-		},
-		Body: PageBody{
-			Storage: Storage{
-				Value:          pageDetails.Description,
-				Representation: "storage",
-			},
-		},
-	}
-}
-
 // refreshAndStoreToken checks whether the current access token is expired or not. If it is,
 // then it refreshes the token and stores the new pair of access and refresh tokens in kv store.
 func (p *Plugin) refreshAndStoreToken(connection *Connection, instanceID types.ID, oconf *oauth2.Config) (*oauth2.Token, error) {

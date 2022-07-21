@@ -82,9 +82,9 @@ func (p *Plugin) handleEditChannelSubscription(w http.ResponseWriter, r *http.Re
 			return
 		}
 
-		_, statusCode, err := client.GetPageData(pageID)
+		_, err = client.GetPageData(pageID)
 		if err != nil {
-			p.LogAndRespondError(w, statusCode, "Error getting page related data for page subscription.", err)
+			p.LogAndRespondError(w, http.StatusInternalServerError, "Error getting page related data for page subscription.", err)
 			return
 		}
 

@@ -219,6 +219,10 @@ func showInstallCloudHelp(p *Plugin, context *model.CommandArgs, args ...string)
 		p.postCommandResponse(context, installOnlySystemAdmin)
 		return &model.CommandResponse{}
 	}
+	if len(args) == 0 {
+		response := executeConfluenceDefault(p, context, args...)
+		return response
+	}
 
 	confluenceURL, instance, err := p.installCloudInstance(args[0])
 	if err != nil {
@@ -237,6 +241,11 @@ func showInstallServerHelp(p *Plugin, context *model.CommandArgs, args ...string
 		p.postCommandResponse(context, installOnlySystemAdmin)
 		return &model.CommandResponse{}
 	}
+	if len(args) == 0 {
+		response := executeConfluenceDefault(p, context, args...)
+		return response
+	}
+	
 	confluenceURL, instance, err := p.installServerInstance(args[0])
 	if err != nil {
 		return p.responsef(context, err.Error())

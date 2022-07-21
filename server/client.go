@@ -12,4 +12,5 @@ type RESTService interface {
 	GetSelf() (*ConfluenceUser, error)
 	GetSpaceData(string) (*SpaceResponse, error)
 	GetUserGroups(*Connection) ([]*UserGroup, error)
+	GetPageData(pageID int) (*PageResponse, error)
 }

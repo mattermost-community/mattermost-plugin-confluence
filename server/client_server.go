@@ -194,7 +194,7 @@ func (csc *confluenceServerClient) GetEventData(webhookPayload *serializer.Confl
 		}
 	}
 	if strings.Contains(webhookPayload.Event, Page) {
-		confluenceServerEvent.Page, statusCode, err = csc.GetPageData(int(webhookPayload.Page.ID))
+		confluenceServerEvent.Page, err = csc.GetPageData(int(webhookPayload.Page.ID))
 		if err != nil {
 			return nil, errors.Wrap(err, "confluence GetEventData")
 		}
@@ -224,7 +224,7 @@ func (csc *confluenceServerClient) GetCommentData(webhookPayload *serializer.Con
 	return commentResponse, nil
 }
 
-func (csc *confluenceServerClient) GetPageData(pageID int) (*PageResponse, int, error) {
+func (csc *confluenceServerClient) GetPageData(pageID int) (*PageResponse, error) {
 	pageResponse := &PageResponse{}
 	url, err := utils.GetEndpointURL(csc.URL, fmt.Sprintf(PathPageData, strconv.Itoa(pageID)))
 	if err != nil {
