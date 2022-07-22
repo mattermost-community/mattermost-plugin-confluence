@@ -52,7 +52,6 @@ ifneq ($(HAS_SERVER),)
 		echo "golangci-lint is not installed. Please see https://github.com/golangci/golangci-lint#install for installation instructions."; \
 		exit 1; \
 	fi; \
-
 	@echo Running golangci-lint
 	golangci-lint run ./...
 endif
@@ -124,7 +123,7 @@ dist:	apply server webapp bundle
 ## Builds and installs the plugin to a server.
 .PHONY: deploy
 deploy: dist
-	./build/bin/deploy deploy $(PLUGIN_ID) dist/$(BUNDLE_NAME)
+	./build/bin/pluginctl deploy $(PLUGIN_ID) dist/$(BUNDLE_NAME)
 
 ## Builds and installs the plugin to a server, updating the webapp automatically when changed.
 .PHONY: watch
