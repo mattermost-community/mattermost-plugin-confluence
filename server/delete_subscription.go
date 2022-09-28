@@ -34,7 +34,7 @@ func (p *Plugin) DeleteSubscription(channelID, alias, userID string) error {
 		return err
 	}
 	if instance.Common().Type == ServerInstanceType {
-		totalSubscriptions, err := service.GetSubscriptionFromURL(subscription.GetConfluenceURL(), userID)
+		totalSubscriptions, err := service.GetSubscriptionFromURL(subscription.GetConfluenceURL(), subscription.GetUserID())
 		if err != nil {
 			return err
 		}
@@ -54,7 +54,7 @@ func (p *Plugin) DeleteSubscription(channelID, alias, userID string) error {
 				return err
 			}
 
-			webhookID, err := p.userStore.LoadWebhookID(types.ID(instance.GetURL()), types.ID(userID))
+			webhookID, err := p.userStore.LoadWebhookID(types.ID(instance.GetURL()), types.ID(subscription.GetUserID()))
 			if err != nil {
 				return err
 			}
