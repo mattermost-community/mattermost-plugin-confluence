@@ -15,6 +15,9 @@ const (
 	PageTrashedEvent      = "page_trashed"
 	PageRestoredEvent     = "page_restored"
 	PageRemovedEvent      = "page_removed"
+	SpaceRemovedEvent     = "space_removed"
+	SpaceCreatedEvent     = "space_created"
+	SpaceUpdatedEvent     = "space_updated"
 	SubscriptionTypeSpace = "space_subscription"
 	SubscriptionTypePage  = "page_subscription"
 
@@ -32,6 +35,9 @@ var eventDisplayName = map[string]string{
 	PageTrashedEvent:    "Page Trash",
 	PageRestoredEvent:   "Page Restore",
 	PageRemovedEvent:    "Page Remove",
+	SpaceCreatedEvent:   "Space Create",
+	SpaceRemovedEvent:   "Space Remove",
+	SpaceUpdatedEvent:   "Space Update",
 }
 
 type Subscription interface {
@@ -40,11 +46,13 @@ type Subscription interface {
 	Edit(*Subscriptions)
 	Name() string
 	GetAlias() string
+	GetConfluenceURL() string
+	GetChannelID() string
+	GetUserID() string
 	GetFormattedSubscription() string
 	IsValid() error
 	ValidateSubscription(*Subscriptions) error
 }
-
 type BaseSubscription struct {
 	Alias     string   `json:"alias"`
 	BaseURL   string   `json:"baseURL"`
@@ -55,18 +63,21 @@ type BaseSubscription struct {
 
 type StringSubscription map[string]Subscription
 type StringArrayMap map[string][]string
+type StringStringArrayMap map[string]StringArrayMap
 
 type Subscriptions struct {
 	ByChannelID   map[string]StringSubscription
-	ByURLPagID    map[string]StringArrayMap
-	ByURLSpaceKey map[string]StringArrayMap
+	ByURLPageID   map[string]StringStringArrayMap
+	ByURLSpaceKey map[string]StringStringArrayMap
+	BySpaceID     map[string]string
 }
 
 func NewSubscriptions() *Subscriptions {
 	return &Subscriptions{
 		ByChannelID:   map[string]StringSubscription{},
-		ByURLPagID:    map[string]StringArrayMap{},
-		ByURLSpaceKey: map[string]StringArrayMap{},
+		ByURLPageID:   map[string]StringStringArrayMap{},
+		ByURLSpaceKey: map[string]StringStringArrayMap{},
+		BySpaceID:     map[string]string{},
 	}
 }
 

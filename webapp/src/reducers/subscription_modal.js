@@ -28,3 +28,47 @@ export const subscriptionEditModal = (state = {}, action) => {
         return state;
     }
 };
+
+export const spacesForConfluenceURL = (state = {}, action) => {
+    switch (action.type) {
+    case Constants.ACTION_TYPES.RECEIVED_CONFLUENCE_INSTANCE:
+        return {
+            spaces: action.data ?? [],
+        };
+    default:
+        return state;
+    }
+};
+
+export const createConfluencePageModal = (state = {}, action) => {
+    switch (action.type) {
+    case Constants.ACTION_TYPES.OPEN_CREATE_CONFLUENCE_PAGE_MODAL:
+        return {
+            message: action.data.message,
+        };
+    case Constants.ACTION_TYPES.CLOSE_CREATE_CONFLUENCE_PAGE_MODAL:
+        return {};
+    default:
+        return state;
+    }
+};
+
+export function installedInstances(state = [], action) {
+    // We're notified of the instance status at startup (through getConnected)
+    // and when we get a websocket instance_status event
+    switch (action.type) {
+    case Constants.ACTION_TYPES.RECEIVED_INSTANCE_STATUS:
+        return action.data.instances ? action.data.instances : [];
+    default:
+        return state;
+    }
+}
+
+export function userConnected(state = false, action) {
+    switch (action.type) {
+    case Constants.ACTION_TYPES.RECEIVED_CONNECTED:
+        return action.data.is_connected;
+    default:
+        return state;
+    }
+}

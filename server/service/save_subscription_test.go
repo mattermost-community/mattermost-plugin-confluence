@@ -23,7 +23,7 @@ func TestSaveSpaceSubscription(t *testing.T) {
 				BaseSubscription: serializer.BaseSubscription{
 					Alias:     "test",
 					BaseURL:   "https://test.com",
-					ChannelID: "testtesttesttest",
+					ChannelID: "testChannelID",
 					Events:    []string{serializer.CommentRemovedEvent, serializer.CommentUpdatedEvent},
 				},
 			},
@@ -36,7 +36,7 @@ func TestSaveSpaceSubscription(t *testing.T) {
 				BaseSubscription: serializer.BaseSubscription{
 					Alias:     "tes2",
 					BaseURL:   "https://test.com",
-					ChannelID: "testtesttesttest",
+					ChannelID: "testChannelID",
 					Events:    []string{serializer.CommentRemovedEvent, serializer.CommentUpdatedEvent},
 				},
 			},
@@ -49,7 +49,7 @@ func TestSaveSpaceSubscription(t *testing.T) {
 				BaseSubscription: serializer.BaseSubscription{
 					Alias:     "tes2",
 					BaseURL:   "https://test1.com",
-					ChannelID: "testtesttesttest",
+					ChannelID: "testChannelID",
 					Events:    []string{serializer.CommentRemovedEvent, serializer.CommentUpdatedEvent},
 				},
 			},
@@ -62,7 +62,7 @@ func TestSaveSpaceSubscription(t *testing.T) {
 				BaseSubscription: serializer.BaseSubscription{
 					Alias:     "tes2",
 					BaseURL:   "https://test.com",
-					ChannelID: "testtesttesttest",
+					ChannelID: "testChannelID",
 					Events:    []string{serializer.CommentRemovedEvent, serializer.CommentUpdatedEvent},
 				},
 			},
@@ -74,37 +74,41 @@ func TestSaveSpaceSubscription(t *testing.T) {
 			defer monkey.UnpatchAll()
 			subscriptions := serializer.Subscriptions{
 				ByChannelID: map[string]serializer.StringSubscription{
-					"testtesttesttest": {
+					"testChannelID": {
 						"test": serializer.SpaceSubscription{
 							SpaceKey: "TS",
 							BaseSubscription: serializer.BaseSubscription{
 								Alias:     "test",
 								BaseURL:   "https://test.com",
-								ChannelID: "testtesttesttest",
+								ChannelID: "testChannelID",
 								Events:    []string{serializer.CommentRemovedEvent, serializer.CommentUpdatedEvent},
 							},
 						},
 					},
-					"testtesttesttes1": {
+					"testChannelID3": {
 						"test": serializer.PageSubscription{
 							PageID: "1234",
 							BaseSubscription: serializer.BaseSubscription{
 								Alias:     "test",
 								BaseURL:   "https://test.com",
-								ChannelID: "testtesttesttest",
+								ChannelID: "testChannelID",
 								Events:    []string{serializer.CommentCreatedEvent, serializer.CommentUpdatedEvent},
 							},
 						},
 					},
 				},
-				ByURLSpaceKey: map[string]serializer.StringArrayMap{
+				ByURLSpaceKey: map[string]serializer.StringStringArrayMap{
 					"confluence_subs/test.com/TS": {
-						"testtesttesttest": {serializer.CommentRemovedEvent, serializer.CommentUpdatedEvent},
+						"testChannelID": {
+							"testUserID": {serializer.CommentRemovedEvent, serializer.CommentUpdatedEvent},
+						},
 					},
 				},
-				ByURLPagID: map[string]serializer.StringArrayMap{
+				ByURLPageID: map[string]serializer.StringStringArrayMap{
 					"confluence_subs/test.com/1234": {
-						"testtesttesttes1": {serializer.CommentCreatedEvent, serializer.CommentUpdatedEvent},
+						"testChannelID3": {
+							"testUserID": {serializer.CommentCreatedEvent, serializer.CommentUpdatedEvent},
+						},
 					},
 				},
 			}
@@ -135,7 +139,7 @@ func TestSavePageSubscription(t *testing.T) {
 				BaseSubscription: serializer.BaseSubscription{
 					Alias:     "test",
 					BaseURL:   "https://test.com",
-					ChannelID: "testtesttesttest",
+					ChannelID: "testChannelID",
 					Events:    []string{serializer.CommentRemovedEvent, serializer.CommentUpdatedEvent},
 				},
 			},
@@ -148,7 +152,7 @@ func TestSavePageSubscription(t *testing.T) {
 				BaseSubscription: serializer.BaseSubscription{
 					Alias:     "tes2",
 					BaseURL:   "https://test.com",
-					ChannelID: "testtesttesttes1",
+					ChannelID: "testChannelID3",
 					Events:    []string{serializer.CommentRemovedEvent, serializer.CommentUpdatedEvent},
 				},
 			},
@@ -161,7 +165,7 @@ func TestSavePageSubscription(t *testing.T) {
 				BaseSubscription: serializer.BaseSubscription{
 					Alias:     "tes2",
 					BaseURL:   "https://test1.com",
-					ChannelID: "testtesttesttest",
+					ChannelID: "testChannelID",
 					Events:    []string{serializer.CommentRemovedEvent, serializer.CommentUpdatedEvent},
 				},
 			},
@@ -174,7 +178,7 @@ func TestSavePageSubscription(t *testing.T) {
 				BaseSubscription: serializer.BaseSubscription{
 					Alias:     "tes2",
 					BaseURL:   "https://test.com",
-					ChannelID: "testtesttesttest",
+					ChannelID: "testChannelID",
 					Events:    []string{serializer.CommentRemovedEvent, serializer.CommentUpdatedEvent},
 				},
 			},
@@ -186,37 +190,41 @@ func TestSavePageSubscription(t *testing.T) {
 			defer monkey.UnpatchAll()
 			subscriptions := serializer.Subscriptions{
 				ByChannelID: map[string]serializer.StringSubscription{
-					"testtesttesttest": {
+					"testChannelID": {
 						"test": serializer.SpaceSubscription{
 							SpaceKey: "TS",
 							BaseSubscription: serializer.BaseSubscription{
 								Alias:     "test",
 								BaseURL:   "https://test.com",
-								ChannelID: "testtesttesttest",
+								ChannelID: "testChannelID",
 								Events:    []string{serializer.CommentRemovedEvent, serializer.CommentUpdatedEvent},
 							},
 						},
 					},
-					"testtesttesttes1": {
+					"testChannelID3": {
 						"test": serializer.PageSubscription{
 							PageID: "1234",
 							BaseSubscription: serializer.BaseSubscription{
 								Alias:     "test",
 								BaseURL:   "https://test.com",
-								ChannelID: "testtesttesttest",
+								ChannelID: "testChannelID",
 								Events:    []string{serializer.CommentCreatedEvent, serializer.CommentUpdatedEvent},
 							},
 						},
 					},
 				},
-				ByURLSpaceKey: map[string]serializer.StringArrayMap{
+				ByURLSpaceKey: map[string]serializer.StringStringArrayMap{
 					"confluence_subs/test.com/TS": {
-						"testtesttesttest": {serializer.CommentRemovedEvent, serializer.CommentUpdatedEvent},
+						"testChannelID": {
+							"testUserID": {serializer.CommentRemovedEvent, serializer.CommentUpdatedEvent},
+						},
 					},
 				},
-				ByURLPagID: map[string]serializer.StringArrayMap{
+				ByURLPageID: map[string]serializer.StringStringArrayMap{
 					"confluence_subs/test.com/1234": {
-						"testtesttesttes1": {serializer.CommentCreatedEvent, serializer.CommentUpdatedEvent},
+						"testChannelID3": {
+							"testUserID": {serializer.CommentCreatedEvent, serializer.CommentUpdatedEvent},
+						},
 					},
 				},
 			}

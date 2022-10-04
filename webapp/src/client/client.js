@@ -2,6 +2,7 @@ import request from 'superagent';
 import Cookies from 'js-cookie';
 
 import Constants from '../constants';
+import {encodeToBase64} from '../utils';
 
 import {id} from '../manifest';
 
@@ -18,12 +19,14 @@ export default class Client {
     }
 
     saveChannelSubscription = (channelSubscription) => {
-        const url = `${this.pluginApiUrl}/${channelSubscription.channelID}/subscription/${channelSubscription.subscriptionType}`;
+        const instanceID = encodeToBase64(channelSubscription.baseURL);
+        const url = `${this.pluginApiUrl}/instance/${instanceID}/${channelSubscription.channelID}/subscription/${channelSubscription.subscriptionType}`;
         return this.doPost(url, channelSubscription);
     };
 
     editChannelSubscription = (channelSubscription) => {
-        const url = `${this.pluginApiUrl}/${channelSubscription.channelID}/subscription/${channelSubscription.subscriptionType}`;
+        const instanceID = encodeToBase64(channelSubscription.baseURL);
+        const url = `${this.pluginApiUrl}/instance/${instanceID}/${channelSubscription.channelID}/subscription/${channelSubscription.subscriptionType}/${channelSubscription.oldSubscription.subscriptionType}`;
         return this.doPut(url, channelSubscription);
     };
 
@@ -32,6 +35,25 @@ export default class Client {
         return this.doGet(url);
     };
 
+    getSpacesForConfluenceURL = (instanceID) => {
+        const url = `${this.pluginApiUrl}/instance/${encodeToBase64(instanceID)}/spaces`;
+        return this.doGet(url);
+    };
+
+    getPostDetails = (postID) => {
+        const url = `${this.baseUrl}/api/v4/posts/${postID}`;
+        return this.doGet(url);
+    };
+
+    createPage = (instanceID, channelID, spaceKey, pageDetails) => {
+        const url = `${this.pluginApiUrl}/instance/${encodeToBase64(instanceID)}/${channelID}/spaceKey/${spaceKey}/createpage`;
+        return this.doPost(url, pageDetails);
+    };
+
+    getConnected = () => {
+        const url = `${this.pluginApiUrl}/userinfo`;
+        return this.doGet(url);
+    };
     doGet = async (url, headers = {}) => {
         headers['X-Requested-With'] = 'XMLHttpRequest';
 

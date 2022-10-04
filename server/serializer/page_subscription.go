@@ -4,7 +4,6 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
-	"io"
 	url2 "net/url"
 	"strings"
 
@@ -14,6 +13,15 @@ import (
 type PageSubscription struct {
 	PageID string `json:"pageID"`
 	BaseSubscription
+	UserID string
+}
+
+type OldSubscriptionForPage struct {
+	PageSubscription
+}
+
+type OldPageSubscription struct {
+	OldSubscription OldSubscriptionForPage `json:"oldSubscription"`
 }
 
 func (ps PageSubscription) Add(s *Subscriptions) {
@@ -22,16 +30,28 @@ func (ps PageSubscription) Add(s *Subscriptions) {
 	}
 	s.ByChannelID[ps.ChannelID][ps.Alias] = ps
 	key := store.GetURLPageIDCombinationKey(ps.BaseURL, ps.PageID)
-	if _, ok := s.ByURLPagID[key]; !ok {
-		s.ByURLPagID[key] = make(map[string][]string)
+	if _, ok := s.ByURLPageID[key]; !ok {
+		s.ByURLPageID[key] = make(map[string]StringArrayMap)
 	}
-	s.ByURLPagID[key][ps.ChannelID] = ps.Events
+	if _, ok := s.ByURLPageID[key][ps.ChannelID]; !ok {
+		s.ByURLPageID[key][ps.ChannelID] = make(map[string][]string)
+	}
+
+	s.ByURLPageID[key][ps.ChannelID][ps.UserID] = ps.Events
+
+	if s.BySpaceID == nil {
+		s.BySpaceID = make(map[string]string)
+	}
 }
 
 func (ps PageSubscription) Remove(s *Subscriptions) {
 	delete(s.ByChannelID[ps.ChannelID], ps.Alias)
 	key := store.GetURLPageIDCombinationKey(ps.BaseURL, ps.PageID)
-	delete(s.ByURLPagID[key], ps.ChannelID)
+	delete(s.ByURLPageID[key], ps.ChannelID)
+}
+
+func (ps PageSubscription) GetChannelID() string {
+	return ps.BaseSubscription.ChannelID
 }
 
 func (ps PageSubscription) Edit(s *Subscriptions) {
@@ -45,6 +65,14 @@ func (ps PageSubscription) Name() string {
 
 func (ps PageSubscription) GetAlias() string {
 	return ps.Alias
+}
+
+func (ps PageSubscription) GetUserID() string {
+	return ps.UserID
+}
+
+func (ps PageSubscription) GetConfluenceURL() string {
+	return ps.GetSubscription().BaseURL
 }
 
 func (ps PageSubscription) GetFormattedSubscription() string {
@@ -74,10 +102,33 @@ func (ps PageSubscription) IsValid() error {
 	return nil
 }
 
-func PageSubscriptionFromJSON(data io.Reader) (PageSubscription, error) {
+func PageSubscriptionFromJSON(body []byte) (*PageSubscription, error) {
 	var ps PageSubscription
-	err := json.NewDecoder(data).Decode(&ps)
-	return ps, err
+	if err := json.Unmarshal(body, &ps); err != nil {
+		return nil, err
+	}
+	return &ps, nil
+}
+
+func OldPageSubscriptionFromJSON(body []byte) (*PageSubscription, error) {
+	var ps OldPageSubscription
+	if err := json.Unmarshal(body, &ps); err != nil {
+		return nil, err
+	}
+	return &ps.OldSubscription.PageSubscription, nil
+}
+
+func (ps *PageSubscription) UpdateUserID(userID string) *PageSubscription {
+	ps.UserID = userID
+	return ps
+}
+
+func (ps PageSubscription) GetSubscription() *PageSubscription {
+	return &PageSubscription{
+		PageID:           ps.PageID,
+		BaseSubscription: ps.BaseSubscription,
+		UserID:           ps.UserID,
+	}
 }
 
 func (ps PageSubscription) ValidateSubscription(subs *Subscriptions) error {
@@ -90,7 +141,7 @@ func (ps PageSubscription) ValidateSubscription(subs *Subscriptions) error {
 		}
 	}
 	key := store.GetURLPageIDCombinationKey(ps.BaseURL, ps.PageID)
-	if urlPageIDSubscriptions, valid := subs.ByURLPagID[key]; valid {
+	if urlPageIDSubscriptions, valid := subs.ByURLPageID[key]; valid {
 		if _, ok := urlPageIDSubscriptions[ps.ChannelID]; ok {
 			return errors.New(urlPageIDAlreadyExist)
 		}

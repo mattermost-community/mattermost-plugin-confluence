@@ -78,7 +78,7 @@ endif
 ## Ensures NPM dependencies are installed without having to run this all the time.
 webapp/node_modules: webapp/package.json
 ifneq ($(HAS_WEBAPP),)
-	cd webapp && $(NPM) install
+	cd webapp && $(NPM) install --verbose
 	touch $@
 endif
 
@@ -124,7 +124,7 @@ dist:	apply server webapp bundle
 ## Builds and installs the plugin to a server.
 .PHONY: deploy
 deploy: dist
-	./build/bin/pluginctl deploy $(PLUGIN_ID) dist/$(BUNDLE_NAME)
+	./build/bin/deploy deploy $(PLUGIN_ID) dist/$(BUNDLE_NAME)
 
 ## Builds and installs the plugin to a server, updating the webapp automatically when changed.
 .PHONY: watch
