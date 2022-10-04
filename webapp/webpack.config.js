@@ -64,6 +64,7 @@ module.exports = {
     },
     externals: {
         react: 'React',
+        'react-dom': 'ReactDOM',
         redux: 'Redux',
         'prop-types': 'PropTypes',
         'post-utils': 'PostUtils',
