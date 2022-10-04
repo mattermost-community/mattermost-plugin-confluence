@@ -51,6 +51,9 @@ func getNotificationChannelIDs(url, spaceKey, pageID, eventType string) []string
 		}
 	}
 
-	channelIDs := append(urlSpaceKeySubscriptionChannelIDs, urlPageIDSubscriptionChannelIDs...)
+	var channelIDs []string
+	channelIDs = append(channelIDs, urlSpaceKeySubscriptionChannelIDs...)
+	channelIDs = append(channelIDs, urlPageIDSubscriptionChannelIDs...)
+
 	return util.Deduplicate(channelIDs)
 }
