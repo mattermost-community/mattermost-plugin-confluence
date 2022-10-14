@@ -11,4 +11,5 @@ require (
 	github.com/stretchr/testify v1.6.1
 	github.com/thoas/go-funk v0.6.0
 	go.uber.org/atomic v1.6.0
+	golang.org/x/sys v0.0.0-20220928140112-f11e5e49a4ec // indirect
 )
