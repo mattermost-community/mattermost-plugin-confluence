@@ -64,6 +64,9 @@ func (p *Plugin) InitAPI() *mux.Router {
 	s.HandleFunc("/atlassian-connect.json", p.renderAtlassianConnectJSON).Methods(http.MethodGet)
 	s.HandleFunc("/cloud/{event:[A-Za-z0-9_]+}", p.handleConfluenceCloudWebhook).Methods(http.MethodPost)
 	s.HandleFunc("/autocomplete/channel-subscriptions", p.handleGetChannelSubscriptions).Methods(http.MethodGet)
+	s.HandleFunc("/autocomplete/configs", p.handleGetConfigList).Methods(http.MethodGet)
+	s.HandleFunc("/autocomplete/installed-instances", p.handleGetInstanceList).Methods(http.MethodGet)
+	s.HandleFunc("/config/{channelID:[A-Za-z0-9]+}/{userID:.+}", p.handleConfluenceConfig).Methods(http.MethodPost)
 
 	apiRouter := s.PathPrefix("/instance/{instanceID:.+}").Subrouter()
 	apiRouter.HandleFunc(routeUserConnect, p.httpOAuth2Connect).Methods(http.MethodGet)

@@ -4,7 +4,6 @@ import Hooks from './hooks';
 import reducer from './reducers';
 
 import SubscriptionModal from './components/subscription_modal';
-import TokenSetting from './components/admin_settings/token_setting';
 
 //
 // Define the plugin class that will register
@@ -16,7 +15,6 @@ class PluginClass {
         registry.registerRootComponent(SubscriptionModal);
         const hooks = new Hooks(store);
         registry.registerSlashCommandWillBePostedHook(hooks.slashCommandWillBePostedHook);
-        registry.registerAdminConsoleCustomSetting('tokens', TokenSetting);
     }
 }
 

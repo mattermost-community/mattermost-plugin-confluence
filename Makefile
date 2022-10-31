@@ -4,7 +4,7 @@ CURL ?= $(shell command -v curl 2> /dev/null)
 MM_DEBUG ?=
 MANIFEST_FILE ?= plugin.json
 GOPATH ?= $(shell go env GOPATH)
-GO_TEST_FLAGS ?= -race
+GO_TEST_FLAGS ?= -race -gcflags=-l
 GO_BUILD_FLAGS ?=
 MM_UTILITIES_DIR ?= ../mattermost-utilities
 DLV_DEBUG_PORT := 2346
@@ -52,6 +52,7 @@ ifneq ($(HAS_SERVER),)
 		echo "golangci-lint is not installed. Please see https://github.com/golangci/golangci-lint#install for installation instructions."; \
 		exit 1; \
 	fi; \
+
 	@echo Running golangci-lint
 	golangci-lint run ./...
 endif

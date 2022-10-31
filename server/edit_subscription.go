@@ -18,8 +18,8 @@ const subscriptionEditSuccess = "Your subscription has been edited successfully.
 
 func (p *Plugin) handleEditChannelSubscription(w http.ResponseWriter, r *http.Request) {
 	params := mux.Vars(r)
-	channelID := params["channelID"]
-	subscriptionType := params["type"]
+	channelID := params[ParamChannelID]
+	subscriptionType := params[ParamSubscriptionType]
 	oldSubscriptionType := params["oldSubscriptionType"]
 	userID := r.Header.Get(config.HeaderMattermostUserID)
 

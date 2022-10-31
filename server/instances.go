@@ -102,12 +102,12 @@ func (instances Instances) getByAlias(alias string) (instance *InstanceCommon) {
 	return nil
 }
 
-func (p *Plugin) InstallInstance(instance Instance) error {
+func (p *Plugin) InstallInstance(instance Instance, updateInstance bool) error {
 	var updated *Instances
 	err := UpdateInstances(p.instanceStore,
 		func(instances *Instances) error {
 			if !p.enterpriseChecker.HasEnterpriseFeatures() {
-				if instances != nil && len(instances.IDs()) > 0 {
+				if instances != nil && (len(instances.IDs()) > 0 && !updateInstance) {
 					return errors.Errorf(licenseErrorString)
 				}
 			}

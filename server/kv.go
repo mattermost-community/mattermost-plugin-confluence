@@ -10,6 +10,7 @@ import (
 
 	"github.com/pkg/errors"
 
+	"github.com/mattermost/mattermost-plugin-confluence/server/serializer"
 	"github.com/mattermost/mattermost-plugin-confluence/server/utils/kvstore"
 	"github.com/mattermost/mattermost-plugin-confluence/server/utils/types"
 )
@@ -22,6 +23,7 @@ const (
 	prefixUser          = "user_"
 	prefixOneTimeSecret = "ots_" // + unique key that will be deleted after the first verification
 	webhookKeyPrefix    = "webhook"
+	configKeyPrefix     = "_config"
 )
 
 type Store interface {
@@ -38,6 +40,10 @@ type InstanceStore interface {
 	LoadInstances() (*Instances, error)
 	StoreInstance(Instance) error
 	StoreInstances(*Instances) error
+	StoreInstanceConfig(*serializer.ConfluenceConfig) error
+	LoadInstanceConfig(string) (*serializer.ConfluenceConfig, error)
+	DeleteInstanceConfig(string) error
+	LoadSavedConfigs([]string) ([]*serializer.ConfluenceConfig, error)
 }
 
 type UserStore interface {
@@ -82,6 +88,10 @@ func keyWithInstanceID(instanceID, key types.ID) string {
 	h := md5.New() // #nosec G401
 	fmt.Fprintf(h, "%s/%s", instanceID, key)
 	return fmt.Sprintf("%x", h.Sum(nil))
+}
+
+func keyWithInstanceIDForConfig(instanceID string) string {
+	return fmt.Sprintf("%s/%s", instanceID, configKeyPrefix)
 }
 
 func keyForWebhookID(instanceID, key types.ID) string {
@@ -214,6 +224,61 @@ func (store *store) LoadInstances() (*Instances, error) {
 func (store *store) StoreInstances(instances *Instances) error {
 	kv := kvstore.NewStore(kvstore.NewPluginStore(store.plugin.API))
 	return kv.ValueIndex(keyInstances, &instancesArray{}).Store(instances.ValueSet)
+}
+
+func (store *store) StoreInstanceConfig(config *serializer.ConfluenceConfig) (returnErr error) {
+	defer func() {
+		if returnErr == nil {
+			return
+		}
+		returnErr = errors.WithMessage(returnErr,
+			fmt.Sprintf("failed to store config, Confluence Instance:%s", config.ServerURL))
+	}()
+
+	if err := store.set(keyWithInstanceIDForConfig(config.ServerURL), config); err != nil {
+		return err
+	}
+
+	store.plugin.debugf("Stored: config for instance, keys:\n\t %s:", keyWithInstanceIDForConfig(config.ServerURL))
+	return nil
+}
+
+func (store *store) LoadInstanceConfig(instanceID string) (*serializer.ConfluenceConfig, error) {
+	var config serializer.ConfluenceConfig
+	if err := store.get(keyWithInstanceIDForConfig(instanceID), &config); err != nil {
+		return nil, errors.Wrapf(err,
+			"failed to load config for Confluence instance:%q", instanceID)
+	}
+
+	return &config, nil
+}
+
+func (store *store) LoadSavedConfigs(configKeys []string) ([]*serializer.ConfluenceConfig, error) {
+	var configs []*serializer.ConfluenceConfig
+
+	for _, configKey := range configKeys {
+		var config serializer.ConfluenceConfig
+		if err := store.get(configKey, &config); err != nil {
+			return nil, errors.Wrapf(err, "failed to load config for Confluence instance key:%q", configKey)
+		}
+		configs = append(configs, &config)
+	}
+	return configs, nil
+}
+
+func (store *store) DeleteInstanceConfig(instanceID string) (returnErr error) {
+	defer func() {
+		if returnErr == nil {
+			return
+		}
+		returnErr = errors.WithMessage(returnErr,
+			fmt.Sprintf("failed to delete config for instance: %s", instanceID))
+	}()
+	if appErr := store.plugin.API.KVDelete(keyWithInstanceIDForConfig(instanceID)); appErr != nil {
+		return appErr
+	}
+	store.plugin.debugf("Deleted: config for instance, keys:\n\t %s:", keyWithInstanceIDForConfig(instanceID))
+	return nil
 }
 
 func UpdateInstances(store InstanceStore, updatef func(instances *Instances) error) error {

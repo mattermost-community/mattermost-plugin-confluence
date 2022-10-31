@@ -31,7 +31,7 @@ func TestHttpOAuth2Connect(t *testing.T) {
 		statusCode int
 		isAdmin    bool
 	}{
-		"wrong api method": {
+		"wrong API method": {
 			method:     "POST",
 			userID:     "non_connected_user",
 			statusCode: http.StatusMethodNotAllowed,
@@ -87,7 +87,7 @@ func TestHttpOAuth2Complete(t *testing.T) {
 		isAdmin    bool
 		instanceID string
 	}{
-		"wrong api method": {
+		"wrong API method": {
 			method:     "POST",
 			userID:     "connected_user",
 			statusCode: http.StatusMethodNotAllowed,

@@ -31,8 +31,7 @@ func (p *Plugin) installCloudInstance(rawURL string) (string, *cloudInstance, er
 		InstanceCommon: newInstanceCommon(p, CloudInstanceType, types.ID(confluenceURL)),
 	}
 
-	err = p.InstallInstance(instance)
-	if err != nil {
+	if err = p.InstallInstance(instance, false); err != nil {
 		return "", nil, err
 	}
 
@@ -40,8 +39,8 @@ func (p *Plugin) installCloudInstance(rawURL string) (string, *cloudInstance, er
 }
 
 func (ci *cloudInstance) GetOAuth2Config(isAdmin bool) (*oauth2.Config, error) {
-	config, ok := ci.Plugin.getConfig().ParsedConfluenceConfig[ci.GetURL()]
-	if !ok {
+	config, err := ci.Plugin.instanceStore.LoadInstanceConfig(ci.GetURL())
+	if err != nil {
 		return nil, fmt.Errorf(configNotFoundError, ci.InstanceID, ci.InstanceID)
 	}
 
@@ -54,6 +53,7 @@ func (ci *cloudInstance) GetOAuth2Config(isAdmin bool) (*oauth2.Config, error) {
 			"read:confluence-content.all",
 			"read:content-details:confluence",
 			"write:confluence-content",
+			"offline_access",
 		},
 		Endpoint: oauth2.Endpoint{
 			AuthURL:  "https://auth.atlassian.com/authorize?audience=api.atlassian.com",

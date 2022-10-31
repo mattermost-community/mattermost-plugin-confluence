@@ -16,12 +16,14 @@ import (
 
 const (
 	subscriptionSaveSuccess = "Your subscription has been saved."
+	ParamChannelID          = "channelID"
+	ParamSubscriptionType   = "type"
 )
 
 func (p *Plugin) handleSaveSubscription(w http.ResponseWriter, r *http.Request) {
 	params := mux.Vars(r)
-	channelID := params["channelID"]
-	subscriptionType := params["type"]
+	channelID := params[ParamChannelID]
+	subscriptionType := params[ParamSubscriptionType]
 	userID := r.Header.Get(config.HeaderMattermostUserID)
 
 	instance, err := p.getInstanceFromURL(r.URL.Path)

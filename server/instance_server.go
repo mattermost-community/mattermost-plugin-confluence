@@ -28,8 +28,7 @@ func (p *Plugin) installServerInstance(rawURL string) (string, *serverInstance, 
 		InstanceCommon: newInstanceCommon(p, ServerInstanceType, types.ID(confluenceURL)),
 	}
 
-	err = p.InstallInstance(instance)
-	if err != nil {
+	if err = p.InstallInstance(instance, false); err != nil {
 		return "", nil, err
 	}
 
@@ -49,8 +48,8 @@ func (si *serverInstance) GetManageWebhooksURL() string {
 }
 
 func (si *serverInstance) GetOAuth2Config(isAdmin bool) (*oauth2.Config, error) {
-	config, ok := si.Plugin.getConfig().ParsedConfluenceConfig[si.GetURL()]
-	if !ok {
+	config, err := si.Plugin.instanceStore.LoadInstanceConfig(si.GetURL())
+	if err != nil {
 		return nil, fmt.Errorf(configNotFoundError, si.InstanceID, si.InstanceID)
 	}
 

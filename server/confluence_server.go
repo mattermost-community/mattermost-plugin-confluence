@@ -18,7 +18,7 @@ import (
 
 func (p *Plugin) handleConfluenceServerWebhook(w http.ResponseWriter, r *http.Request) {
 	params := mux.Vars(r)
-	userID := params["userID"]
+	userID := params[ParamUserID]
 	instance, err := p.getInstanceFromURL(r.URL.Path)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)

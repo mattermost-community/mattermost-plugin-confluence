@@ -5,21 +5,12 @@ import (
 
 	"bou.ke/monkey"
 	"github.com/mattermost/mattermost-server/v6/model"
-	"github.com/mattermost/mattermost-server/v6/plugin/plugintest"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
 
-	"github.com/mattermost/mattermost-plugin-confluence/server/config"
 	"github.com/mattermost/mattermost-plugin-confluence/server/serializer"
 	"github.com/mattermost/mattermost-plugin-confluence/server/service"
 )
-
-func baseMock() *plugintest.API {
-	mockAPI := &plugintest.API{}
-	config.Mattermost = mockAPI
-
-	return mockAPI
-}
 
 func TestGetNotificationsChannelIDs(t *testing.T) {
 	for name, val := range map[string]struct {

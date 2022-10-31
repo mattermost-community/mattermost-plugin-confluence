@@ -18,7 +18,7 @@ var GetChannelSubscription = &Endpoint{
 
 func handleGetChannelSubscription(w http.ResponseWriter, r *http.Request) {
 	params := mux.Vars(r)
-	channelID := params["channelID"]
+	channelID := params[ParamChannelID]
 	alias := r.FormValue("alias")
 	subscription, errCode, err := service.GetChannelSubscription(channelID, alias)
 	if err != nil {

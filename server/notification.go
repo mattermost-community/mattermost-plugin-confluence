@@ -78,8 +78,8 @@ func (n *notification) getNotificationChannelIDs(url, spaceKey, pageID, eventTyp
 
 	urlPageIDSubscriptionChannelIDs := GetURLSubscriptionChannelIDs(urlPageIDSubscriptions, eventType, userID)
 	urlSpaceKeySubscriptionChannelIDs := GetURLSubscriptionChannelIDs(urlSpaceKeySubscriptions, eventType, userID)
-	channelIDs := append(urlSpaceKeySubscriptionChannelIDs, urlPageIDSubscriptionChannelIDs...)
-	return utils.Deduplicate(channelIDs)
+
+	return utils.Deduplicate(append(urlSpaceKeySubscriptionChannelIDs, urlPageIDSubscriptionChannelIDs...))
 }
 
 func (n *notification) GetSubscriptionUserIDs(event serializer.ConfluenceEvent, eventType string) ([]string, error) {
@@ -101,9 +101,8 @@ func (n *notification) GetSubscriptionUserIDs(event serializer.ConfluenceEvent, 
 
 	urlPageIDSubscriptionUserIDs := GetURLSubscriptionUserIDs(urlPageIDSubscriptions, eventType)
 	urlSpaceKeySubscriptionUserIDs := GetURLSubscriptionUserIDs(urlSpaceKeySubscriptions, eventType)
-	userIDs := append(urlSpaceKeySubscriptionUserIDs, urlPageIDSubscriptionUserIDs...)
 
-	return utils.Deduplicate(userIDs), nil
+	return utils.Deduplicate(append(urlSpaceKeySubscriptionUserIDs, urlPageIDSubscriptionUserIDs...)), nil
 }
 
 func GetURLSubscriptionChannelIDs(urlSubscriptions serializer.StringStringArrayMap, eventType, userID string) []string {
