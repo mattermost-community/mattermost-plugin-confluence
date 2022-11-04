@@ -50,8 +50,8 @@ type Page struct {
 	ContentTypes          string `json:"contentType"`
 	Version               int    `json:"version"`
 	Body                  Body   `json:"body"`
-	UserName              string
-	SpaceLink             string
+	UserName              string `json:"userName"`
+	SpaceLink             string `json:"spaceLink"`
 }
 
 type Comment struct {
@@ -67,8 +67,8 @@ type Comment struct {
 	Parent                *Page          `json:"parent"`
 	InReplyTo             *ParentComment `json:"inReplyTo"`
 	Body                  Body           `json:"body"`
-	UserName              string
-	SpaceLink             string
+	UserName              string         `json:"userName"`
+	SpaceLink             string         `json:"spaceLink"`
 }
 
 type ParentComment struct {

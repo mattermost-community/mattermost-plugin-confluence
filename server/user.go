@@ -241,9 +241,9 @@ func (p *Plugin) CompleteOAuth2(mattermostUserID, code, state string, instance I
 
 	// Fetch the cloudid for cloud instance if not already present
 	if instance.Common().Type == CloudInstanceType && instance.(*cloudInstance).CloudID == "" {
-		cloudID, err := client.(*confluenceCloudClient).GetCloudID()
-		if err != nil {
-			return nil, nil, err
+		cloudID, cErr := client.(*confluenceCloudClient).GetCloudID()
+		if cErr != nil {
+			return nil, nil, cErr
 		}
 		ci := instance.(*cloudInstance)
 		ci.CloudID = cloudID
@@ -353,7 +353,7 @@ func (p *Plugin) connectUser(instance Instance, mattermostUserID types.ID, conne
 	}
 
 	if connection.IsAdmin {
-		if _, err := client.(*confluenceServerClient).CheckConfluenceAdmin(); err != nil {
+		if _, err = client.(*confluenceServerClient).CheckConfluenceAdmin(); err != nil {
 			return errors.New("user is not a confluence admin")
 		}
 		if err = p.userStore.StoreConnection(instance.GetID(), AdminMattermostUserID, connection); err != nil {

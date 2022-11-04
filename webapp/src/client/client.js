@@ -39,6 +39,7 @@ export default class Client {
         const url = `${this.pluginApiUrl}/userinfo`;
         return this.doGet(url);
     };
+
     doGet = async (url, headers = {}) => {
         headers['X-Requested-With'] = 'XMLHttpRequest';
 

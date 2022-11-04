@@ -227,7 +227,7 @@ func (p *Plugin) OnDeactivate() error {
 	if p.telemetryClient != nil {
 		err := p.telemetryClient.Close()
 		if err != nil {
-			return errors.Wrap(err, "OnDeactivate: Failed to close telemetryClient.")
+			return errors.Wrap(err, "onDeactivate: Failed to close telemetryClient")
 		}
 	}
 	return nil

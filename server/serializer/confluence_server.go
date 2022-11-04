@@ -3,7 +3,6 @@ package serializer
 import (
 	"encoding/json"
 	"fmt"
-	"strconv"
 	"strings"
 
 	"github.com/mattermost/mattermost-plugin-confluence/server/config"
@@ -61,7 +60,7 @@ type ConfluenceServerPage struct {
 	ContentType   string                         `json:"content_type"`
 	UpdatedAt     int64                          `json:"updated_at"`
 	IsDraft       bool                           `json:"is_draft"`
-	ID            int64                          `json:"id"`
+	ID            string                         `json:"id"`
 	Ancestors     []ConfluenceServerPageAncestor `json:"ancestors"`
 	IsRootLevel   bool                           `json:"is_root_level"`
 	ContentID     int                            `json:"content_id"`
@@ -162,8 +161,8 @@ type PagePayload struct {
 }
 
 type SpacePayload struct {
-	ID       int64 `json:"id"`
-	SpaceKey string
+	ID       int64  `json:"id"`
+	SpaceKey string `json:"spaceKey"`
 }
 
 type ConfluenceServerWebhookPayload struct {
@@ -264,7 +263,7 @@ func (e ConfluenceServerEvent) GetSpaceKey() string {
 
 func (e ConfluenceServerEvent) GetPageID() string {
 	if e.Page != nil {
-		return strconv.FormatInt(e.Page.ID, 10)
+		return e.Page.ID
 	}
 	return ""
 }

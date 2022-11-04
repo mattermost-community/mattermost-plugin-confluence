@@ -1,6 +1,7 @@
 package main
 
 import (
+	"io"
 	"io/ioutil"
 	"net/http"
 	"strconv"
@@ -46,69 +47,14 @@ func (p *Plugin) handleEditChannelSubscription(w http.ResponseWriter, r *http.Re
 		return
 	}
 
-	body, err := ioutil.ReadAll(r.Body)
+	subscription, oldSubscription, logMessage, statusCode, err := p.SubscriptionsFromJSON(r.Body, client, subscriptionType, oldSubscriptionType, userID)
 	if err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
+		p.LogAndRespondError(w, statusCode, logMessage, err)
 		return
 	}
 
-	var subscription serializer.Subscription
-	if subscriptionType == serializer.SubscriptionTypeSpace {
-		subscription, err = serializer.SpaceSubscriptionFromJSON(body)
-		if err != nil {
-			p.LogAndRespondError(w, http.StatusBadRequest, "Error decoding request body for space subscription.", err)
-			return
-		}
-
-		spaceKey := subscription.(*serializer.SpaceSubscription).GetSubscription().SpaceKey
-		resp, err := client.GetSpaceData(spaceKey)
-		if err != nil {
-			p.LogAndRespondError(w, http.StatusBadRequest, "Error getting space related data for space subscription.", err)
-			return
-		}
-
-		newSubscription := subscription.(*serializer.SpaceSubscription).GetSubscription().UpdateSpaceIDAndUserID(strconv.FormatInt(resp.ID, 10), userID)
-		subscription = newSubscription.GetSubscription()
-	} else if subscriptionType == serializer.SubscriptionTypePage {
-		subscription, err = serializer.PageSubscriptionFromJSON(body)
-		if err != nil {
-			p.LogAndRespondError(w, http.StatusBadRequest, "Error decoding request body for page subscription.", err)
-			return
-		}
-
-		pageID, err := strconv.Atoi(subscription.(*serializer.PageSubscription).GetSubscription().PageID)
-		if err != nil {
-			p.LogAndRespondError(w, http.StatusInternalServerError, "Error converting pageID to integer.", err)
-			return
-		}
-
-		_, err = client.GetPageData(pageID)
-		if err != nil {
-			p.LogAndRespondError(w, http.StatusInternalServerError, "Error getting page related data for page subscription.", err)
-			return
-		}
-
-		newSubscription := subscription.(*serializer.PageSubscription).GetSubscription().UpdateUserID(userID)
-		subscription = newSubscription.GetSubscription()
-	}
-
-	var oldSubscription serializer.Subscription
-	if oldSubscriptionType == serializer.SubscriptionTypeSpace {
-		oldSubscription, err = serializer.OldSpaceSubscriptionFromJSON(body)
-		if err != nil {
-			p.LogAndRespondError(w, http.StatusBadRequest, "Error decoding request body for old space subscription.", err)
-			return
-		}
-	} else if subscriptionType == serializer.SubscriptionTypePage {
-		oldSubscription, err = serializer.OldPageSubscriptionFromJSON(body)
-		if err != nil {
-			p.LogAndRespondError(w, http.StatusBadRequest, "Error decoding request body for old page subscription.", err)
-			return
-		}
-	}
-
 	if err := p.DeleteSubscription(subscription.GetChannelID(), oldSubscription.GetAlias(), userID); err != nil {
-		p.LogAndRespondError(w, http.StatusBadRequest, "not able to delete subscription.", err)
+		p.LogAndRespondError(w, http.StatusBadRequest, "Not able to delete subscription.", err)
 		return
 	}
 
@@ -131,4 +77,61 @@ func (p *Plugin) handleEditChannelSubscription(w http.ResponseWriter, r *http.Re
 	}
 	_ = config.Mattermost.SendEphemeralPost(userID, post)
 	ReturnStatusOK(w)
+}
+
+func (p *Plugin) SubscriptionsFromJSON(requestBody io.ReadCloser, client Client, subscriptionType, oldSubscriptionType, userID string) (serializer.Subscription, serializer.Subscription, string, int, error) {
+	body, err := ioutil.ReadAll(requestBody)
+	if err != nil {
+		return nil, nil, "Error reading request body.", http.StatusInternalServerError, err
+	}
+
+	var subscription serializer.Subscription
+	if subscriptionType == serializer.SubscriptionTypeSpace {
+		subscription, err = serializer.SpaceSubscriptionFromJSON(body)
+		if err != nil {
+			return nil, nil, "Error decoding request body for space subscription.", http.StatusBadRequest, err
+		}
+
+		spaceKey := subscription.(*serializer.SpaceSubscription).GetSubscription().SpaceKey
+		resp, gErr := client.GetSpaceData(spaceKey)
+		if gErr != nil {
+			return nil, nil, "Error getting space related data for space subscription.", http.StatusBadRequest, gErr
+		}
+
+		newSubscription := subscription.(*serializer.SpaceSubscription).GetSubscription().UpdateSpaceIDAndUserID(strconv.FormatInt(resp.ID, 10), userID)
+		subscription = newSubscription.GetSubscription()
+	} else if subscriptionType == serializer.SubscriptionTypePage {
+		subscription, err = serializer.PageSubscriptionFromJSON(body)
+		if err != nil {
+			return nil, nil, "Error decoding request body for page subscription.", http.StatusBadRequest, err
+		}
+
+		pageID, sErr := strconv.Atoi(subscription.(*serializer.PageSubscription).GetSubscription().PageID)
+		if sErr != nil {
+			return nil, nil, "Error converting pageID to integer.", http.StatusInternalServerError, sErr
+		}
+
+		_, err = client.GetPageData(pageID)
+		if err != nil {
+			return nil, nil, "Error getting page related data for page subscription.", http.StatusInternalServerError, err
+		}
+
+		newSubscription := subscription.(*serializer.PageSubscription).GetSubscription().UpdateUserID(userID)
+		subscription = newSubscription.GetSubscription()
+	}
+
+	var oldSubscription serializer.Subscription
+	if oldSubscriptionType == serializer.SubscriptionTypeSpace {
+		oldSubscription, err = serializer.OldSpaceSubscriptionFromJSON(body)
+		if err != nil {
+			return nil, nil, "Error decoding request body for old space subscription.", http.StatusBadRequest, err
+		}
+	} else if subscriptionType == serializer.SubscriptionTypePage {
+		oldSubscription, err = serializer.OldPageSubscriptionFromJSON(body)
+		if err != nil {
+			return nil, nil, "Error decoding request body for old page subscription.", http.StatusBadRequest, err
+		}
+	}
+
+	return subscription, oldSubscription, "", http.StatusOK, nil
 }

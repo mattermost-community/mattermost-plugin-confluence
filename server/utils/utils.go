@@ -79,35 +79,6 @@ func SplitArgs(s string) ([]string, error) {
 	return cleanedArgs[0:count], nil
 }
 
-func GetPluginKey() string {
-	var regexNonAlphaNum = regexp.MustCompile("[^a-zA-Z0-9]+")
-	return "mattermost_" + regexNonAlphaNum.ReplaceAllString(GetSiteURL(), "_")
-}
-
-func GetPluginURLPath() string {
-	return "/plugins/" + config.PluginName + "/api/v1"
-}
-
-func GetPluginURL() string {
-	return strings.TrimRight(GetSiteURL(), "/") + GetPluginURLPath()
-}
-
-func GetSiteURL() string {
-	ptr := config.Mattermost.GetConfig().ServiceSettings.SiteURL
-	if ptr == nil {
-		return ""
-	}
-	return *ptr
-}
-
-func GetAtlassianConnectURLPath() string {
-	return "/atlassian-connect.json?secret=" + url.QueryEscape(config.GetConfig().Secret)
-}
-
-func GetConfluenceServerWebhookURLPath() string {
-	return "/server/webhook?secret=" + url.QueryEscape(config.GetConfig().Secret)
-}
-
 func IsSystemAdmin(userID string) bool {
 	user, appErr := config.Mattermost.GetUser(userID)
 	if appErr != nil {
@@ -210,6 +181,15 @@ func IsConfluenceCloudURL(confluenceURL string) bool {
 		return false
 	}
 	return strings.HasSuffix(u.Hostname(), ".atlassian.net")
+}
+
+func CallJSONWithURL(instanceURL, path, method string, in, out interface{}, httpClient *http.Client) (responseData []byte, err error) {
+	urlPath, err := GetEndpointURL(instanceURL, path)
+	if err != nil {
+		return nil, err
+	}
+
+	return CallJSON(instanceURL, method, urlPath, in, out, httpClient)
 }
 
 func GetEndpointURL(instanceURL, path string) (string, error) {

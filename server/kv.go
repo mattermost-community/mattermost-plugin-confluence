@@ -1,7 +1,7 @@
 package main
 
 import (
-	"crypto/md5"
+	"crypto/md5" // #nosec G501
 	"crypto/rand"
 	"crypto/rsa"
 	"encoding/json"
@@ -193,7 +193,7 @@ func (store *store) LoadInstanceFullKey(fullkey string) (Instance, error) {
 		return &si, nil
 	}
 
-	return nil, errors.New(fmt.Sprintf("Confluence instance %s has unsupported type: %s", fullkey, si.Type))
+	return nil, fmt.Errorf("confluence instance %s has unsupported type: %s", fullkey, si.Type)
 }
 
 func (store *store) StoreInstance(instance Instance) error {
@@ -410,9 +410,9 @@ func (store store) DeleteConnection(instanceID, mattermostUserID types.ID) (retu
 
 	// Check for whether the admin token stored for each confluenceURL is of the current user or not. If it is then delete that admin connection also
 	if c.IsAdmin {
-		adminConnection, err := store.LoadConnection(instanceID, AdminMattermostUserID)
-		if err != nil {
-			return err
+		adminConnection, lErr := store.LoadConnection(instanceID, AdminMattermostUserID)
+		if lErr != nil {
+			return lErr
 		}
 
 		// Check if both the tokens are same or not
