@@ -10,7 +10,7 @@
 ``.
 6. Select **Permissions** in the left menu.
 7. Add the **Confluence API**, and then select `Read user`, `Write Confluence content`, `Read Confluence content all`, and `Read Confluence detailed content` scopes, and select **Save**.
-8. Copy the `clientID` and `clientSecret` from **Settings**, and paste them into the plugin configuration.
+8. Copy the `clientID` and `clientSecret` from **Settings**, and paste them into the modal in mattermost which can be opened by using "/confluence config add" slash command.
 9. In Mattermost, use the "/confluence connect" slash command to connect your Mattermost account with your Confluence account.
 To finish the configuration, add a new app in your Confluence Cloud instance by following these steps:
 1. Go to **Settings > Apps > Manage Apps**.

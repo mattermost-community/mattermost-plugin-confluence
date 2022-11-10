@@ -10,7 +10,7 @@
 **Redirect URL**: ```{{ .RedirectURL }}```.
 **Application Permissions**: `Admin`
 Select **Continue**
-5. Copy the `clientID` and `clientSecret` and paste them into the plugin configuration.
+5. Copy the `clientID` and `clientSecret` from **Settings**, and paste them into the modal in mattermost which can be opened by using "/confluence config add" slash command.
 6. In Mattermost, use the "/confluence connect" slash command to connect your Mattermost account with your
    Confluence account.
 
