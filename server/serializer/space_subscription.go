@@ -25,7 +25,7 @@ type OldSpaceSubscription struct {
 	OldSubscription OldSubscriptionForSpace `json:"oldSubscription"`
 }
 
-func (ss SpaceSubscription) Add(s *Subscriptions) {
+func (ss *SpaceSubscription) Add(s *Subscriptions) {
 	if _, valid := s.ByChannelID[ss.ChannelID]; !valid {
 		s.ByChannelID[ss.ChannelID] = make(StringSubscription)
 	}
@@ -47,34 +47,42 @@ func (ss SpaceSubscription) Add(s *Subscriptions) {
 	s.BySpaceID[ss.SpaceID] = ss.SpaceKey
 }
 
-func (ss SpaceSubscription) Remove(s *Subscriptions) {
+func (ss *SpaceSubscription) Remove(s *Subscriptions) {
 	delete(s.ByChannelID[ss.ChannelID], ss.Alias)
 	key := store.GetURLSpaceKeyCombinationKey(ss.BaseURL, ss.SpaceKey)
 	delete(s.ByURLSpaceKey[key], ss.ChannelID)
 }
 
-func (ss SpaceSubscription) Edit(s *Subscriptions) {
+func (ss *SpaceSubscription) Edit(s *Subscriptions) {
 	ss.Remove(s)
 	ss.Add(s)
 }
 
-func (ss SpaceSubscription) Name() string {
+func (ss *SpaceSubscription) Name() string {
 	return SubscriptionTypeSpace
 }
 
-func (ss SpaceSubscription) GetAlias() string {
+func (ss *SpaceSubscription) GetAlias() string {
 	return ss.Alias
 }
 
-func (ss SpaceSubscription) GetConfluenceURL() string {
+func (ss *SpaceSubscription) GetConfluenceURL() string {
 	return ss.GetSubscription().BaseURL
 }
 
-func (ss SpaceSubscription) GetUserID() string {
+func (ss *SpaceSubscription) GetUserID() string {
 	return ss.UserID
 }
 
-func (ss SpaceSubscription) GetFormattedSubscription() string {
+func (ss *SpaceSubscription) GetEvents() []string {
+	return ss.Events
+}
+
+func (ss *SpaceSubscription) GetSpaceKeyOrPageID() string {
+	return ss.SpaceKey
+}
+
+func (ss *SpaceSubscription) GetFormattedSubscription() string {
 	var events []string
 	for _, event := range ss.Events {
 		events = append(events, eventDisplayName[event])
@@ -82,7 +90,15 @@ func (ss SpaceSubscription) GetFormattedSubscription() string {
 	return fmt.Sprintf("\n|%s|%s|%s|%s|", ss.Alias, ss.BaseURL, ss.SpaceKey, strings.Join(events, ", "))
 }
 
-func (ss SpaceSubscription) IsValid() error {
+func (ss *SpaceSubscription) GetOldFormattedSubscription() string {
+	var events []string
+	for _, event := range ss.Events {
+		events = append(events, eventDisplayName[event])
+	}
+	return fmt.Sprintf("\n|%s|%s|%s|%s|%s|", ss.Alias, ss.BaseURL, ss.SpaceKey, ss.ChannelID, strings.Join(events, ", "))
+}
+
+func (ss *SpaceSubscription) IsValid() error {
 	if ss.Alias == "" {
 		return errors.New("subscription name can not be empty")
 	}
@@ -127,11 +143,11 @@ func (ss *SpaceSubscription) UpdateUserID(userID string) *SpaceSubscription {
 	return ss
 }
 
-func (ss SpaceSubscription) GetChannelID() string {
+func (ss *SpaceSubscription) GetChannelID() string {
 	return ss.BaseSubscription.ChannelID
 }
 
-func (ss SpaceSubscription) GetSubscription() *SpaceSubscription {
+func (ss *SpaceSubscription) GetSubscription() *SpaceSubscription {
 	return &SpaceSubscription{
 		SpaceKey:         ss.SpaceKey,
 		BaseSubscription: ss.BaseSubscription,
@@ -140,7 +156,7 @@ func (ss SpaceSubscription) GetSubscription() *SpaceSubscription {
 	}
 }
 
-func (ss SpaceSubscription) ValidateSubscription(subs *Subscriptions) error {
+func (ss *SpaceSubscription) ValidateSubscription(subs *Subscriptions) error {
 	if err := ss.IsValid(); err != nil {
 		return err
 	}

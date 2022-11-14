@@ -76,6 +76,10 @@ func TestExecuteCommand(t *testing.T) {
 				return subscriptions, nil
 			})
 
+			monkey.Patch(service.GetOldSubscriptions, func() ([]serializer.Subscription, error) {
+				return nil, nil
+			})
+
 			mockAPI.On("SendEphemeralPost", mock.AnythingOfType("string"), mock.AnythingOfType("*model.Post")).Run(func(args mock.Arguments) {
 				post := args.Get(1).(*model.Post)
 				assert.Equal(t, val.ephemeralMessage, post.Message)
@@ -134,6 +138,10 @@ func TestConfigCommand(t *testing.T) {
 				return "https://test.com/api/v4/actions/dialogs/open"
 			})
 
+			monkey.Patch(service.GetOldSubscriptions, func() ([]serializer.Subscription, error) {
+				return nil, nil
+			})
+
 			mockAPI.On("GetUser", mock.AnythingOfType("string")).Return(getMockUser(test.isAdmin), nil)
 
 			res, err := p.ExecuteCommand(&plugin.Context{}, test.commandArgs)
@@ -174,6 +182,10 @@ func TestConfigAddCommand(t *testing.T) {
 			}).Once().Return(&model.Post{})
 
 			mockAPI.On("GetUser", mock.AnythingOfType("string")).Return(getMockUser(test.isAdmin), nil)
+
+			monkey.Patch(service.GetOldSubscriptions, func() ([]serializer.Subscription, error) {
+				return nil, nil
+			})
 
 			res, err := p.ExecuteCommand(&plugin.Context{}, test.commandArgs)
 			assert.Nil(t, err)

@@ -36,7 +36,7 @@ func TestGetChannelSubscription(t *testing.T) {
 			subscriptions := serializer.Subscriptions{
 				ByChannelID: map[string]serializer.StringSubscription{
 					"testChannelID": {
-						"test": serializer.SpaceSubscription{
+						"test": &serializer.SpaceSubscription{
 							SpaceKey: "TS",
 							BaseSubscription: serializer.BaseSubscription{
 								Alias:     "test",
@@ -47,7 +47,7 @@ func TestGetChannelSubscription(t *testing.T) {
 						},
 					},
 					"testChannelID3": {
-						"test": serializer.PageSubscription{
+						"test": &serializer.PageSubscription{
 							PageID: "1234",
 							BaseSubscription: serializer.BaseSubscription{
 								Alias:     "test",
@@ -59,14 +59,14 @@ func TestGetChannelSubscription(t *testing.T) {
 					},
 				},
 				ByURLSpaceKey: map[string]serializer.StringStringArrayMap{
-					"confluence_subs/test.com/TS": {
+					"confluence_subscription/test.com/TS": {
 						"testChannelID": {
 							"testUserID": {serializer.CommentRemovedEvent, serializer.CommentUpdatedEvent},
 						},
 					},
 				},
 				ByURLPageID: map[string]serializer.StringStringArrayMap{
-					"confluence_subs/test.com/1234": {
+					"confluence_subscription/test.com/1234": {
 						"testChannelID3": {
 							"testUserID": {serializer.CommentCreatedEvent, serializer.CommentUpdatedEvent},
 						},
@@ -83,7 +83,7 @@ func TestGetChannelSubscription(t *testing.T) {
 				return
 			}
 			assert.NotNil(t, subscription)
-			assert.Equal(t, subscription.(serializer.SpaceSubscription).Alias, val.alias)
+			assert.Equal(t, subscription.GetAlias(), val.alias)
 		})
 	}
 }

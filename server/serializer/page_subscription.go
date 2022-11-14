@@ -24,7 +24,7 @@ type OldPageSubscription struct {
 	OldSubscription OldSubscriptionForPage `json:"oldSubscription"`
 }
 
-func (ps PageSubscription) Add(s *Subscriptions) {
+func (ps *PageSubscription) Add(s *Subscriptions) {
 	if _, valid := s.ByChannelID[ps.ChannelID]; !valid {
 		s.ByChannelID[ps.ChannelID] = make(StringSubscription)
 	}
@@ -44,38 +44,46 @@ func (ps PageSubscription) Add(s *Subscriptions) {
 	}
 }
 
-func (ps PageSubscription) Remove(s *Subscriptions) {
+func (ps *PageSubscription) Remove(s *Subscriptions) {
 	delete(s.ByChannelID[ps.ChannelID], ps.Alias)
 	key := store.GetURLPageIDCombinationKey(ps.BaseURL, ps.PageID)
 	delete(s.ByURLPageID[key], ps.ChannelID)
 }
 
-func (ps PageSubscription) GetChannelID() string {
+func (ps *PageSubscription) GetChannelID() string {
 	return ps.BaseSubscription.ChannelID
 }
 
-func (ps PageSubscription) Edit(s *Subscriptions) {
+func (ps *PageSubscription) Edit(s *Subscriptions) {
 	ps.Remove(s)
 	ps.Add(s)
 }
 
-func (ps PageSubscription) Name() string {
+func (ps *PageSubscription) Name() string {
 	return SubscriptionTypePage
 }
 
-func (ps PageSubscription) GetAlias() string {
+func (ps *PageSubscription) GetAlias() string {
 	return ps.Alias
 }
 
-func (ps PageSubscription) GetUserID() string {
+func (ps *PageSubscription) GetUserID() string {
 	return ps.UserID
 }
 
-func (ps PageSubscription) GetConfluenceURL() string {
+func (ps *PageSubscription) GetConfluenceURL() string {
 	return ps.GetSubscription().BaseURL
 }
 
-func (ps PageSubscription) GetFormattedSubscription() string {
+func (ps *PageSubscription) GetEvents() []string {
+	return ps.Events
+}
+
+func (ps *PageSubscription) GetSpaceKeyOrPageID() string {
+	return ps.PageID
+}
+
+func (ps *PageSubscription) GetFormattedSubscription() string {
 	var events []string
 	for _, event := range ps.Events {
 		events = append(events, eventDisplayName[event])
@@ -83,7 +91,15 @@ func (ps PageSubscription) GetFormattedSubscription() string {
 	return fmt.Sprintf("\n|%s|%s|%s|%s|", ps.Alias, ps.BaseURL, ps.PageID, strings.Join(events, ", "))
 }
 
-func (ps PageSubscription) IsValid() error {
+func (ps *PageSubscription) GetOldFormattedSubscription() string {
+	var events []string
+	for _, event := range ps.Events {
+		events = append(events, eventDisplayName[event])
+	}
+	return fmt.Sprintf("\n|%s|%s|%s|%s|%s|", ps.Alias, ps.BaseURL, ps.PageID, ps.ChannelID, strings.Join(events, ", "))
+}
+
+func (ps *PageSubscription) IsValid() error {
 	if ps.Alias == "" {
 		return errors.New("subscription name can not be empty")
 	}
@@ -123,7 +139,7 @@ func (ps *PageSubscription) UpdateUserID(userID string) *PageSubscription {
 	return ps
 }
 
-func (ps PageSubscription) GetSubscription() *PageSubscription {
+func (ps *PageSubscription) GetSubscription() *PageSubscription {
 	return &PageSubscription{
 		PageID:           ps.PageID,
 		BaseSubscription: ps.BaseSubscription,
@@ -131,7 +147,7 @@ func (ps PageSubscription) GetSubscription() *PageSubscription {
 	}
 }
 
-func (ps PageSubscription) ValidateSubscription(subs *Subscriptions) error {
+func (ps *PageSubscription) ValidateSubscription(subs *Subscriptions) error {
 	if err := ps.IsValid(); err != nil {
 		return err
 	}

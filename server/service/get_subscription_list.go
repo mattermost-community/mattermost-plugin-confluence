@@ -90,3 +90,25 @@ func GetTotalSubscriptionFromURL(subscriptionsMap map[string]serializer.StringSt
 	}
 	return totalSubscriptions
 }
+
+func GetOldSubscriptions() ([]serializer.Subscription, error) {
+	key := store.GetOldSubscriptionKey()
+	initialBytes, appErr := config.Mattermost.KVGet(key)
+	if appErr != nil {
+		return nil, errors.New(getChannelSubscriptionsError)
+	}
+
+	subscriptions, err := serializer.OldSubscriptionsFromJSON(initialBytes)
+	if err != nil {
+		return nil, errors.New(getChannelSubscriptionsError)
+	}
+
+	var subscriptionList []serializer.Subscription
+	for _, userIDSubscriptionMap := range subscriptions.ByChannelID {
+		for _, subscription := range userIDSubscriptionMap {
+			subscriptionList = append(subscriptionList, subscription)
+		}
+	}
+
+	return subscriptionList, nil
+}

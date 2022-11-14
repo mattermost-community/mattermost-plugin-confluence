@@ -213,7 +213,7 @@ func (csc *confluenceServerClient) GetCommentData(webhookPayload *serializer.Con
 
 func (csc *confluenceServerClient) GetPageData(pageID int) (*PageResponse, error) {
 	pageResponse := &PageResponse{}
-	_, err := utils.CallJSONWithURL(csc.URL, fmt.Sprintf(PathPageData, fmt.Sprintf(PathPageData, strconv.Itoa(pageID))), http.MethodGet, nil, pageResponse, csc.HTTPClient)
+	_, err := utils.CallJSONWithURL(csc.URL, fmt.Sprintf(PathPageData, strconv.Itoa(pageID)), http.MethodGet, nil, pageResponse, csc.HTTPClient)
 	if err != nil {
 		return nil, errors.Wrap(err, "confluence GetPageData")
 	}

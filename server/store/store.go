@@ -13,7 +13,8 @@ import (
 	"github.com/mattermost/mattermost-plugin-confluence/server/utils"
 )
 
-const ConfluenceSubscriptionKeyPrefix = "confluence_subs"
+const ConfluenceSubscriptionKeyPrefix = "confluence_subscription"
+const OldConfluenceSubscriptionKeyPrefix = "confluence_subs"
 
 func GetURLSpaceKeyCombinationKey(url, spaceKey string) string {
 	u, _ := url2.Parse(url)
@@ -27,6 +28,10 @@ func GetURLPageIDCombinationKey(url, pageID string) string {
 
 func GetSubscriptionKey() string {
 	return utils.GetKeyHash(ConfluenceSubscriptionKeyPrefix)
+}
+
+func GetOldSubscriptionKey() string {
+	return utils.GetKeyHash(OldConfluenceSubscriptionKeyPrefix)
 }
 
 // from https://github.com/mattermost/mattermost-plugin-confluence/blob/master/server/subscribe.go#L625

@@ -17,7 +17,7 @@ func TestGetSubscriptionsByChannelID(t *testing.T) {
 		"single subscription": {
 			channelID: "testChannelID",
 			expected: serializer.StringSubscription{
-				"test": serializer.SpaceSubscription{
+				"test": &serializer.SpaceSubscription{
 					SpaceKey: "TS",
 					BaseSubscription: serializer.BaseSubscription{
 						Alias:     "test",
@@ -31,7 +31,7 @@ func TestGetSubscriptionsByChannelID(t *testing.T) {
 		"multiple subscription": {
 			channelID: "testChannelID3",
 			expected: serializer.StringSubscription{
-				"test": serializer.PageSubscription{
+				"test": &serializer.PageSubscription{
 					PageID: "1234",
 					BaseSubscription: serializer.BaseSubscription{
 						Alias:     "test",
@@ -40,7 +40,7 @@ func TestGetSubscriptionsByChannelID(t *testing.T) {
 						Events:    []string{serializer.CommentCreatedEvent, serializer.CommentUpdatedEvent},
 					},
 				},
-				"tes1": serializer.SpaceSubscription{
+				"tes1": &serializer.SpaceSubscription{
 					SpaceKey: "TS",
 					BaseSubscription: serializer.BaseSubscription{
 						Alias:     "test",
@@ -61,7 +61,7 @@ func TestGetSubscriptionsByChannelID(t *testing.T) {
 			subscriptions := serializer.Subscriptions{
 				ByChannelID: map[string]serializer.StringSubscription{
 					"testChannelID": {
-						"test": serializer.SpaceSubscription{
+						"test": &serializer.SpaceSubscription{
 							SpaceKey: "TS",
 							BaseSubscription: serializer.BaseSubscription{
 								Alias:     "test",
@@ -72,7 +72,7 @@ func TestGetSubscriptionsByChannelID(t *testing.T) {
 						},
 					},
 					"testChannelID3": {
-						"test": serializer.PageSubscription{
+						"test": &serializer.PageSubscription{
 							PageID: "1234",
 							BaseSubscription: serializer.BaseSubscription{
 								Alias:     "test",
@@ -81,7 +81,7 @@ func TestGetSubscriptionsByChannelID(t *testing.T) {
 								Events:    []string{serializer.CommentCreatedEvent, serializer.CommentUpdatedEvent},
 							},
 						},
-						"tes1": serializer.SpaceSubscription{
+						"tes1": &serializer.SpaceSubscription{
 							SpaceKey: "TS",
 							BaseSubscription: serializer.BaseSubscription{
 								Alias:     "test",
@@ -93,7 +93,7 @@ func TestGetSubscriptionsByChannelID(t *testing.T) {
 					},
 				},
 				ByURLSpaceKey: map[string]serializer.StringStringArrayMap{
-					"confluence_subs/test.com/TS": {
+					"confluence_subscription/test.com/TS": {
 						"testChannelID": {
 							"testUserID": {serializer.CommentRemovedEvent, serializer.CommentUpdatedEvent},
 						},
@@ -103,7 +103,7 @@ func TestGetSubscriptionsByChannelID(t *testing.T) {
 					},
 				},
 				ByURLPageID: map[string]serializer.StringStringArrayMap{
-					"confluence_subs/test.com/1234": {
+					"confluence_subscription/test.com/1234": {
 						"testChannelID3": {
 							"testUserID": {serializer.CommentCreatedEvent, serializer.CommentUpdatedEvent},
 						},
@@ -158,7 +158,7 @@ func TestGetSubscriptionsByURLPageID(t *testing.T) {
 			subscriptions := serializer.Subscriptions{
 				ByChannelID: map[string]serializer.StringSubscription{
 					"testChannelID": {
-						"test": serializer.SpaceSubscription{
+						"test": &serializer.SpaceSubscription{
 							SpaceKey: "TS",
 							BaseSubscription: serializer.BaseSubscription{
 								Alias:     "test",
@@ -167,7 +167,7 @@ func TestGetSubscriptionsByURLPageID(t *testing.T) {
 								Events:    []string{serializer.CommentRemovedEvent, serializer.CommentUpdatedEvent},
 							},
 						},
-						"abc": serializer.PageSubscription{
+						"abc": &serializer.PageSubscription{
 							PageID: "12345",
 							BaseSubscription: serializer.BaseSubscription{
 								Alias:     "abc",
@@ -178,7 +178,7 @@ func TestGetSubscriptionsByURLPageID(t *testing.T) {
 						},
 					},
 					"testChannelID3": {
-						"test": serializer.PageSubscription{
+						"test": &serializer.PageSubscription{
 							PageID: "1234",
 							BaseSubscription: serializer.BaseSubscription{
 								Alias:     "test",
@@ -187,7 +187,7 @@ func TestGetSubscriptionsByURLPageID(t *testing.T) {
 								Events:    []string{serializer.CommentCreatedEvent, serializer.CommentUpdatedEvent},
 							},
 						},
-						"xyz": serializer.PageSubscription{
+						"xyz": &serializer.PageSubscription{
 							PageID: "12345",
 							BaseSubscription: serializer.BaseSubscription{
 								Alias:     "xyz",
@@ -196,7 +196,7 @@ func TestGetSubscriptionsByURLPageID(t *testing.T) {
 								Events:    []string{serializer.CommentCreatedEvent, serializer.CommentUpdatedEvent},
 							},
 						},
-						"tes1": serializer.SpaceSubscription{
+						"tes1": &serializer.SpaceSubscription{
 							SpaceKey: "TS",
 							BaseSubscription: serializer.BaseSubscription{
 								Alias:     "tes1",
@@ -208,7 +208,7 @@ func TestGetSubscriptionsByURLPageID(t *testing.T) {
 					},
 				},
 				ByURLSpaceKey: map[string]serializer.StringStringArrayMap{
-					"confluence_subs/test.com/TS": {
+					"confluence_subscription/test.com/TS": {
 						"testChannelID": {
 							"testUserID": {serializer.CommentRemovedEvent, serializer.CommentUpdatedEvent},
 						},
@@ -218,12 +218,12 @@ func TestGetSubscriptionsByURLPageID(t *testing.T) {
 					},
 				},
 				ByURLPageID: map[string]serializer.StringStringArrayMap{
-					"confluence_subs/test.com/1234": {
+					"confluence_subscription/test.com/1234": {
 						"testChannelID3": {
 							"testUserID": {serializer.CommentCreatedEvent, serializer.CommentUpdatedEvent},
 						},
 					},
-					"confluence_subs/test.com/12345": {
+					"confluence_subscription/test.com/12345": {
 						"testChannelID": {
 							"testUserID": {serializer.CommentCreatedEvent, serializer.CommentUpdatedEvent},
 						},
@@ -281,7 +281,7 @@ func TestGetSubscriptionsByURLSpaceKey(t *testing.T) {
 			subscriptions := serializer.Subscriptions{
 				ByChannelID: map[string]serializer.StringSubscription{
 					"testChannelID": {
-						"test": serializer.SpaceSubscription{
+						"test": &serializer.SpaceSubscription{
 							SpaceKey: "TS",
 							BaseSubscription: serializer.BaseSubscription{
 								Alias:     "test",
@@ -290,7 +290,7 @@ func TestGetSubscriptionsByURLSpaceKey(t *testing.T) {
 								Events:    []string{serializer.CommentRemovedEvent, serializer.CommentUpdatedEvent},
 							},
 						},
-						"abc": serializer.PageSubscription{
+						"abc": &serializer.PageSubscription{
 							PageID: "12345",
 							BaseSubscription: serializer.BaseSubscription{
 								Alias:     "abc",
@@ -301,7 +301,7 @@ func TestGetSubscriptionsByURLSpaceKey(t *testing.T) {
 						},
 					},
 					"testChannelID3": {
-						"test": serializer.PageSubscription{
+						"test": &serializer.PageSubscription{
 							PageID: "1234",
 							BaseSubscription: serializer.BaseSubscription{
 								Alias:     "test",
@@ -310,7 +310,7 @@ func TestGetSubscriptionsByURLSpaceKey(t *testing.T) {
 								Events:    []string{serializer.CommentCreatedEvent, serializer.CommentUpdatedEvent},
 							},
 						},
-						"xyz": serializer.PageSubscription{
+						"xyz": &serializer.PageSubscription{
 							PageID: "12345",
 							BaseSubscription: serializer.BaseSubscription{
 								Alias:     "xyz",
@@ -319,7 +319,7 @@ func TestGetSubscriptionsByURLSpaceKey(t *testing.T) {
 								Events:    []string{serializer.CommentCreatedEvent, serializer.CommentUpdatedEvent},
 							},
 						},
-						"tes1": serializer.SpaceSubscription{
+						"tes1": &serializer.SpaceSubscription{
 							SpaceKey: "TS",
 							BaseSubscription: serializer.BaseSubscription{
 								Alias:     "tes1",
@@ -328,7 +328,7 @@ func TestGetSubscriptionsByURLSpaceKey(t *testing.T) {
 								Events:    []string{serializer.CommentRemovedEvent, serializer.CommentUpdatedEvent},
 							},
 						},
-						"tesa": serializer.SpaceSubscription{
+						"tesa": &serializer.SpaceSubscription{
 							SpaceKey: "TS1",
 							BaseSubscription: serializer.BaseSubscription{
 								Alias:     "tesa",
@@ -340,7 +340,7 @@ func TestGetSubscriptionsByURLSpaceKey(t *testing.T) {
 					},
 				},
 				ByURLSpaceKey: map[string]serializer.StringStringArrayMap{
-					"confluence_subs/test.com/TS": {
+					"confluence_subscription/test.com/TS": {
 						"testChannelID": {
 							"testUserID": {serializer.CommentRemovedEvent, serializer.CommentUpdatedEvent},
 						},
@@ -348,19 +348,19 @@ func TestGetSubscriptionsByURLSpaceKey(t *testing.T) {
 							"testUserID": {serializer.CommentRemovedEvent, serializer.CommentUpdatedEvent},
 						},
 					},
-					"confluence_subs/test.com/TS1": {
+					"confluence_subscription/test.com/TS1": {
 						"testChannelID3": {
 							"testUserID": {serializer.CommentRemovedEvent, serializer.CommentUpdatedEvent},
 						},
 					},
 				},
 				ByURLPageID: map[string]serializer.StringStringArrayMap{
-					"confluence_subs/test.com/1234": {
+					"confluence_subscription/test.com/1234": {
 						"testChannelID3": {
 							"testUserID": {serializer.CommentCreatedEvent, serializer.CommentUpdatedEvent},
 						},
 					},
-					"confluence_subs/test.com/12345": {
+					"confluence_subscription/test.com/12345": {
 						"testChannelID": {
 							"testUserID": {serializer.CommentCreatedEvent, serializer.CommentUpdatedEvent},
 						},

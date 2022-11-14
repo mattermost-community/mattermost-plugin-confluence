@@ -108,7 +108,7 @@ func (p *Plugin) getMockOTSStoreKV() *mockOTSStoreKV {
 var subscriptions = serializer.Subscriptions{
 	ByChannelID: map[string]serializer.StringSubscription{
 		"testChannelID": {
-			"test": serializer.SpaceSubscription{
+			"test": &serializer.SpaceSubscription{
 				SpaceKey: "TS",
 				UserID:   "testUserID",
 				BaseSubscription: serializer.BaseSubscription{
@@ -120,7 +120,7 @@ var subscriptions = serializer.Subscriptions{
 			},
 		},
 		"testChannelID3": {
-			"test": serializer.PageSubscription{
+			"test": &serializer.PageSubscription{
 				PageID: "1234",
 				UserID: "testUserID",
 				BaseSubscription: serializer.BaseSubscription{
