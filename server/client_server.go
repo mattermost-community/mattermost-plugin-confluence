@@ -9,6 +9,7 @@ import (
 	"github.com/pkg/errors"
 
 	"github.com/mattermost/mattermost-plugin-confluence/server/serializer"
+	"github.com/mattermost/mattermost-plugin-confluence/server/service"
 	"github.com/mattermost/mattermost-plugin-confluence/server/utils"
 )
 
@@ -141,7 +142,7 @@ func (csc *confluenceServerClient) CreateWebhook(subscription serializer.Subscri
 		},
 	}
 	webhookResponse := &WebhookResponse{}
-	_, err := utils.CallJSONWithURL(csc.URL, PathCreateWebhook, http.MethodPost, requestBody, webhookResponse, csc.HTTPClient)
+	_, err := service.CallJSONWithURL(csc.URL, PathCreateWebhook, http.MethodPost, requestBody, webhookResponse, csc.HTTPClient)
 	if err != nil {
 		return nil, errors.Wrap(err, "confluence CreateWebhook")
 	}
@@ -150,7 +151,7 @@ func (csc *confluenceServerClient) CreateWebhook(subscription serializer.Subscri
 }
 
 func (csc *confluenceServerClient) DeleteWebhook(webhookID string) error {
-	_, err := utils.CallJSONWithURL(csc.URL, fmt.Sprintf(PathDeleteWebhook, webhookID), http.MethodDelete, nil, nil, csc.HTTPClient)
+	_, err := service.CallJSONWithURL(csc.URL, fmt.Sprintf(PathDeleteWebhook, webhookID), http.MethodDelete, nil, nil, csc.HTTPClient)
 	if err != nil {
 		return errors.Wrap(err, "confluence DeleteWebhook")
 	}
@@ -160,7 +161,7 @@ func (csc *confluenceServerClient) DeleteWebhook(webhookID string) error {
 
 func (csc *confluenceServerClient) GetSelf() (*ConfluenceUser, error) {
 	confluenceServerUser := &ConfluenceServerUser{}
-	_, err := utils.CallJSONWithURL(csc.URL, PathCurrentUser, http.MethodGet, nil, confluenceServerUser, csc.HTTPClient)
+	_, err := service.CallJSONWithURL(csc.URL, PathCurrentUser, http.MethodGet, nil, confluenceServerUser, csc.HTTPClient)
 	if err != nil {
 		return nil, errors.Wrap(err, "confluence GetSelf")
 	}
@@ -201,7 +202,7 @@ func (csc *confluenceServerClient) GetEventData(webhookPayload *serializer.Confl
 
 func (csc *confluenceServerClient) GetCommentData(webhookPayload *serializer.ConfluenceServerWebhookPayload) (*CommentResponse, error) {
 	commentResponse := &CommentResponse{}
-	_, err := utils.CallJSONWithURL(csc.URL, fmt.Sprintf(PathCommentData, strconv.FormatInt(webhookPayload.Comment.ID, 10)), http.MethodGet, nil, commentResponse, csc.HTTPClient)
+	_, err := service.CallJSONWithURL(csc.URL, fmt.Sprintf(PathCommentData, strconv.FormatInt(webhookPayload.Comment.ID, 10)), http.MethodGet, nil, commentResponse, csc.HTTPClient)
 	if err != nil {
 		return nil, errors.Wrap(err, "confluence GetCommentData")
 	}
@@ -213,7 +214,7 @@ func (csc *confluenceServerClient) GetCommentData(webhookPayload *serializer.Con
 
 func (csc *confluenceServerClient) GetPageData(pageID int) (*PageResponse, error) {
 	pageResponse := &PageResponse{}
-	_, err := utils.CallJSONWithURL(csc.URL, fmt.Sprintf(PathPageData, strconv.Itoa(pageID)), http.MethodGet, nil, pageResponse, csc.HTTPClient)
+	_, err := service.CallJSONWithURL(csc.URL, fmt.Sprintf(PathPageData, strconv.Itoa(pageID)), http.MethodGet, nil, pageResponse, csc.HTTPClient)
 	if err != nil {
 		return nil, errors.Wrap(err, "confluence GetPageData")
 	}
@@ -225,7 +226,7 @@ func (csc *confluenceServerClient) GetPageData(pageID int) (*PageResponse, error
 
 func (csc *confluenceServerClient) GetSpaceData(spaceKey string) (*SpaceResponse, error) {
 	spaceResponse := &SpaceResponse{}
-	_, err := utils.CallJSONWithURL(csc.URL, fmt.Sprintf(PathSpaceData, spaceKey), http.MethodGet, nil, spaceResponse, csc.HTTPClient)
+	_, err := service.CallJSONWithURL(csc.URL, fmt.Sprintf(PathSpaceData, spaceKey), http.MethodGet, nil, spaceResponse, csc.HTTPClient)
 	if err != nil {
 		return nil, errors.Wrap(err, "confluence GetSpaceData")
 	}
@@ -235,7 +236,7 @@ func (csc *confluenceServerClient) GetSpaceData(spaceKey string) (*SpaceResponse
 
 func (csc *confluenceServerClient) CheckConfluenceAdmin() (*AdminData, error) {
 	adminData := &AdminData{}
-	_, err := utils.CallJSONWithURL(csc.URL, PathAdminData, http.MethodGet, nil, adminData, csc.HTTPClient)
+	_, err := service.CallJSONWithURL(csc.URL, PathAdminData, http.MethodGet, nil, adminData, csc.HTTPClient)
 	if err != nil {
 		return nil, errors.Wrap(err, "confluence CheckConfluenceAdmin")
 	}
@@ -246,7 +247,7 @@ func (csc *confluenceServerClient) CheckConfluenceAdmin() (*AdminData, error) {
 func (csc *confluenceServerClient) GetUserGroups(connection *Connection) ([]*UserGroup, error) {
 	userGroups := UserGroups{}
 
-	_, err := utils.CallJSONWithURL(csc.URL, PathGetUserGroupsForServer, http.MethodGet, nil, &userGroups, csc.HTTPClient)
+	_, err := service.CallJSONWithURL(csc.URL, PathGetUserGroupsForServer, http.MethodGet, nil, &userGroups, csc.HTTPClient)
 	if err != nil {
 		return nil, errors.Wrap(err, "confluence GetUserGroups")
 	}

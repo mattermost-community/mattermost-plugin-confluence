@@ -188,22 +188,6 @@ func (p *Plugin) OnConfigurationChange() error {
 		}
 	}
 
-	// OnConfigurationChanged is first called before the plugin is activated,
-	// in this case don't register the command, let Activate do it, it has the instanceStore.
-	if p.instanceStore != nil {
-		if err := p.registerConfluenceCommand(); err != nil {
-			return err
-		}
-	}
-
-	// OnConfigurationChanged is first called before the plugin is activated,
-	// in this case don't register the command, let Activate do it, it has the instanceStore.
-	if p.instanceStore != nil {
-		if err := p.registerConfluenceCommand(); err != nil {
-			return err
-		}
-	}
-
 	diagnostics := false
 	if p.API.GetConfig().LogSettings.EnableDiagnostics != nil {
 		diagnostics = *p.API.GetConfig().LogSettings.EnableDiagnostics

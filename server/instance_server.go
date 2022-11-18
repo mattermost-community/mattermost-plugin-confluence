@@ -7,6 +7,7 @@ import (
 	"github.com/pkg/errors"
 	"golang.org/x/oauth2"
 
+	"github.com/mattermost/mattermost-plugin-confluence/server/service"
 	"github.com/mattermost/mattermost-plugin-confluence/server/utils"
 	"github.com/mattermost/mattermost-plugin-confluence/server/utils/types"
 )
@@ -16,7 +17,7 @@ type serverInstance struct {
 }
 
 func (p *Plugin) installServerInstance(rawURL string) (string, *serverInstance, error) {
-	confluenceURL, err := utils.CheckConfluenceURL(p.GetSiteURL(), rawURL, false)
+	confluenceURL, err := service.CheckConfluenceURL(p.GetSiteURL(), rawURL, false)
 	if err != nil {
 		return "", nil, err
 	}

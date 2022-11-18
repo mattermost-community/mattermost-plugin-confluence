@@ -166,8 +166,6 @@ func (e ConfluenceCloudEvent) GetURL() string {
 	}
 	if e.Page != nil {
 		return e.Page.Self
-	} else if e.Space != nil {
-		return e.Space.Self
 	}
 	if e.Space != nil {
 		return e.Space.Self
@@ -181,8 +179,6 @@ func (e ConfluenceCloudEvent) GetSpaceKey() string {
 	}
 	if e.Page != nil {
 		return e.Page.SpaceKey
-	} else if e.Space != nil {
-		return e.Space.SpaceKey
 	}
 	if e.Space != nil {
 		return e.Space.SpaceKey

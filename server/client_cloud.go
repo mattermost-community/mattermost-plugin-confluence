@@ -9,6 +9,7 @@ import (
 	"github.com/pkg/errors"
 
 	"github.com/mattermost/mattermost-plugin-confluence/server/serializer"
+	"github.com/mattermost/mattermost-plugin-confluence/server/service"
 	"github.com/mattermost/mattermost-plugin-confluence/server/utils"
 )
 
@@ -53,7 +54,7 @@ func newCloudClient(url, instanceID string, httpClient *http.Client) Client {
 
 func (ccc *confluenceCloudClient) GetSelf() (*ConfluenceUser, error) {
 	confluenceCloudUser := &ConfluenceCloudUser{}
-	_, err := utils.CallJSONWithURL(ccc.URL, PathCurrentUser, http.MethodGet, nil, confluenceCloudUser, ccc.HTTPClient)
+	_, err := service.CallJSONWithURL(ccc.URL, PathCurrentUser, http.MethodGet, nil, confluenceCloudUser, ccc.HTTPClient)
 	if err != nil {
 		return nil, errors.Wrap(err, "confluence GetSelf")
 	}
@@ -68,7 +69,7 @@ func (ccc *confluenceCloudClient) GetSelf() (*ConfluenceUser, error) {
 
 func (ccc *confluenceCloudClient) GetCloudID() (string, error) {
 	accessibleResources := []*AccessibleResources{}
-	_, err := utils.CallJSONWithURL(ccc.URL, PathAccessibleResources, http.MethodGet, nil, &accessibleResources, ccc.HTTPClient)
+	_, err := service.CallJSONWithURL(ccc.URL, PathAccessibleResources, http.MethodGet, nil, &accessibleResources, ccc.HTTPClient)
 	if err != nil {
 		return "", errors.Wrap(err, "confluence GetCloudID")
 	}
@@ -115,7 +116,7 @@ func (ccc *confluenceCloudClient) GetEventData(confluenceCloudEvent *serializer.
 
 func (ccc *confluenceCloudClient) GetCommentData(confluenceCloudEvent *serializer.ConfluenceCloudEvent) (*CommentResponse, error) {
 	commentResponse := &CommentResponse{}
-	_, err := utils.CallJSONWithURL(ccc.URL, fmt.Sprintf(PathCommentData, strconv.Itoa(confluenceCloudEvent.Comment.ID)), http.MethodGet, nil, commentResponse, ccc.HTTPClient)
+	_, err := service.CallJSONWithURL(ccc.URL, fmt.Sprintf(PathCommentData, strconv.Itoa(confluenceCloudEvent.Comment.ID)), http.MethodGet, nil, commentResponse, ccc.HTTPClient)
 	if err != nil {
 		return nil, errors.Wrap(err, "confluence GetCommentData")
 	}
@@ -127,7 +128,7 @@ func (ccc *confluenceCloudClient) GetCommentData(confluenceCloudEvent *serialize
 
 func (ccc *confluenceCloudClient) GetPageData(pageID int) (*PageResponse, error) {
 	pageResponse := &PageResponse{}
-	_, err := utils.CallJSONWithURL(ccc.URL, fmt.Sprintf(PathPageData, strconv.Itoa(pageID)), http.MethodGet, nil, pageResponse, ccc.HTTPClient)
+	_, err := service.CallJSONWithURL(ccc.URL, fmt.Sprintf(PathPageData, strconv.Itoa(pageID)), http.MethodGet, nil, pageResponse, ccc.HTTPClient)
 	if err != nil {
 		return nil, errors.Wrap(err, "confluence GetPageData")
 	}
@@ -139,7 +140,7 @@ func (ccc *confluenceCloudClient) GetPageData(pageID int) (*PageResponse, error)
 
 func (ccc *confluenceCloudClient) GetSpaceData(spaceKey string) (*SpaceResponse, error) {
 	spaceResponse := &SpaceResponse{}
-	_, err := utils.CallJSONWithURL(ccc.URL, fmt.Sprintf(PathSpaceData, spaceKey), http.MethodGet, nil, spaceResponse, ccc.HTTPClient)
+	_, err := service.CallJSONWithURL(ccc.URL, fmt.Sprintf(PathSpaceData, spaceKey), http.MethodGet, nil, spaceResponse, ccc.HTTPClient)
 	if err != nil {
 		return nil, errors.Wrap(err, "confluence GetSpaceData")
 	}
@@ -149,7 +150,7 @@ func (ccc *confluenceCloudClient) GetSpaceData(spaceKey string) (*SpaceResponse,
 
 func (ccc *confluenceCloudClient) GetUserGroups(connection *Connection) ([]*UserGroup, error) {
 	userGroups := UserGroups{}
-	_, err := utils.CallJSONWithURL(ccc.URL, fmt.Sprintf(PathGetUserGroupsForCloud, connection.AccountID), http.MethodGet, nil, &userGroups, ccc.HTTPClient)
+	_, err := service.CallJSONWithURL(ccc.URL, fmt.Sprintf(PathGetUserGroupsForCloud, connection.AccountID), http.MethodGet, nil, &userGroups, ccc.HTTPClient)
 	if err != nil {
 		return nil, errors.Wrap(err, "confluence GetUserGroups")
 	}

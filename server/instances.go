@@ -4,7 +4,7 @@ import (
 	"github.com/mattermost/mattermost-server/v6/model"
 	"github.com/pkg/errors"
 
-	"github.com/mattermost/mattermost-plugin-confluence/server/utils"
+	"github.com/mattermost/mattermost-plugin-confluence/server/service"
 	"github.com/mattermost/mattermost-plugin-confluence/server/utils/kvstore"
 	"github.com/mattermost/mattermost-plugin-confluence/server/utils/types"
 )
@@ -197,7 +197,7 @@ func (p *Plugin) wsInstancesChanged(instances *Instances) {
 func (p *Plugin) ResolveWebhookInstanceURL(instanceURL string) (types.ID, error) {
 	var err error
 	if instanceURL != "" {
-		instanceURL, err = utils.NormalizeConfluenceURL(instanceURL)
+		instanceURL, err = service.NormalizeConfluenceURL(instanceURL)
 		if err != nil {
 			return "", err
 		}
@@ -256,7 +256,7 @@ func (p *Plugin) resolveUserInstanceURL(user *User, instanceURL string) (types.I
 
 	var err error
 	if instanceURL != "" {
-		instanceURL, err = utils.NormalizeConfluenceURL(instanceURL)
+		instanceURL, err = service.NormalizeConfluenceURL(instanceURL)
 		if err != nil {
 			return "", err
 		}

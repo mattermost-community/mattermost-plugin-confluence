@@ -1,6 +1,7 @@
 {{ .ConfluenceURL }} has been successfully added. To finish the configuration, create a new app in your Confluence instance following these steps:
 
 1. Go to the Atlassian [Developer Console](https://developer.atlassian.com/console/myapps/).
+    ![image](https://user-images.githubusercontent.com/90389917/202149604-1f0b8758-96ab-49b0-bd9f-f23ce9d6beda.png)
 2. Select **Create > OAuth2.0 integration**.
 3. Select **Authorization** in the left menu.
 4. Next to OAuth 2.0 (3LO), select **Configure**.

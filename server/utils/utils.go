@@ -10,7 +10,6 @@ import (
 	"io/ioutil"
 	"net/http"
 	"net/url"
-	"path"
 	"regexp"
 	"strings"
 
@@ -99,80 +98,6 @@ func Deduplicate(a []string) []string {
 	}
 
 	return result
-}
-
-type ConfluenceStatus struct {
-	State string `json:"state"`
-}
-
-func NormalizeConfluenceURL(confluenceURL string) (string, error) {
-	u, err := url.Parse(confluenceURL)
-	if err != nil {
-		return "", err
-	}
-	if u.Host == "" {
-		ss := strings.Split(u.Path, "/")
-		if len(ss) > 0 && ss[0] != "" {
-			u.Host = ss[0]
-			u.Path = path.Join(ss[1:]...)
-		}
-		u, err = url.Parse(u.String())
-		if err != nil {
-			return "", err
-		}
-	}
-	if u.Host == "" {
-		return "", errors.Errorf("Invalid URL, no hostname: %q", confluenceURL)
-	}
-	if u.Scheme == "" {
-		u.Scheme = "https"
-	}
-
-	confluenceURL = strings.TrimSuffix(u.String(), "/")
-	return confluenceURL, nil
-}
-
-// CheckConfluenceURL checks if `/status` endpoint of the Confluence URL is accessible
-// and responding with the correct state which is "RUNNING"
-func CheckConfluenceURL(mattermostSiteURL, confluenceURL string, requireHTTPS bool) (_ string, err error) {
-	confluenceURL, err = NormalizeConfluenceURL(confluenceURL)
-	if err != nil {
-		return "", err
-	}
-	if confluenceURL == strings.TrimSuffix(mattermostSiteURL, "/") {
-		return "", errors.Errorf("%s is the Mattermost site URL. Please use your Confluence URL", confluenceURL)
-	}
-
-	defer func() {
-		if err != nil {
-			err = errors.Wrap(err, "we couldn't validate the connection to your Confluence server. "+
-				"This could be because of existing firewall or proxy rules, or because the URL was entered incorrectly")
-		}
-	}()
-
-	resp, err := http.Get(confluenceURL + "/status")
-	if err != nil {
-		return "", err
-	}
-	defer resp.Body.Close()
-
-	if resp.StatusCode != http.StatusOK {
-		return "", errors.Errorf("Confluence server returned http status code %q when checking for availability: %q", resp.Status, confluenceURL)
-	}
-
-	resBody, err := ioutil.ReadAll(resp.Body)
-	if err != nil {
-		return "", err
-	}
-	var status ConfluenceStatus
-	err = json.Unmarshal(resBody, &status)
-	if err != nil {
-		return "", err
-	}
-	if status.State != "RUNNING" {
-		return "", errors.Errorf("Confluence server is not in correct state, it should be up and running: %q", confluenceURL)
-	}
-	return confluenceURL, nil
 }
 
 func IsConfluenceCloudURL(confluenceURL string) bool {

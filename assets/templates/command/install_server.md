@@ -1,7 +1,7 @@
 {{ .ConfluenceURL }} has been successfully added. To finish the configuration, add an Application Link in your Confluence instance following these steps:
 
-1. Go to [**Settings > Applications > Application
-   Links**]({{ .ConfluenceURL }}/plugins/servlet/applinks/listApplicationLinks)
+1. Go to [**Settings > Applications > Application Links**]({{ .ConfluenceURL }}/plugins/servlet/applinks/listApplicationLinks)
+   ![image](https://user-images.githubusercontent.com/90389917/202149868-a3044351-37bc-43c0-9671-aba169706917.png)
 2. Select **Create link**.
 3. On the **Create Link** screen, select **External Application** and **Incoming** as
    `Application type` and `Direction` respectively. Select **Continue**.

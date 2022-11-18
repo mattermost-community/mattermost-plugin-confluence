@@ -603,6 +603,34 @@ func getFullHelpText(p *Plugin, context *model.CommandArgs, args ...string) stri
 	return helpText
 }
 
+func (p *Plugin) executeConnectInfo(userID, confluenceURL string) (types.ID, string) {
+	info, err := p.GetUserInfo(types.ID(userID), nil)
+	if err != nil {
+		return "", fmt.Sprintf("Failed to connect. Error: %v", err)
+	}
+
+	if info.Instances.IsEmpty() {
+		return "", "No Confluence instances have been installed. Please contact the system administrator."
+	}
+
+	if confluenceURL == "" {
+		if info.connectable.Len() == 1 {
+			confluenceURL = info.connectable.IDs()[0].String()
+		}
+	}
+
+	instanceID := types.ID(confluenceURL)
+	if info.connectable.IsEmpty() {
+		return instanceID, fmt.Sprintf("You have already connected all available Confluence accounts. Please use `/confluence disconnect --instance=%s` to disconnect.", instanceID)
+	}
+
+	if !info.connectable.Contains(instanceID) {
+		return instanceID, fmt.Sprintf("Confluence instance %s is not installed, please contact the system administrator.", instanceID)
+	}
+
+	return instanceID, ""
+}
+
 func executeConnect(p *Plugin, context *model.CommandArgs, args ...string) *model.CommandResponse {
 	instances, err := p.instanceStore.LoadInstances()
 	if err != nil {
@@ -617,30 +645,12 @@ func executeConnect(p *Plugin, context *model.CommandArgs, args ...string) *mode
 		confluenceURL = instance.InstanceID.String()
 	}
 	isAdmin := len(args) > 1 && strings.EqualFold(args[1], AdminMattermostUserID)
-	info, err := p.GetUserInfo(types.ID(context.UserId), nil)
-	if err != nil {
-		return p.responsef(context, "Failed to connect. Error: %v", err)
+
+	instanceID, errString := p.executeConnectInfo(context.UserId, confluenceURL)
+	if errString != "" {
+		return p.responsef(context, errString)
 	}
-	if info.Instances.IsEmpty() {
-		return p.responsef(context,
-			"No Confluence instances have been installed. Please contact the system administrator.")
-	}
-	if confluenceURL == "" {
-		if info.connectable.Len() == 1 {
-			confluenceURL = info.connectable.IDs()[0].String()
-		}
-	}
-	instanceID := types.ID(confluenceURL)
-	if info.connectable.IsEmpty() {
-		return p.responsef(context,
-			"You already have connected all available Confluence accounts. Please use `/confluence disconnect --instance=%s` to disconnect.",
-			instanceID)
-	}
-	if !info.connectable.Contains(instanceID) {
-		return p.responsef(context,
-			"Confluence instance %s is not installed, please contact the system administrator.",
-			instanceID)
-	}
+
 	conn, err := p.userStore.LoadConnection(instanceID, types.ID(context.UserId))
 	if err == nil && len(conn.ConfluenceAccountID()) != 0 {
 		return p.responsef(context,
@@ -696,7 +706,7 @@ func executeInstanceUninstall(p *Plugin, commArgs *model.CommandArgs, args ...st
 	instanceType := InstanceType(args[0])
 	instanceURL := args[1]
 
-	id, err := utils.NormalizeConfluenceURL(instanceURL)
+	id, err := service.NormalizeConfluenceURL(instanceURL)
 	if err != nil {
 		return p.responsef(commArgs, err.Error())
 	}

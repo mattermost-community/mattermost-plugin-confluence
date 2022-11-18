@@ -8,7 +8,7 @@ import (
 	"github.com/pkg/errors"
 	"golang.org/x/oauth2"
 
-	"github.com/mattermost/mattermost-plugin-confluence/server/utils"
+	"github.com/mattermost/mattermost-plugin-confluence/server/service"
 	"github.com/mattermost/mattermost-plugin-confluence/server/utils/types"
 )
 
@@ -19,7 +19,7 @@ type cloudInstance struct {
 }
 
 func (p *Plugin) installCloudInstance(rawURL string) (string, *cloudInstance, error) {
-	confluenceURL, err := utils.NormalizeConfluenceURL(rawURL)
+	confluenceURL, err := service.NormalizeConfluenceURL(rawURL)
 	if err != nil {
 		return "", nil, err
 	}
