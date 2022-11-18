@@ -243,12 +243,16 @@ func call(basePath, method, path, contentType string, inBody io.Reader, out inte
 		return nil, err
 	}
 
+	return handleResponse(resp, out)
+}
+
+func handleResponse(resp *http.Response, out interface{}) ([]byte, error) {
 	if resp.Body == nil {
 		return nil, nil
 	}
 	defer resp.Body.Close()
 
-	responseData, err = ioutil.ReadAll(resp.Body)
+	responseData, err := ioutil.ReadAll(resp.Body)
 	if err != nil {
 		return nil, err
 	}
@@ -274,8 +278,7 @@ func call(basePath, method, path, contentType string, inBody io.Reader, out inte
 		Message string `json:"message"`
 	}
 	errResp := ErrorResponse{}
-	err = json.Unmarshal(responseData, &errResp)
-	if err != nil {
+	if err = json.Unmarshal(responseData, &errResp); err != nil {
 		return nil, err
 	}
 	return responseData, errors.New(errResp.Message)
