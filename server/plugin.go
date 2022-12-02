@@ -198,7 +198,7 @@ func (p *Plugin) OnConfigurationChange() error {
 		p.telemetryClient,
 		p.API.GetDiagnosticId(),
 		p.API.GetServerVersion(),
-		manifest.ID,
+		manifest.Id,
 		manifest.Version,
 		"confluence",
 		diagnostics,
@@ -318,7 +318,7 @@ func (p *Plugin) updateConfig(f func(conf *Config)) Config {
 }
 
 func (p *Plugin) GetPluginURLPath() string {
-	return "/plugins/" + manifest.ID + "/api/v1"
+	return "/plugins/" + manifest.Id + "/api/v1"
 }
 
 func (p *Plugin) GetAtlassianConnectURLPath() string {

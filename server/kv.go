@@ -16,14 +16,15 @@ import (
 )
 
 const (
-	keyInstances        = "instances/v3"
-	keyRSAKey           = "rsa_key"
-	keyTokenSecret      = "token_secret"
-	prefixInstance      = "conf_instance_"
-	prefixUser          = "user_"
-	prefixOneTimeSecret = "ots_" // + unique key that will be deleted after the first verification
-	webhookKeyPrefix    = "webhook"
-	configKeyPrefix     = "_config"
+	keyInstances              = "instances/v3"
+	keyRSAKey                 = "rsa_key"
+	keyTokenSecret            = "token_secret"
+	prefixInstance            = "conf_instance_"
+	prefixUser                = "user_"
+	prefixOneTimeSecret       = "ots_" // + unique key that will be deleted after the first verification
+	prefixWebhookKey          = "webhook"
+	prefixConfigKey           = "_config"
+	expiryStoreTimeoutSeconds = 15 * 60
 )
 
 type Store interface {
@@ -91,12 +92,12 @@ func keyWithInstanceID(instanceID, key types.ID) string {
 }
 
 func keyWithInstanceIDForConfig(instanceID string) string {
-	return fmt.Sprintf("%s/%s", instanceID, configKeyPrefix)
+	return fmt.Sprintf("%s/%s", instanceID, prefixConfigKey)
 }
 
 func keyForWebhookID(instanceID, key types.ID) string {
 	h := md5.New() // #nosec G401
-	fmt.Fprintf(h, "%s/%s/%s", instanceID, key, webhookKeyPrefix)
+	fmt.Fprintf(h, "%s/%s/%s", instanceID, key, prefixWebhookKey)
 	return fmt.Sprintf("%x", h.Sum(nil))
 }
 
@@ -567,9 +568,8 @@ func (p *Plugin) MigrateV2User(mattermostUserID types.ID) (*User, error) {
 }
 
 func (store store) StoreOAuth2State(state string) error {
-	// Expire in 15 minutes
 	appErr := store.plugin.API.KVSetWithExpiry(
-		hashkey(prefixOneTimeSecret, state), []byte(state), 15*60)
+		hashkey(prefixOneTimeSecret, state), []byte(state), expiryStoreTimeoutSeconds)
 	if appErr != nil {
 		return errors.WithMessage(appErr, "failed to store state "+state)
 	}
@@ -656,13 +656,10 @@ func (store store) EnsureRSAKey() (rsaKey *rsa.PrivateKey, returnErr error) {
 		}
 		rsaKey = newRSAKey
 		store.plugin.debugf("Stored: RSA key")
-	}
 
-	// If we weren't able to save a new key above, another server must have beat us to it. Get the
-	// key from the database, and if that fails, error out.
-	if rsaKey == nil {
-		err = store.get(keyRSAKey, &rsaKey)
-		if err != nil {
+		// If we weren't able to save a new key above, another server must have beaten us to it. Get the
+		// key from the database, and if that fails, error out.
+		if err = store.get(keyRSAKey, &rsaKey); err != nil {
 			return nil, err
 		}
 	}
@@ -671,11 +668,10 @@ func (store store) EnsureRSAKey() (rsaKey *rsa.PrivateKey, returnErr error) {
 }
 
 func (store store) StoreOneTimeSecret(token, secret string) error {
-	// Expire in 15 minutes
 	appErr := store.plugin.API.KVSetWithExpiry(
-		hashkey(prefixOneTimeSecret, token), []byte(secret), 15*60)
+		hashkey(prefixOneTimeSecret, token), []byte(secret), expiryStoreTimeoutSeconds)
 	if appErr != nil {
-		return errors.WithMessage(appErr, "failed to store one-ttime secret "+token)
+		return errors.WithMessage(appErr, "failed to store one-time secret "+token)
 	}
 	return nil
 }

@@ -401,7 +401,7 @@ func (p *Plugin) GetConfigKeyList() ([]string, error) {
 		var keys []string
 		testconfig := ""
 		for _, key := range keyList {
-			if strings.Contains(key, configKeyPrefix) {
+			if strings.Contains(key, prefixConfigKey) {
 				keys = append(keys, key)
 				testconfig += key
 			}
