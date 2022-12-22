@@ -97,7 +97,7 @@ func (e ConfluenceCloudEvent) GetNotificationPost(eventType, baseURL, botUserID 
 				Fallback:  message,
 				Pretext:   message,
 				Title:     e.Page.Title,
-				TitleLink: fmt.Sprintf("%s/%s", baseURL, e.Page.Self),
+				TitleLink: e.Page.Self,
 				Text:      fmt.Sprintf("%s\n\n[**View in Confluence**](%s)", strings.TrimSpace(e.Page.Body.View.Value), e.Page.Self),
 			}
 		} else {

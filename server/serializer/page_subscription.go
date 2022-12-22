@@ -153,13 +153,13 @@ func (ps *PageSubscription) ValidateSubscription(subs *Subscriptions) error {
 	}
 	if channelSubscriptions, valid := subs.ByChannelID[ps.ChannelID]; valid {
 		if _, ok := channelSubscriptions[ps.Alias]; ok {
-			return errors.New(aliasAlreadyExist)
+			return errors.New(AliasAlreadyExist)
 		}
 	}
 	key := store.GetURLPageIDCombinationKey(ps.BaseURL, ps.PageID)
 	if urlPageIDSubscriptions, valid := subs.ByURLPageID[key]; valid {
 		if _, ok := urlPageIDSubscriptions[ps.ChannelID]; ok {
-			return errors.New(urlPageIDAlreadyExist)
+			return errors.New(URLPageIDAlreadyExist)
 		}
 	}
 	return nil

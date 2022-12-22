@@ -256,3 +256,21 @@ func Map(vs []string, f func(string) string) []string {
 	}
 	return vsm
 }
+
+// IsValidURL checks if a given URL is a valid URL with a host and a http or https scheme.
+func IsValidURL(rawURL string) error {
+	u, err := url.ParseRequestURI(rawURL)
+	if err != nil {
+		return err
+	}
+
+	if u.Scheme != "http" && u.Scheme != "https" {
+		return errors.New("url schema must either be http or https")
+	}
+
+	if u.Host == "" {
+		return errors.New("url must contain a host")
+	}
+
+	return nil
+}

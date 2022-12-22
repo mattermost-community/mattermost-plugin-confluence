@@ -4,15 +4,18 @@ import (
 	"encoding/json"
 	"fmt"
 	"net/http"
+	"strings"
 
 	"github.com/gorilla/mux"
 	"github.com/mattermost/mattermost-server/v6/model"
 
 	"github.com/mattermost/mattermost-plugin-confluence/server/serializer"
+	"github.com/mattermost/mattermost-plugin-confluence/server/utils"
 )
 
 const (
-	ParamUserID = "userID"
+	ParamUserID     = "userID"
+	ErrorInvalidURL = "Please enter a valid URL."
 )
 
 func (p *Plugin) handleConfluenceConfig(w http.ResponseWriter, r *http.Request) {
@@ -27,14 +30,30 @@ func (p *Plugin) handleConfluenceConfig(w http.ResponseWriter, r *http.Request) 
 
 	decoder := json.NewDecoder(r.Body)
 	submitRequest := &model.SubmitDialogRequest{}
+	response := &model.SubmitDialogResponse{}
 	if err := decoder.Decode(&submitRequest); err != nil {
 		p.API.LogError("Error decoding the submit dialog request.", "Error", err.Error())
 		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
 	}
 
+	configInstanceURL := submitRequest.Submission[configServerURL].(string)
+	if vErr := utils.IsValidURL(configInstanceURL); vErr != nil {
+		response.Error = ErrorInvalidURL
+		response, mErr := json.Marshal(response)
+		if mErr != nil {
+			p.API.LogError("Error in marshaling the response.", "Error", mErr.Error())
+			http.Error(w, mErr.Error(), http.StatusInternalServerError)
+			return
+		}
+
+		p.API.LogError("Error in validating the URL.", "Error", vErr.Error())
+		w.Header().Set("Content-Type", "application/json")
+		_, _ = w.Write(response)
+	}
+
 	config := &serializer.ConfluenceConfig{
-		ServerURL:    submitRequest.Submission[configServerURL].(string),
+		ServerURL:    strings.TrimSuffix(configInstanceURL, "/"),
 		ClientID:     submitRequest.Submission[configClientID].(string),
 		ClientSecret: submitRequest.Submission[configClientSecret].(string),
 	}

@@ -11,7 +11,8 @@
 **Application Permissions**: `Admin`
 Select **Continue**
 5. Copy the `clientID` and `clientSecret` from **Settings**, and paste them into the modal in mattermost which can be opened by using "/confluence config add" slash command.
-6. In Mattermost, use the "/confluence connect" slash command to connect your Mattermost account with your
-   Confluence account.
+6. In Mattermost, use the "/confluence connect ```{{ .ConfluenceURL }}``` admin" slash command to connect your Mattermost account with your confluence admin account and save the token of the admin to handle admin restricted functions.
+7. Use the "/confluence connect" slash command to connect your Mattermost account with your
+Confluence account for all other users.
 
 If you see an option to create a Confluence issue, you're all set! If not, refer to our [documentation](https://mattermost.gitbook.io/plugin-confluence) for troubleshooting help.

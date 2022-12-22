@@ -26,7 +26,7 @@ export default class Hooks {
 
         const state = this.store.getState();
         const user = getCurrentUser(state);
-        if (commandTrimmed && commandTrimmed === '/confluence subscribe') {
+        if (commandTrimmed && commandTrimmed.startsWith('/confluence subscribe')) {
             this.store.dispatch(getConnected());
             this.store.dispatch(openSubscriptionModal());
             return Promise.resolve({});

@@ -28,7 +28,7 @@ func TestSaveSpaceSubscription(t *testing.T) {
 				},
 			},
 			statusCode:   http.StatusBadRequest,
-			errorMessage: aliasAlreadyExist,
+			errorMessage: serializer.AliasAlreadyExist,
 		},
 		"url space key combination already exist": {
 			newSubscription: &serializer.SpaceSubscription{
@@ -41,7 +41,7 @@ func TestSaveSpaceSubscription(t *testing.T) {
 				},
 			},
 			statusCode:   http.StatusBadRequest,
-			errorMessage: urlSpaceKeyAlreadyExist,
+			errorMessage: serializer.URLSpaceKeyAlreadyExist,
 		},
 		"subscription unique base url": {
 			newSubscription: &serializer.SpaceSubscription{
@@ -144,7 +144,7 @@ func TestSavePageSubscription(t *testing.T) {
 				},
 			},
 			statusCode:   http.StatusBadRequest,
-			errorMessage: aliasAlreadyExist,
+			errorMessage: serializer.AliasAlreadyExist,
 		},
 		"url page id combination already exist": {
 			newSubscription: &serializer.PageSubscription{
@@ -157,7 +157,7 @@ func TestSavePageSubscription(t *testing.T) {
 				},
 			},
 			statusCode:   http.StatusBadRequest,
-			errorMessage: urlPageIDAlreadyExist,
+			errorMessage: serializer.URLPageIDAlreadyExist,
 		},
 		"subscription unique base url": {
 			newSubscription: &serializer.PageSubscription{
