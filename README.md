@@ -9,7 +9,7 @@ A Mattermost plugin for Confluence. Supports Confluence Cloud, Server, and Data 
 
 With the Confluence plugin, you can subscribe to a variety of events in Confluence, and specify which channels the associated notifications will appear in. 
 
-- In a Mattermost channel, setup subscriptions to get updates from Confluence and manage your notification subscriptions directly within Mattermost
+- In a Mattermost channel, setup subscriptions to get updates from Confluence and manage your notification subscriptions directly within Mattermost.
 - Notify a channel whenever something occurs on a Confluence object:
   - Confluence spaces, including those created, updated, deleted, and restored, and those with added comments.
   - Confluence pages, including those created, updated, deleted, restored, and those with added, deleted, or updated comments.
