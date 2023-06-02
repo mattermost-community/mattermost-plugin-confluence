@@ -7,7 +7,7 @@
 
 A Mattermost plugin for Confluence. Supports Confluence Cloud, Server, and Data Center versions, as well as environments with multiple Confluence servers. This plugin helps your teams collaborate and keep in sync as Confluence Pages and Spaces get updated. Comments and activity can be pushed into specific Mattermost channels for full visibility. 
 
-With the Confluence plguin, you can subscribe to a variety of events in Confluence and specify which channels the associated notifications will appear in. 
+With the Confluence plugin, you can subscribe to a variety of events in Confluence and specify which channels the associated notifications will appear in. 
 
 - In a Mattermost channel, setup subscriptions to get updates from Confluence and manage your notification subscriptions directly within Mattermost
 - Notify a channel whenever something occurs on a Confluence object:
