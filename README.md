@@ -22,7 +22,7 @@ For Confluence Plugin, Mattermost server v5.19+ is required. Confluence Server v
 
 ### Install the Mattermost Plugin
 
-To get started, a plugin that is installed on the Mattermost Server is needed to receive messages from the Confluence server and the notifications route it to the correct channel based on subscriptions that are configured. 
+To get started, a plugin that is installed on the Mattermost Server is needed to receive messages from the Confluence server. The notifications route it to the correct channel based on subscriptions that are configured. 
 
 #### Install via Plugin Marketplace (Recommended)
 
