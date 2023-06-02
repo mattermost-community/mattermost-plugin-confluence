@@ -12,7 +12,7 @@ With the Confluence plugin, you can subscribe to a variety of events in Confluen
 - In a Mattermost channel, setup subscriptions to get updates from Confluence and manage your notification subscriptions directly within Mattermost
 - Notify a channel whenever something occurs on a Confluence object:
   - Confluence spaces, including those created, updated, deleted, and restored, and those with added comments.
-  - Confluence pages, inlcuidng those created, updated, deleted, restored, and those with added, deleted, or updated comments.
+  - Confluence pages, including those created, updated, deleted, restored, and those with added, deleted, or updated comments.
 
 ## Admin Guide 
 
