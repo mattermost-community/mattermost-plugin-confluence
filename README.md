@@ -2,7 +2,7 @@
 
 - [Overview](#overview)
 - [Features](#features)
-- [Admin Guide](/docs/admin-guide)
+- [Admin Guide](/docs/admin-guide.md)
   - [Prerequisites](#prerequisites)
   - [Installation](#installation)
     - [Marketplace Installation (Recommended)](#marketplace-installation-recommended)
