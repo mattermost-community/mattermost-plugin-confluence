@@ -3,15 +3,12 @@
 - [Overview](#overview)
 - [Features](#features)
 - [Admin Guide](/docs/admin-guide.md)
-- [Configure Notifications](#configure-notifications)
-  - [/confluence subscribe](#confluence-subscribe)
-  - [/confluence list](#confluence-list)
-  - [/confluence edit](#confluence-edit)
-  - [/confluence unsubscribe](#confluence-unsubscribe)
-- [Development](#development)
+- Contribute
+  - [Development](#development)
   - [Maintainers](#maintainers)
   - [Platform and Tools](#platform-and-tools)
   - [Set up CircleCI](#set-up-circleci)
+- [License](/LICENSE)
 
 # Mattermost Plugin for Confluence 
 
