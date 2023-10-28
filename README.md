@@ -1,12 +1,31 @@
+## Table of Contents
+
+- [Overview](#overview)
+- [Features](#features)
+- [Admin Guide](#admin-guide)
+  - [Prerequisites](#prerequisites)
+  - [Installation](#installation)
+    - [Marketplace Installation (Recommended)](#marketplace-installation-recommended)
+    - [Manual Installation](#manual-installation)
+  - [Install on Confluence](#install-on-confluence)
+    - [Set up Confluence Server](#set-up-confluence-server)
+    - [Set up Confluence Cloud](#set-up-confluence-cloud)
+- [Configure Notifications](#configure-notifications)
+  - [/confluence subscribe](#confluence-subscribe)
+  - [/confluence list](#confluence-list)
+  - [/confluence edit](#confluence-edit)
+  - [/confluence unsubscribe](#confluence-unsubscribe)
+- [Development](#development)
+  - [Maintainers](#maintainers)
+  - [Platform and Tools](#platform-and-tools)
+  - [Set up CircleCI](#set-up-circleci)
+
 # Mattermost Plugin for Confluence 
 
 [![Build Status](https://img.shields.io/circleci/project/github/mattermost/mattermost-plugin-confluence/master)](https://circleci.com/gh/mattermost/mattermost-plugin-confluence)
 [![Code Coverage](https://img.shields.io/codecov/c/github/mattermost/mattermost-plugin-confluence/master)](https://codecov.io/gh/mattermost/mattermost-plugin-confluence)
 [![Release](https://img.shields.io/github/v/release/mattermost/mattermost-plugin-confluence)](https://github.com/mattermost/mattermost-plugin-confluence/releases/latest)
 [![HW](https://img.shields.io/github/issues/mattermost/mattermost-plugin-confluence/Up%20For%20Grabs?color=dark%20green&label=Help%20Wanted)](https://github.com/mattermost/mattermost-plugin-confluence/issues?q=is%3Aissue+is%3Aopen+sort%3Aupdated-desc+label%3A%22Up+For+Grabs%22+label%3A%22Help+Wanted%22)
-
-## Contents
-- [](#Overview)
 
 ## Overview
 
