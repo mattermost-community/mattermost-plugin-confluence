@@ -1,8 +1,8 @@
-## Table of Contents
+## Contents
 
 - [Overview](#overview)
 - [Features](#features)
-- [Admin Guide](#admin-guide)
+- [Admin Guide](/docs/admin-guide)
   - [Prerequisites](#prerequisites)
   - [Installation](#installation)
     - [Marketplace Installation (Recommended)](#marketplace-installation-recommended)
