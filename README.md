@@ -29,10 +29,6 @@ With the Confluence plugin, you can subscribe to a variety of events in Confluen
 
 ## Configure notifications
 
-### /confluence subscribe
-
-Configure what events should send notifications to your Mattermost channel. When a user types `/confluence subscribe` in a channel, they will open a modal window that lets them configure a notification from Confluence to be delivered to the channel they are currently in. 
-
 - The ``Alias`` (Subscription Name) is intended to be an easy to remember name for the subscription. You will use this name when you need to edit the configuration again. 
 
 - `Confluence Base URL` is the URL of the Confluence server this rule is intended to come from. The Confluence server must have been setup by an administrator with Mattermost using the `/confluence install` command prior to using it in a subscription.
