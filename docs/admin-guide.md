@@ -8,18 +8,6 @@ For Confluence Plugin, Mattermost server v5.19+ is required. Confluence Server v
 
 To get started, a plugin that is installed on the Mattermost Server is needed to receive messages from the Confluence server. The notifications route it to the correct channel based on subscriptions that are configured. 
 
-#### Marketplace installation (Recommended)
-
-1. In Mattermost, go to **Main Menu > Plugin Marketplace**.
-2. Search for "Confluence" or manually find the plugin from the list and select **Install**.
-3. After the plugin has downloaded and been installed, select the **Configure** button.
-4. Go to **Plugins Marketplace > Confluence**. 
-
-    - Select the **Configure** button.
-    - Generate a **Secret** for `Webhook Secret and Stats API Secret`.
-
-5. Go to the top of the screen and set **Enable Plugin** to `True` and then select **Save** to enable the plugin.
-
 #### Manual installation
 1. Go to the [releases page of this GitHub repositiory](https://github.com/mattermost/mattermost-plugin-confluence/releases/latest), and download the latest release for your Mattermost Server.
 2. Upload this file in the Mattermost **System Console > Plugins > Management** page to install the plugin.
