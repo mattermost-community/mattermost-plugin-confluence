@@ -5,9 +5,6 @@
 - [Admin Guide](/docs/admin-guide.md)
 - Contribute
   - [Development](#development)
-  - [Maintainers](#maintainers)
-  - [Platform and Tools](#platform-and-tools)
-  - [Set up CircleCI](#set-up-circleci)
 - [License](/LICENSE)
 
 # Mattermost Plugin for Confluence 
@@ -79,26 +76,4 @@ example: `/confluence unsubscribe "Project A Subscription"`.
 
 ## Development 
 
-### Maintainers 
-
-**Maintainer:** [@jfrerich](https://github.com/jfrerich)
-**Co-Maintainer:** [@levb](https://github.com/levb)
-
-### Platform and tools
-
-- Make sure you have following components installed:
-
-  - Go - v1.13 - [Getting Started](https://golang.org/doc/install)
-    > **Note:** If you have installed Go to a custom location, make sure the `$GOROOT` variable is set properly. Refer [Installing to a custom location](https://golang.org/doc/install#install).
-  - Make
-
-## Set up CircleCI
-
-Set up CircleCI to run the build job for each branch and build-and-release for each tag.
-
-1. Go to [CircleCI Dashboard](https://circleci.com/dashboard).
-2. In the top left, you will find the Org switcher. Select your Organisation.
-3. If this is your first project on CircleCI, go to the Projects page, select the **Add Projects** button, then select the **Set Up Project** button next to your project. You may also select **Start Building** to manually trigger your first build.
-4. To manage GitHub releases using CircleCI, you need to add your github personal access token to your project's environment variables.
-   - Follow the instructions [here](https://help.github.com/en/articles/creating-a-personal-access-token-for-the-command-line) to create a personal access token. For CircleCI releases, you would need the `repo` scope.
-   - Add the environment variable to your project as `GITHUB_TOKEN` by following the instructions [here](https://circleci.com/docs/2.0/env-vars/#setting-an-environment-variable-in-a-project).
+Read the [Developer Workflow](https://developers.mattermost.com/extend/plugins/developer-workflow/) and [Developer Setup](https://developers.mattermost.com/extend/plugins/developer-setup/) documentation for more information about developing and extending plugins.
