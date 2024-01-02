@@ -8,7 +8,7 @@ import (
 	"path/filepath"
 
 	"github.com/gorilla/mux"
-	model "github.com/mattermost/mattermost-server/v5/model"
+	model "github.com/mattermost/mattermost/server/public/model"
 	"github.com/pkg/errors"
 
 	"github.com/mattermost/mattermost-plugin-confluence/server/config"
@@ -90,8 +90,8 @@ func IsAdmin(w http.ResponseWriter, r *http.Request) bool {
 
 func ReturnStatusOK(w io.Writer) {
 	m := make(map[string]string)
-	m[model.STATUS] = model.STATUS_OK
-	_, _ = w.Write([]byte(model.MapToJson(m)))
+	m[model.STATUS] = model.StatusOk
+	_, _ = w.Write([]byte(model.MapToJSON(m)))
 }
 
 func verifyHTTPSecret(expected, got string) (status int, err error) {

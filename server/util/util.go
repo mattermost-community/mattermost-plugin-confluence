@@ -8,7 +8,7 @@ import (
 	"regexp"
 	"strings"
 
-	"github.com/mattermost/mattermost-server/v5/model"
+	"github.com/mattermost/mattermost/server/public/model"
 
 	"github.com/mattermost/mattermost-plugin-confluence/server/config"
 )
@@ -98,7 +98,7 @@ func IsSystemAdmin(userID string) bool {
 	if appErr != nil {
 		return false
 	}
-	return user.IsInRole(model.SYSTEM_ADMIN_ROLE_ID)
+	return user.IsInRole(model.SystemAdminRoleId)
 }
 
 func Deduplicate(a []string) []string {
