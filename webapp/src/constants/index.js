@@ -1,4 +1,4 @@
-import {id} from '../manifest';
+import manifest from '../manifest';
 
 import {ACTION_TYPES} from './action_types';
 
@@ -48,6 +48,7 @@ const SUBSCRIPTION_TYPE = [
     },
 ];
 
+const {id} = manifest;
 const MATTERMOST_CSRF_COOKIE = 'MMCSRF';
 const OPEN_EDIT_SUBSCRIPTION_MODAL_WEBSOCKET_EVENT = `custom_${id}_open_edit_subscription_modal`;
 const SPECIFY_ALIAS = 'Please specify a name for the subscription.';

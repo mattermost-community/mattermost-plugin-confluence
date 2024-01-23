@@ -4,6 +4,10 @@
 *.so
 *.dylib
 
+# Manifest files
+webapp/src/manifest.ts
+server/manifest.go
+
 # Test binary, build with `go test -c`
 *.test
 

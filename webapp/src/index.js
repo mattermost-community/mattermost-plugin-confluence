@@ -1,4 +1,4 @@
-import {id} from './manifest';
+import manifest from './manifest';
 
 import Hooks from './hooks';
 import reducer from './reducers';
@@ -21,4 +21,4 @@ class PluginClass {
 //
 // To register your plugin you must expose it on window.
 //
-window.registerPlugin(id, new PluginClass());
+window.registerPlugin(manifest.id, new PluginClass());
