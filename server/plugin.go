@@ -1,8 +1,8 @@
 package main
 
 import (
-	"io/ioutil"
 	"net/http"
+	"os"
 	"path/filepath"
 
 	"github.com/pkg/errors"
@@ -95,7 +95,7 @@ func (p *Plugin) setUpBotUser() error {
 		return err
 	}
 
-	profileImage, err := ioutil.ReadFile(filepath.Join(bundlePath, "assets", "icon.png"))
+	profileImage, err := os.ReadFile(filepath.Join(bundlePath, "assets", "icon.png"))
 	if err != nil {
 		return err
 	}
