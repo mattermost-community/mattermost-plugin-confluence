@@ -10,7 +10,7 @@ import (
 )
 
 var GetChannelSubscription = &Endpoint{
-	RequiresAdmin: true,
+	RequiresAdmin: false,
 	Path:          "/{channelID:[A-Za-z0-9]+}/subscription",
 	Method:        http.MethodGet,
 	Execute:       handleGetChannelSubscription,

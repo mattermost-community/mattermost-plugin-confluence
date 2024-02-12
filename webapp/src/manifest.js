@@ -38,7 +38,7 @@ const manifest = JSON.parse(`
                 "key": "RolesAllowedToEditConfluenceSubscriptions",
                 "display_name": "Mattermost Roles Allowed to Edit Confluence Subscriptions:",
                 "type": "radio",
-                "help_text": "Mattermost users who can subscribe channels to confluence space or page.",
+                "help_text": "Mattermost users who can subscribe channels to Confluence space or page.",
                 "placeholder": "",
                 "default": "system_admin",
                 "options": [
