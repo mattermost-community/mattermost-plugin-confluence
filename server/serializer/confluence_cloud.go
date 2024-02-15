@@ -6,7 +6,7 @@ import (
 	"io"
 	"strconv"
 
-	"github.com/mattermost/mattermost-server/v5/model"
+	"github.com/mattermost/mattermost/server/public/model"
 
 	"github.com/mattermost/mattermost-plugin-confluence/server/config"
 )
@@ -91,7 +91,7 @@ func (e ConfluenceCloudEvent) GetNotificationPost(eventType string) *model.Post 
 
 	post := &model.Post{
 		UserId:  config.BotUserID,
-		Type:    model.POST_DEFAULT,
+		Type:    model.PostTypeDefault,
 		Message: message,
 	}
 	return post

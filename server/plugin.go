@@ -7,8 +7,9 @@ import (
 
 	"github.com/pkg/errors"
 
-	"github.com/mattermost/mattermost-server/v5/model"
-	"github.com/mattermost/mattermost-server/v5/plugin"
+	"github.com/mattermost/mattermost/server/public/model"
+	"github.com/mattermost/mattermost/server/public/plugin"
+	"github.com/mattermost/mattermost/server/public/pluginapi"
 
 	"github.com/mattermost/mattermost-plugin-confluence/server/command"
 	"github.com/mattermost/mattermost-plugin-confluence/server/config"
@@ -24,10 +25,12 @@ const (
 
 type Plugin struct {
 	plugin.MattermostPlugin
+	client *pluginapi.Client
 }
 
 func (p *Plugin) OnActivate() error {
 	config.Mattermost = p.API
+	p.client = pluginapi.NewClient(p.API, p.Driver)
 
 	if err := p.setUpBotUser(); err != nil {
 		config.Mattermost.LogError("Failed to create a bot user", "Error", err.Error())
@@ -77,7 +80,7 @@ func (p *Plugin) OnConfigurationChange() error {
 }
 
 func (p *Plugin) setUpBotUser() error {
-	botUserID, err := p.Helpers.EnsureBot(&model.Bot{
+	botUserID, err := p.client.Bot.EnsureBot(&model.Bot{
 		Username:    botUserName,
 		DisplayName: botDisplayName,
 		Description: botDescription,
@@ -109,7 +112,7 @@ func (p *Plugin) ExecuteCommand(context *plugin.Context, commandArgs *model.Comm
 	args, argErr := util.SplitArgs(commandArgs.Command)
 	if argErr != nil {
 		return &model.CommandResponse{
-			ResponseType: model.COMMAND_RESPONSE_TYPE_EPHEMERAL,
+			ResponseType: model.CommandResponseTypeEphemeral,
 			Text:         argErr.Error(),
 		}, nil
 	}

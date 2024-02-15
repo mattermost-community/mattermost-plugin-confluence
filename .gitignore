@@ -76,3 +76,4 @@ coverage.txt
 
 # webapp test cases
 webapp/build/test-results.xml
+webapp/junit.xml
