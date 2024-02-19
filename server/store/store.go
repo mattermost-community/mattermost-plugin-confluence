@@ -6,7 +6,7 @@ import (
 	url2 "net/url"
 	"time"
 
-	"github.com/mattermost/mattermost-server/v6/model"
+	"github.com/mattermost/mattermost/server/public/model"
 	"github.com/pkg/errors"
 
 	"github.com/mattermost/mattermost-plugin-confluence/server/config"

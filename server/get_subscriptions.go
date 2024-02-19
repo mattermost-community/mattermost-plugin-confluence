@@ -6,7 +6,7 @@ import (
 
 	"github.com/mattermost/mattermost-plugin-confluence/server/service"
 
-	"github.com/mattermost/mattermost-server/v6/model"
+	"github.com/mattermost/mattermost/server/public/model"
 )
 
 func (p *Plugin) handleGetChannelSubscriptions(w http.ResponseWriter, r *http.Request) {

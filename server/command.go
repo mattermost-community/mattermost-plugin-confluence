@@ -7,8 +7,8 @@ import (
 	"net/http"
 	"strings"
 
-	"github.com/mattermost/mattermost-plugin-api/experimental/command"
-	"github.com/mattermost/mattermost-server/v6/model"
+	"github.com/mattermost/mattermost/server/public/pluginapi/experimental/command"
+	"github.com/mattermost/mattermost/server/public/model"
 	"github.com/pkg/errors"
 
 	"github.com/mattermost/mattermost-plugin-confluence/server/config"

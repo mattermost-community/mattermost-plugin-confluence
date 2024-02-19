@@ -5,7 +5,7 @@ import (
 	"encoding/json"
 	"strings"
 
-	"github.com/mattermost/mattermost-server/v6/model"
+	"github.com/mattermost/mattermost/server/public/model"
 )
 
 var manifest *model.Manifest
@@ -93,5 +93,5 @@ const manifestStr = `
 `
 
 func init() {
-	_ = json.NewDecoder(strings.NewReader(manifestStr)).Decode(&manifest)
+	json.NewDecoder(strings.NewReader(manifestStr)).Decode(&manifest)
 }

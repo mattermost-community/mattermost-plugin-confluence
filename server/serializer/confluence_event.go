@@ -1,6 +1,8 @@
 package serializer
 
-import "github.com/mattermost/mattermost-server/v6/model"
+import (
+	"github.com/mattermost/mattermost/server/public/model"
+)
 
 type ConfluenceEvent interface {
 	GetNotificationPost(string, string, string) *model.Post

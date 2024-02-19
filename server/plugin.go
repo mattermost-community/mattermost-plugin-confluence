@@ -16,11 +16,12 @@ import (
 	"github.com/gorilla/mux"
 	"github.com/pkg/errors"
 
-	pluginapi "github.com/mattermost/mattermost-plugin-api"
-	"github.com/mattermost/mattermost-plugin-api/experimental/flow"
-	"github.com/mattermost/mattermost-plugin-api/experimental/telemetry"
-	"github.com/mattermost/mattermost-server/v6/model"
-	"github.com/mattermost/mattermost-server/v6/plugin"
+	"github.com/mattermost/mattermost/server/public/model"
+	"github.com/mattermost/mattermost/server/public/plugin"
+	pluginapi "github.com/mattermost/mattermost/server/public/pluginapi"
+	"github.com/mattermost/mattermost/server/public/pluginapi/experimental/bot/logger"
+	"github.com/mattermost/mattermost/server/public/pluginapi/experimental/flow"
+	"github.com/mattermost/mattermost/server/public/pluginapi/experimental/telemetry"
 
 	"github.com/mattermost/mattermost-plugin-confluence/server/config"
 	"github.com/mattermost/mattermost-plugin-confluence/server/enterprise"
@@ -92,6 +93,7 @@ type Plugin struct {
 
 func (p *Plugin) OnActivate() error {
 	config.Mattermost = p.API
+	p.client = pluginapi.NewClient(p.API, p.Driver)
 
 	store := NewStore(p)
 	p.instanceStore = store
@@ -188,11 +190,6 @@ func (p *Plugin) OnConfigurationChange() error {
 		}
 	}
 
-	diagnostics := false
-	if p.API.GetConfig().LogSettings.EnableDiagnostics != nil {
-		diagnostics = *p.API.GetConfig().LogSettings.EnableDiagnostics
-	}
-
 	// create new tracker on each configuration change
 	p.tracker = telemetry.NewTracker(
 		p.telemetryClient,
@@ -201,7 +198,8 @@ func (p *Plugin) OnConfigurationChange() error {
 		manifest.Id,
 		manifest.Version,
 		"confluence",
-		diagnostics,
+		telemetry.NewTrackerConfig(p.API.GetConfig()),
+		logger.New(p.API),
 	)
 	return nil
 }

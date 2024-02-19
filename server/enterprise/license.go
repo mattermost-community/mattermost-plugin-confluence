@@ -1,8 +1,8 @@
 package enterprise
 
 import (
-	pluginapi "github.com/mattermost/mattermost-plugin-api"
-	"github.com/mattermost/mattermost-server/v6/model"
+	pluginapi "github.com/mattermost/mattermost/server/public/pluginapi"
+	"github.com/mattermost/mattermost/server/public/model"
 )
 
 type Checker interface {

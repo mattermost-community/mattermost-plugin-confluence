@@ -1,6 +1,6 @@
 package main
 
-import "github.com/mattermost/mattermost-plugin-api/experimental/flow"
+import "github.com/mattermost/mattermost/server/public/pluginapi/experimental/flow"
 
 const (
 	stepConnected flow.Name = "connected"

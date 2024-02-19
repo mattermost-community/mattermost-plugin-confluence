@@ -3,10 +3,9 @@ package main
 import (
 	"encoding/json"
 	"fmt"
-	"io/ioutil"
 	"os"
 
-	"github.com/mattermost/mattermost-server/v6/model"
+	"github.com/mattermost/mattermost/server/public/model"
 	"github.com/pkg/errors"
 )
 
@@ -17,7 +16,7 @@ import (
 	"encoding/json"
 	"strings"
 
-	"github.com/mattermost/mattermost-server/v6/model"
+	"github.com/mattermost/mattermost/server/public/model"
 )
 
 var manifest *model.Manifest
@@ -68,11 +67,6 @@ func main() {
 			fmt.Printf("true")
 		}
 
-	case "apply":
-		if err := applyManifest(manifest); err != nil {
-			panic("failed to apply manifest: " + err.Error())
-		}
-
 	default:
 		panic("unrecognized command: " + cmd)
 	}
@@ -109,47 +103,4 @@ func dumpPluginID(manifest *model.Manifest) {
 // dumpPluginVersion writes the plugin version from the given manifest to standard out
 func dumpPluginVersion(manifest *model.Manifest) {
 	fmt.Printf("%s", manifest.Version)
-}
-
-// applyManifest propagates the plugin_id into the server and webapp folders, as necessary
-func applyManifest(manifest *model.Manifest) error {
-	if manifest.HasServer() {
-		// generate JSON representation of Manifest.
-		manifestBytes, err := json.MarshalIndent(manifest, "", "  ")
-		if err != nil {
-			return err
-		}
-		manifestStr := string(manifestBytes)
-
-		// write generated code to file by using Go file template.
-		if err := ioutil.WriteFile(
-			"server/manifest.go",
-			[]byte(fmt.Sprintf(pluginIDGoFileTemplate, manifestStr)),
-			0600,
-		); err != nil {
-			return errors.Wrap(err, "failed to write server/manifest.go")
-		}
-	}
-
-	if manifest.HasWebapp() {
-		// generate JSON representation of Manifest.
-		// JSON is very similar and compatible with JS's object literals. so, what we do here
-		// is actually JS code generation.
-		manifestBytes, err := json.MarshalIndent(manifest, "", "    ")
-		if err != nil {
-			return err
-		}
-		manifestStr := string(manifestBytes)
-
-		// write generated code to file by using JS file template.
-		if err := ioutil.WriteFile(
-			"webapp/src/manifest.js",
-			[]byte(fmt.Sprintf(pluginIDJSFileTemplate, manifestStr)),
-			0600,
-		); err != nil {
-			return errors.Wrap(err, "failed to open webapp/src/manifest.js")
-		}
-	}
-
-	return nil
 }
