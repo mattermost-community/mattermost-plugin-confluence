@@ -3,10 +3,10 @@ package main
 import (
 	"crypto/rsa"
 	"fmt"
-	"io/ioutil"
 	"math"
 	"net/http"
 	"net/url"
+	"os"
 	"path/filepath"
 	"regexp"
 	"strings"
@@ -256,7 +256,7 @@ func (p *Plugin) setUpBotUser() (string, error) {
 		return "", err
 	}
 
-	profileImage, err := ioutil.ReadFile(filepath.Join(bundlePath, "assets", "icon.png"))
+	profileImage, err := os.ReadFile(filepath.Join(bundlePath, "assets", "icon.png"))
 	if err != nil {
 		return "", err
 	}

@@ -4,7 +4,7 @@ import Cookies from 'js-cookie';
 import Constants from '../constants';
 import {encodeToBase64} from '../utils';
 
-import {id} from '../manifest';
+import manifest from '../manifest';
 
 /**
  *  Add web utilities for interacting with servers here
@@ -13,7 +13,7 @@ export default class Client {
     constructor() {
         const url = new URL(window.location.href);
         this.baseUrl = url.protocol + '//' + url.host;
-        this.pluginUrl = this.baseUrl + '/plugins/' + id;
+        this.pluginUrl = this.baseUrl + '/plugins/' + manifest.id;
         this.apiUrl = this.baseUrl + '/api/v4';
         this.pluginApiUrl = this.pluginUrl + '/api/v1';
     }

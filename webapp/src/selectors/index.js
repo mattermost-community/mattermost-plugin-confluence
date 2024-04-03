@@ -1,6 +1,6 @@
-import {id} from '../manifest';
+import manifest from '../manifest';
 
-const getPluginState = (state) => state[`plugins-${id}`] || {};
+const getPluginState = (state) => state[`plugins-${manifest.id}`] || {};
 
 const isSubscriptionModalVisible = (state) => getPluginState(state).subscriptionModal;
 

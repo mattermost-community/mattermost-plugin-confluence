@@ -4,9 +4,7 @@
   "description": "Atlassian Confluence plugin for Mattermost.",
   "homepage_url": "https://github.com/mattermost/mattermost-plugin-confluence",
   "support_url": "https://github.com/mattermost/mattermost-plugin-confluence/issues",
-  "release_notes_url": "https://github.com/mattermost/mattermost-plugin-confluence/releases/tag/v1.2.0",
   "icon_path": "assets/icon.svg",
-  "version": "1.3.0",
   "min_server_version": "5.26.0",
   "server": {
     "executables": {
