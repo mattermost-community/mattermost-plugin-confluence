@@ -9,7 +9,7 @@ require (
 	github.com/pkg/errors v0.9.1
 	github.com/stretchr/testify v1.8.4
 	github.com/thoas/go-funk v0.6.0
-	go.uber.org/atomic v1.6.0
+	go.uber.org/atomic v1.11.0
 )
 
 require (
