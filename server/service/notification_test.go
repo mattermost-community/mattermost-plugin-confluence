@@ -111,16 +111,16 @@ func TestGetNotificationsChannelIDs(t *testing.T) {
 			defer monkey.UnpatchAll()
 			mockAPI := baseMock()
 			mockAPI.On("LogError",
-				mock.AnythingOfTypeArgument("string"),
-				mock.AnythingOfTypeArgument("string"),
-				mock.AnythingOfTypeArgument("string"),
-				mock.AnythingOfTypeArgument("string"),
-				mock.AnythingOfTypeArgument("string"),
-				mock.AnythingOfTypeArgument("string"),
-				mock.AnythingOfTypeArgument("string"),
-				mock.AnythingOfTypeArgument("string"),
-				mock.AnythingOfTypeArgument("string"),
-				mock.AnythingOfTypeArgument("string")).Return(nil)
+				mock.AnythingOfType("string"),
+				mock.AnythingOfType("string"),
+				mock.AnythingOfType("string"),
+				mock.AnythingOfType("string"),
+				mock.AnythingOfType("string"),
+				mock.AnythingOfType("string"),
+				mock.AnythingOfType("string"),
+				mock.AnythingOfType("string"),
+				mock.AnythingOfType("string"),
+				mock.AnythingOfType("string")).Return(nil)
 			mockAPI.On("CreatePost", mock.AnythingOfType(model.Post{}.Type)).Return(&model.Post{}, nil)
 			monkey.Patch(GetSubscriptionsByURLSpaceKey, func(url, spaceKey string) (serializer.StringArrayMap, error) {
 				return val.urlSpaceKeyCombinationSubscriptions, nil
