@@ -114,3 +114,13 @@ func Deduplicate(a []string) []string {
 
 	return result
 }
+
+func ContainsString(a []string, s string) bool {
+	for _, val := range a {
+		if val == s {
+			return true
+		}
+	}
+
+	return false
+}
