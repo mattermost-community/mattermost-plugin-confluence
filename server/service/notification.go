@@ -1,7 +1,7 @@
 package service
 
 import (
-	"github.com/thoas/go-funk"
+	"slices"
 
 	"github.com/mattermost/mattermost-plugin-confluence/server/config"
 	"github.com/mattermost/mattermost-plugin-confluence/server/serializer"
@@ -41,12 +41,12 @@ func getNotificationChannelIDs(url, spaceKey, pageID, eventType string) []string
 	urlSpaceKeySubscriptionChannelIDs := make([]string, 0)
 	urlPageIDSubscriptionChannelIDs := make([]string, 0)
 	for channelID, events := range urlPageIDSubscriptions {
-		if funk.Contains(events, eventType) {
+		if slices.Contains(events, eventType) {
 			urlPageIDSubscriptionChannelIDs = append(urlPageIDSubscriptionChannelIDs, channelID)
 		}
 	}
 	for channelID, events := range urlSpaceKeySubscriptions {
-		if funk.Contains(events, eventType) {
+		if slices.Contains(events, eventType) {
 			urlSpaceKeySubscriptionChannelIDs = append(urlSpaceKeySubscriptionChannelIDs, channelID)
 		}
 	}

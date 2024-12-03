@@ -20,13 +20,6 @@ func GetKeyHash(key string) string {
 	return base64.StdEncoding.EncodeToString(hash.Sum(nil))
 }
 
-func Min(a, b int) int {
-	if a < b {
-		return a
-	}
-	return b
-}
-
 func SplitArgs(s string) ([]string, error) {
 	indexes := regexp.MustCompile("\"").FindAllStringIndex(s, -1)
 	if len(indexes)%2 != 0 {
@@ -42,7 +35,7 @@ func SplitArgs(s string) ([]string, error) {
 	var args []string
 	for i := 0; i < len(indexes)-1; i++ {
 		start := indexes[i][1]
-		end := Min(len(s), indexes[i+1][0])
+		end := min(len(s), indexes[i+1][0])
 
 		if i%2 == 0 {
 			args = append(args, strings.Split(strings.Trim(s[start:end], " "), " ")...)
