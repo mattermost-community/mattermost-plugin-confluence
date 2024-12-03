@@ -1,6 +1,8 @@
 package service
 
 import (
+	"slices"
+
 	"github.com/mattermost/mattermost-plugin-confluence/server/config"
 	"github.com/mattermost/mattermost-plugin-confluence/server/serializer"
 	"github.com/mattermost/mattermost-plugin-confluence/server/util"
@@ -39,12 +41,12 @@ func getNotificationChannelIDs(url, spaceKey, pageID, eventType string) []string
 	urlSpaceKeySubscriptionChannelIDs := make([]string, 0)
 	urlPageIDSubscriptionChannelIDs := make([]string, 0)
 	for channelID, events := range urlPageIDSubscriptions {
-		if util.ContainsString(events, eventType) {
+		if slices.Contains(events, eventType) {
 			urlPageIDSubscriptionChannelIDs = append(urlPageIDSubscriptionChannelIDs, channelID)
 		}
 	}
 	for channelID, events := range urlSpaceKeySubscriptions {
-		if util.ContainsString(events, eventType) {
+		if slices.Contains(events, eventType) {
 			urlSpaceKeySubscriptionChannelIDs = append(urlSpaceKeySubscriptionChannelIDs, channelID)
 		}
 	}
