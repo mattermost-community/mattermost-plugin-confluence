@@ -1,4 +1,4 @@
-package command
+package main
 
 import (
 	"fmt"
@@ -18,7 +18,7 @@ type PluginAPI interface {
 	GetBundlePath() (string, error)
 }
 
-type HandlerFunc func(context *model.CommandArgs, args ...string) *model.CommandResponse
+type HandlerFunc func(p *Plugin, context *model.CommandArgs, args ...string) *model.CommandResponse
 
 type Handler struct {
 	handlers       map[string]HandlerFunc
@@ -46,16 +46,6 @@ const (
 )
 
 const (
-	installServerHelp = `
-To configure the plugin, create a new app in your Confluence Server following these steps:
-1. Navigate to **Settings > Apps > Manage Apps**. For older versions of Confluence, navigate to **Administration > Applications > Add-ons > Manage add-ons**.
-2. Choose **Settings** at the bottom of the page, enable development mode, and apply the change. Development mode allows you to install apps from outside of the Atlassian Marketplace.
-3. Press **Upload app**.
-4. Choose **From my computer** and upload the Mattermost for Confluence OBR file.
-5. Once the app is installed, press **Configure** to open the configuration page.
-6. In the **Webhook URL** field, enter: %s
-7. Press **Save** to finish the setup.
-`
 	installCloudHelp = `
 To finish the configuration, add a new app in your Confluence Cloud instance following these steps:
 1. Navigate to **Settings > Apps > Manage Apps**.
@@ -128,9 +118,9 @@ func getAutoCompleteData() *model.AutocompleteData {
 	return confluence
 }
 
-func executeConfluenceDefault(context *model.CommandArgs, args ...string) *model.CommandResponse {
+func executeConfluenceDefault(p *Plugin, context *model.CommandArgs, args ...string) *model.CommandResponse {
 	out := invalidCommand + "\n\n"
-	out += getFullHelpText(context, args...)
+	out += getFullHelpText(p, context, args...)
 
 	return &model.CommandResponse{
 		ResponseType: model.CommandResponseTypeEphemeral,
@@ -147,25 +137,25 @@ func postCommandResponse(context *model.CommandArgs, text string) {
 	_ = config.Mattermost.SendEphemeralPost(context.UserId, post)
 }
 
-func (ch Handler) Handle(context *model.CommandArgs, args ...string) *model.CommandResponse {
+func (ch Handler) Handle(p *Plugin, context *model.CommandArgs, args ...string) *model.CommandResponse {
 	if !util.IsSystemAdmin(context.UserId) {
 		postCommandResponse(context, commandsOnlySystemAdmin)
 		return &model.CommandResponse{}
 	}
 
 	if len(args) == 0 {
-		return ch.handlers["help"](context, "")
+		return ch.handlers["help"](p, context, "")
 	}
 	for n := len(args); n > 0; n-- {
 		h := ch.handlers[strings.Join(args[:n], "/")]
 		if h != nil {
-			return h(context, args[n:]...)
+			return h(p, context, args[n:]...)
 		}
 	}
-	return ch.defaultHandler(context, args...)
+	return ch.defaultHandler(p, context, args...)
 }
 
-func showInstallCloudHelp(context *model.CommandArgs, args ...string) *model.CommandResponse {
+func showInstallCloudHelp(p *Plugin, context *model.CommandArgs, args ...string) *model.CommandResponse {
 	if !util.IsSystemAdmin(context.UserId) {
 		postCommandResponse(context, installOnlySystemAdmin)
 		return &model.CommandResponse{}
@@ -176,18 +166,23 @@ func showInstallCloudHelp(context *model.CommandArgs, args ...string) *model.Com
 	return &model.CommandResponse{}
 }
 
-func showInstallServerHelp(context *model.CommandArgs, args ...string) *model.CommandResponse {
+func showInstallServerHelp(p *Plugin, context *model.CommandArgs, args ...string) *model.CommandResponse {
 	if !util.IsSystemAdmin(context.UserId) {
 		postCommandResponse(context, installOnlySystemAdmin)
 		return &model.CommandResponse{}
 	}
 
-	serverURL := util.GetPluginURL() + util.GetConfluenceServerWebhookURLPath()
-	postCommandResponse(context, fmt.Sprintf(installServerHelp, serverURL))
+	err := p.flowManager.StartSetupWizard(context.UserId, "")
+	if err != nil {
+		return &model.CommandResponse{}
+	}
+
+	postCommandResponse(context, "Please continue with confluence bot DM for the setup.")
+
 	return &model.CommandResponse{}
 }
 
-func deleteSubscription(context *model.CommandArgs, args ...string) *model.CommandResponse {
+func deleteSubscription(p *Plugin, context *model.CommandArgs, args ...string) *model.CommandResponse {
 	if len(args) == 0 {
 		postCommandResponse(context, specifyAlias)
 		return &model.CommandResponse{}
@@ -201,7 +196,7 @@ func deleteSubscription(context *model.CommandArgs, args ...string) *model.Comma
 	return &model.CommandResponse{}
 }
 
-func listChannelSubscription(context *model.CommandArgs, args ...string) *model.CommandResponse {
+func listChannelSubscription(p *Plugin, context *model.CommandArgs, args ...string) *model.CommandResponse {
 	channelSubscriptions, gErr := service.GetSubscriptionsByChannelID(context.ChannelId)
 	if gErr != nil {
 		postCommandResponse(context, gErr.Error())
@@ -217,14 +212,14 @@ func listChannelSubscription(context *model.CommandArgs, args ...string) *model.
 	return &model.CommandResponse{}
 }
 
-func confluenceHelpCommand(context *model.CommandArgs, args ...string) *model.CommandResponse {
-	helpText := getFullHelpText(context, args...)
+func confluenceHelpCommand(p *Plugin, context *model.CommandArgs, args ...string) *model.CommandResponse {
+	helpText := getFullHelpText(p, context, args...)
 
 	postCommandResponse(context, helpText)
 	return &model.CommandResponse{}
 }
 
-func getFullHelpText(context *model.CommandArgs, args ...string) string {
+func getFullHelpText(_ *Plugin, context *model.CommandArgs, _ ...string) string {
 	helpText := commonHelpText
 	if util.IsSystemAdmin(context.UserId) {
 		helpText += sysAdminHelpText

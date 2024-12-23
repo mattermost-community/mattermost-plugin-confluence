@@ -1,6 +1,7 @@
 package config
 
 import (
+	"encoding/json"
 	"strings"
 
 	"github.com/mattermost/mattermost/server/public/plugin"
@@ -19,7 +20,10 @@ var (
 )
 
 type Configuration struct {
-	Secret string `json:"Secret"`
+	Secret                      string `json:"Secret"`
+	ConfluenceOAuthClientID     string
+	ConfluenceOAuthClientSecret string
+	ConfluenceURL               string
 }
 
 func GetConfig() *Configuration {
@@ -42,4 +46,30 @@ func (c *Configuration) IsValid() error {
 	}
 
 	return nil
+}
+
+func (c *Configuration) Sanitize() {
+	// Ensure Confluence ends with a slash
+	c.ConfluenceURL = strings.TrimRight(c.ConfluenceURL, "/")
+
+	c.ConfluenceOAuthClientID = strings.TrimSpace(c.ConfluenceOAuthClientID)
+	c.ConfluenceOAuthClientSecret = strings.TrimSpace(c.ConfluenceOAuthClientSecret)
+}
+
+func (c *Configuration) IsOAuthConfigured() bool {
+	return (c.ConfluenceOAuthClientID != "" && c.ConfluenceOAuthClientSecret != "")
+}
+
+func (c *Configuration) ToMap() (map[string]interface{}, error) {
+	var out map[string]interface{}
+	data, err := json.Marshal(c)
+	if err != nil {
+		return nil, err
+	}
+	err = json.Unmarshal(data, &out)
+	if err != nil {
+		return nil, err
+	}
+
+	return out, nil
 }

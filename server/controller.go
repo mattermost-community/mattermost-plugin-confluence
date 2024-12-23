@@ -1,4 +1,4 @@
-package controller
+package main
 
 import (
 	"crypto/subtle"
@@ -41,7 +41,7 @@ func getEndpointKey(endpoint *Endpoint) string {
 }
 
 // InitAPI initializes the REST API
-func InitAPI() *mux.Router {
+func (p *Plugin) InitAPI() *mux.Router {
 	r := mux.NewRouter()
 	handleStaticFiles(r)
 
