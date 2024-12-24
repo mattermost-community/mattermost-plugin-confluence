@@ -3,11 +3,13 @@ package main
 import (
 	"strings"
 
-	"github.com/mattermost/mattermost-plugin-confluence/server/config"
+	"github.com/pkg/errors"
+
 	"github.com/mattermost/mattermost/server/public/pluginapi"
 	"github.com/mattermost/mattermost/server/public/pluginapi/experimental/bot/logger"
 	"github.com/mattermost/mattermost/server/public/pluginapi/experimental/telemetry"
-	"github.com/pkg/errors"
+
+	"github.com/mattermost/mattermost-plugin-confluence/server/config"
 )
 
 const (
