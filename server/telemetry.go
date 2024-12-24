@@ -3,6 +3,7 @@ package main
 import (
 	"strings"
 
+	"github.com/mattermost/mattermost-plugin-confluence/server/config"
 	"github.com/mattermost/mattermost/server/public/pluginapi"
 	"github.com/mattermost/mattermost/server/public/pluginapi/experimental/bot/logger"
 	"github.com/mattermost/mattermost/server/public/pluginapi/experimental/telemetry"
@@ -29,7 +30,7 @@ func (p *Plugin) TrackUserEvent(event, userID string, properties map[string]inte
 }
 
 func (p *Plugin) SendDailyTelemetry() {
-	// config := config.GetConfig()
+	config := config.GetConfig()
 
 	connectedUserCount, err := p.getConnectedUserCount()
 	if err != nil {
@@ -38,11 +39,7 @@ func (p *Plugin) SendDailyTelemetry() {
 
 	p.TrackEvent("stats", map[string]interface{}{
 		"connected_user_count": connectedUserCount,
-		// "is_oauth_configured":           config.IsOAuthConfigured(),
-		// "is_sass":                       config.IsSASS(),
-		// "is_group_locked":               config.GitlabGroup != "",
-		// "enable_private_repo":           config.EnablePrivateRepo,
-		// "Use_preregistered_application": config.UsePreregisteredApplication,
+		"is_oauth_configured":  config.IsOAuthConfigured(),
 	})
 }
 

@@ -101,7 +101,6 @@ func (fm *FlowManager) newFlow(name flow.Name) (*flow.Flow, error) {
 const (
 	stepWelcome                  flow.Name = "welcome"
 	stepServerVersionQuestion    flow.Name = "server-verstion-question"
-	stepGitlabURL                flow.Name = "gitlab-url"
 	stepConfluenceURL            flow.Name = "confluence-url"
 	stepOAuthInput               flow.Name = "oauth-input"
 	stepCSversionLessthan9       flow.Name = "server-version-less-than-9"
@@ -128,7 +127,7 @@ func cancelButton() flow.Button {
 func (fm *FlowManager) stepCancel(command string) flow.Step {
 	return flow.NewStep(stepCancel).
 		Terminal().
-		WithText(fmt.Sprintf("Gitlab integration setup has stopped. Restart setup later by running `/gitlab %s`. Learn more about the plugin [here](https://mattermost.gitbook.io/plugin-gitlab/).", command)).
+		WithText(fmt.Sprintf("Confluence integration setup has stopped. Restart setup later by running `/confluence %s`. Learn more about the plugin [here](https://mattermost.gitbook.io/plugin-confluence/).", command)).
 		WithColor(flow.ColorDanger)
 }
 
@@ -404,14 +403,12 @@ func (fm *FlowManager) submitOAuthConfig(f *flow.Flow, submitted map[string]inte
 }
 
 func (fm *FlowManager) stepOAuthConnect() flow.Step {
-	connectPretext := "##### :white_check_mark: Step {{ if .UsePreregisteredApplication }}1{{ else }}2{{ end }}: Connect your GitLab account"
+	connectPretext := "##### :white_check_mark: Step 1: Connect your Confluence account"
 	connectURL := fmt.Sprintf("%s/oauth/connect", util.GetPluginURL())
 	connectText := fmt.Sprintf("Go [here](%s) to connect your account.", connectURL)
 	return flow.NewStep(stepOAuthConnect).
 		WithText(connectText).
 		WithPretext(connectPretext)
-	// OnRender(func(f *flow.Flow) { fm.trackCompleteOauthWizard(f.UserID) })
-	// The API handler will advance to the next step and complete the flow
 }
 
 func (fm *FlowManager) StartAnnouncementWizard(userID string) error {
