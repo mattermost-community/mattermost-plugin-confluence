@@ -70,7 +70,7 @@ func (p *Plugin) NewFlowManager() (*FlowManager, error) {
 		fm.stepCancel("setup"),
 	)
 	fm.setupFlow = setupFlow
-	
+
 	completionFlow, err := fm.newFlow("completion")
 	if err != nil {
 		return nil, err

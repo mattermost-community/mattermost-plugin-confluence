@@ -2,7 +2,7 @@ package store
 
 import (
 	"bytes"
-	"crypto/md5"
+	"crypto/md5" // #nosec G501
 	"crypto/rand"
 	"encoding/json"
 	"fmt"
@@ -160,6 +160,7 @@ func Load(key string) ([]byte, error) {
 	return data, nil
 }
 
+// revive:disable-next-line:exported
 func StoreOAuth2State(state string) error {
 	appErr := config.Mattermost.KVSetWithExpiry(
 		hashkey(prefixOneTimeSecret, state), []byte(state), expiryStoreTimeoutSeconds)
@@ -223,6 +224,7 @@ func EnsureAuthTokenEncryptionSecret() (secret []byte, returnErr error) {
 	return secret, nil
 }
 
+// revive:disable-next-line:exported
 func StoreConnection(instanceID, mattermostUserID types.ID, connection *types.Connection, pluginVersion string) (returnErr error) {
 	defer func() {
 		if returnErr == nil {
@@ -334,6 +336,7 @@ func LoadUser(mattermostUserID types.ID) (*types.User, error) {
 	return user, nil
 }
 
+// revive:disable-next-line:exported
 func StoreUser(user *types.User, pluginVersion string) (returnErr error) {
 	defer func() {
 		if returnErr == nil {

@@ -12,9 +12,6 @@ import (
 
 const (
 	routePrefixInstance = "instance"
-
-	websocketEventConnect    = "connect"
-	websocketEventDisconnect = "disconnect"
 )
 
 func respondErr(w http.ResponseWriter, code int, err error) (int, error) {

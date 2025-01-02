@@ -11,9 +11,10 @@ import (
 	"encoding/json"
 	"io"
 
-	"github.com/mattermost/mattermost-plugin-confluence/server/store"
 	"github.com/pkg/errors"
 	"golang.org/x/oauth2"
+
+	"github.com/mattermost/mattermost-plugin-confluence/server/store"
 )
 
 type AuthToken struct {
