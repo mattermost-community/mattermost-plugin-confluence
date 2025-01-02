@@ -73,3 +73,7 @@ func (c *Configuration) ToMap() (map[string]interface{}, error) {
 
 	return out, nil
 }
+
+func (c *Configuration) GetConfluenceBaseURL() string {
+	return c.ConfluenceURL
+}

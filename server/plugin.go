@@ -1,9 +1,11 @@
 package main
 
 import (
+	"fmt"
 	"net/http"
 	"os"
 	"path/filepath"
+	"text/template"
 
 	"github.com/gorilla/mux"
 	"github.com/pkg/errors"
@@ -33,6 +35,13 @@ type Plugin struct {
 
 	flowManager *FlowManager
 
+	// templates are loaded on startup
+	templates map[string]*template.Template
+
+	pluginVersion string
+
+	ConfluenceClient *Client
+
 	telemetryClient telemetry.Client
 	tracker         telemetry.Tracker
 }
@@ -52,6 +61,19 @@ func (p *Plugin) OnActivate() error {
 	if err := p.OnConfigurationChange(); err != nil {
 		return err
 	}
+
+	bundlePath, err := p.API.GetBundlePath()
+	if err != nil {
+		return errors.Wrap(err, "couldn't get bundle path")
+	}
+
+	templates, err := p.loadTemplates(filepath.Join(bundlePath, "assets", "templates"))
+	if err != nil {
+		return err
+	}
+	p.templates = templates
+
+	p.pluginVersion = manifest.Version
 
 	flowManager, err := p.NewFlowManager()
 	if err != nil {
@@ -149,6 +171,26 @@ func (p *Plugin) ServeHTTP(c *plugin.Context, w http.ResponseWriter, r *http.Req
 	}
 
 	p.Router.ServeHTTP(w, r)
+}
+
+func (p *Plugin) debugf(f string, args ...interface{}) {
+	p.API.LogDebug(fmt.Sprintf(f, args...))
+}
+
+func (p *Plugin) errorf(f string, args ...interface{}) {
+	p.API.LogError(fmt.Sprintf(f, args...))
+}
+
+func (p *Plugin) track(name, userID string) {
+	p.trackWithArgs(name, userID, nil)
+}
+
+func (p *Plugin) trackWithArgs(name, userID string, args map[string]interface{}) {
+	if args == nil {
+		args = map[string]interface{}{}
+	}
+	args["time"] = model.GetMillis()
+	_ = p.tracker.TrackUserEvent(name, userID, args)
 }
 
 func main() {

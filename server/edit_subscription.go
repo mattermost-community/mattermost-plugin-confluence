@@ -20,7 +20,7 @@ var editChannelSubscription = &Endpoint{
 
 const subscriptionEditSuccess = "Your subscription has been edited successfully."
 
-func handleEditChannelSubscription(w http.ResponseWriter, r *http.Request) {
+func handleEditChannelSubscription(w http.ResponseWriter, r *http.Request, _ *Plugin) {
 	params := mux.Vars(r)
 	channelID := params["channelID"]
 	subscriptionType := params["type"]

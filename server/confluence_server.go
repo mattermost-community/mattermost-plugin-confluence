@@ -15,7 +15,7 @@ var confluenceServerWebhook = &Endpoint{
 	RequiresAdmin: false,
 }
 
-func handleConfluenceServerWebhook(w http.ResponseWriter, r *http.Request) {
+func handleConfluenceServerWebhook(w http.ResponseWriter, r *http.Request, _ *Plugin) {
 	config.Mattermost.LogInfo("Received confluence server event.")
 
 	if status, err := verifyHTTPSecret(config.GetConfig().Secret, r.FormValue("secret")); err != nil {

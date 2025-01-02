@@ -8,6 +8,7 @@ import (
 	"github.com/pkg/errors"
 
 	"github.com/mattermost/mattermost-plugin-confluence/server/config"
+	"github.com/mattermost/mattermost-plugin-confluence/server/service"
 	"github.com/mattermost/mattermost-plugin-confluence/server/util"
 
 	"github.com/mattermost/mattermost/server/public/model"
@@ -26,10 +27,13 @@ type FlowManager struct {
 	botUserID         string
 	router            *mux.Router
 	getConfiguration  func() *config.Configuration
+	MMSiteURL         string
+	GetRedirectURL    func() string
 	webhookURL        string
 	confluenceBaseURL string
 	tracker           Tracker
 	setupFlow         *flow.Flow
+	completionFlow    *flow.Flow
 	announcementFlow  *flow.Flow
 }
 
@@ -43,15 +47,15 @@ func (p *Plugin) NewFlowManager() (*FlowManager, error) {
 		router:           p.Router,
 		webhookURL:       webhookURL,
 		getConfiguration: config.GetConfig,
-
-		tracker: p,
+		MMSiteURL:        util.GetSiteURL(),
+		GetRedirectURL:   p.GetRedirectURL,
+		tracker:          p,
 	}
 
 	setupFlow, err := fm.newFlow("setup")
 	if err != nil {
 		return nil, err
 	}
-
 	setupFlow.WithSteps(
 		fm.stepWelcome(),
 		fm.stepInstanceURL(),
@@ -66,6 +70,16 @@ func (p *Plugin) NewFlowManager() (*FlowManager, error) {
 		fm.stepCancel("setup"),
 	)
 	fm.setupFlow = setupFlow
+	
+	completionFlow, err := fm.newFlow("completion")
+	if err != nil {
+		return nil, err
+	}
+	completionFlow.WithSteps(
+		fm.stepDone(),
+		fm.stepCancel("completion"),
+	)
+	fm.completionFlow = completionFlow
 
 	announcementFlow, err := fm.newFlow("announcement")
 	if err != nil {
@@ -113,7 +127,6 @@ const (
 
 	keyConfluenceURL     = "ConfluenceURL"
 	keyIsOAuthConfigured = "IsOAuthConfigured"
-	redirectURL          = "dummyRedirectURL" // will be added in oauth PR
 )
 
 func cancelButton() flow.Button {
@@ -165,6 +178,27 @@ func (fm *FlowManager) StartSetupWizard(userID string, delegatedFrom string) err
 	fm.trackStartSetupWizard(userID, delegatedFrom != "")
 
 	return nil
+}
+
+func (fm *FlowManager) StartCompletionWizard(userID string) error {
+	state := fm.getBaseState()
+
+	err := fm.completionFlow.ForUser(userID).Start(state)
+	if err != nil {
+		return err
+	}
+
+	fm.client.Log.Debug("Started setup wizard", "userID", userID)
+
+	fm.trackStartCompletionWizard(userID)
+
+	return nil
+}
+
+func (fm *FlowManager) trackStartCompletionWizard(userID string) {
+	fm.tracker.TrackUserEvent("completion_wizard_start", userID, map[string]interface{}{
+		"time": model.GetMillis(),
+	})
 }
 
 func (fm *FlowManager) trackStartSetupWizard(userID string, fromInvite bool) {
@@ -221,7 +255,7 @@ func (fm *FlowManager) stepCSversionGreaterthan9() flow.Step {
 				"3. On the **Create Link** screen, select **External Application** and **Incoming** as `Application type` and `Direction` respectively. Select **Continue**.\n" +
 				"4. On the **Link Applications** screen, set the following values:\n" +
 				"   - **Name**: `Mattermost`\n" +
-				fmt.Sprintf("   - **Redirect URL**: `%s`\n", redirectURL) +
+				fmt.Sprintf("   - **Redirect URL**: `%s`\n", fm.GetRedirectURL()) +
 				"   - **Application Permissions**: `Admin`\n" +
 				"   Select **Continue**.\n" +
 				"5. Copy the `clientID` and `clientSecret` from **Settings**, and paste them into the modal in Mattermost which can be opened by using the `/confluence config add` slash command.\n" +
@@ -286,10 +320,10 @@ func (fm *FlowManager) submitConfluenceURL(f *flow.Flow, submitted map[string]in
 		return "", nil, nil, errors.New("confluence_url is not a string")
 	}
 
-	// _, err := service.CheckConfluenceURL(fm.MMSiteURL, confluenceURL, false)
-	// if err != nil {
-	// 	errorList["confluence_url"] = err.Error()
-	// }
+	_, err := service.CheckConfluenceURL(fm.MMSiteURL, confluenceURL, false)
+	if err != nil {
+		errorList["confluence_url"] = err.Error()
+	}
 
 	if len(errorList) != 0 {
 		return "", nil, errorList, nil
@@ -362,8 +396,8 @@ func (fm *FlowManager) submitOAuthConfig(f *flow.Flow, submitted map[string]inte
 
 	clientID = strings.TrimSpace(clientID)
 
-	if len(clientID) < 64 {
-		errorList["client_id"] = "Client ID should be at least 64 characters long"
+	if len(clientID) < 32 {
+		errorList["client_id"] = "Client ID should be at least 32 characters long"
 	}
 
 	clientSecretRaw, ok := submitted["client_secret"]
@@ -403,8 +437,8 @@ func (fm *FlowManager) submitOAuthConfig(f *flow.Flow, submitted map[string]inte
 }
 
 func (fm *FlowManager) stepOAuthConnect() flow.Step {
-	connectPretext := "##### :white_check_mark: Step 1: Connect your Confluence account"
-	connectURL := fmt.Sprintf("%s/oauth/connect", util.GetPluginURL())
+	connectPretext := "##### :white_check_mark: Connect your Confluence account"
+	connectURL := fmt.Sprintf("%s/oauth2/connect", util.GetPluginURL())
 	connectText := fmt.Sprintf("Go [here](%s) to connect your account.", connectURL)
 	return flow.NewStep(stepOAuthConnect).
 		WithText(connectText).
