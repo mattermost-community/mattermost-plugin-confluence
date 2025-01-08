@@ -22,10 +22,10 @@ type UserGroup struct {
 
 type Connection struct {
 	ConfluenceUser
-	PluginVersion     string
-	OAuth2Token       string `json:"token,omitempty"`
-	IsAdmin           bool   `json:"is_admin,omitempty"`
-	MattermostUserID  string `json:"mattermost_user_id,omitempty"`
+	PluginVersion    string
+	OAuth2Token      string `json:"token,omitempty"`
+	IsAdmin          bool   `json:"is_admin,omitempty"`
+	MattermostUserID string `json:"mattermost_user_id,omitempty"`
 }
 
 func (c *Connection) ConfluenceAccountID() ID {
