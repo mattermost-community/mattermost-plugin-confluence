@@ -4,10 +4,12 @@ import (
 	"crypto/sha256"
 	"encoding/base64"
 	"errors"
+	"fmt"
 	"net/url"
 	"regexp"
 	"strings"
 
+	html "github.com/levigross/exp-html"
 	"github.com/mattermost/mattermost/server/public/model"
 
 	"github.com/mattermost/mattermost-plugin-confluence/server/config"
@@ -111,4 +113,36 @@ func Deduplicate(a []string) []string {
 	}
 
 	return result
+}
+
+func GetBodyForExcerpt(htmlBodyValue string) string {
+	var str string
+	domDocTest := html.NewTokenizer(strings.NewReader(htmlBodyValue))
+	previousStartTokenTest := domDocTest.Token()
+loopDomTest:
+	for {
+		tt := domDocTest.Next()
+		switch {
+		case tt == html.ErrorToken:
+			break loopDomTest // End of the document,  done
+		case tt == html.StartTagToken:
+			previousStartTokenTest = domDocTest.Token()
+		case tt == html.TextToken:
+			if previousStartTokenTest.Data == Script || previousStartTokenTest.Data == Style {
+				continue
+			}
+			TextContent := strings.TrimSpace(html.UnescapeString(string(domDocTest.Text())))
+			if len(TextContent) > 0 {
+				str = fmt.Sprintf("%s\n%s", str, TextContent)
+			}
+		}
+	}
+	return str
+}
+
+func GetUsernameOrAnonymousName(username string) string {
+	if username == "" {
+		return "Someone"
+	}
+	return username
 }

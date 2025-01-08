@@ -46,5 +46,5 @@ func GetSubscriptionsByURLPageID(url, pageID string) (serializer.StringArrayMap,
 	if err != nil {
 		return nil, err
 	}
-	return subscriptions.ByURLPagID[key], nil
+	return subscriptions.ByURLPageID[key], nil
 }

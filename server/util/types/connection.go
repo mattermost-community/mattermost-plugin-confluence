@@ -42,10 +42,3 @@ func NewUser(mattermostUserID ID) *User {
 		MattermostUserID: mattermostUserID,
 	}
 }
-
-func (user *User) AsConfigMap() map[string]interface{} {
-	return map[string]interface{}{
-		"mattermost_user_id": user.MattermostUserID.String(),
-		"instance_url":       user.InstanceURL.String(),
-	}
-}

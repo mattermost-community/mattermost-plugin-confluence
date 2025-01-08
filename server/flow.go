@@ -23,6 +23,7 @@ type Tracker interface {
 
 type FlowManager struct {
 	client            *pluginapi.Client
+	plugin            *Plugin
 	pluginID          string
 	botUserID         string
 	router            *mux.Router
@@ -42,6 +43,7 @@ func (p *Plugin) NewFlowManager() (*FlowManager, error) {
 
 	fm := &FlowManager{
 		client:           p.client,
+		plugin:           p,
 		pluginID:         manifest.Id,
 		botUserID:        p.BotUserID,
 		router:           p.Router,
@@ -64,6 +66,7 @@ func (p *Plugin) NewFlowManager() (*FlowManager, error) {
 		fm.stepCSversionLessthan9(),
 		fm.stepOAuthInput(),
 		fm.stepOAuthConnect(),
+		fm.stepWebhookInstructions(),
 		fm.stepAnnouncementQuestion(),
 		fm.stepAnnouncementConfirmation(),
 		fm.stepDone(),
@@ -119,6 +122,7 @@ const (
 	stepOAuthInput               flow.Name = "oauth-input"
 	stepCSversionLessthan9       flow.Name = "server-version-less-than-9"
 	stepCSversionGreaterthan9    flow.Name = "server-version-greater-than-9"
+	stepWebhookInstructions      flow.Name = "webhook-instruction"
 	stepAnnouncementQuestion     flow.Name = "announcement-question"
 	stepAnnouncementConfirmation flow.Name = "announcement-confirmation"
 	stepDone                     flow.Name = "done"
@@ -229,9 +233,12 @@ func (fm *FlowManager) stepServerVersionQuestion() flow.Step {
 	return flow.NewStep(stepServerVersionQuestion).
 		WithText(delegateQuestionText).
 		WithButton(flow.Button{
-			Name:    "Yes",
-			Color:   flow.ColorPrimary,
-			OnClick: flow.Goto(stepCSversionGreaterthan9),
+			Name:  "Yes",
+			Color: flow.ColorPrimary,
+			OnClick: func(f *flow.Flow) (flow.Name, flow.State, error) {
+				fm.plugin.serverVersionGreaterthan9 = true
+				return stepCSversionGreaterthan9, nil, nil
+			},
 		}).
 		WithButton(flow.Button{
 			Name:  "No",
@@ -264,6 +271,21 @@ func (fm *FlowManager) stepCSversionGreaterthan9() flow.Step {
 				"If you see an option to create a Confluence issue, you're all set! If not, refer to our [documentation](https://mattermost.gitbook.io/plugin-confluence) for troubleshooting help.",
 		).
 		WithButton(continueButton(stepOAuthInput))
+}
+
+func (fm *FlowManager) stepWebhookInstructions() flow.Step {
+	return flow.NewStep(stepWebhookInstructions).
+		WithText(
+			"You have successfully connected your mattermost acoount to confluence server. To finish the configuration, add a Webhook in your Confluence server following these steps:\n" +
+				"1. Go to [**Settings > Plugins > Servlet > Webhooks**]({{ .ConfluenceURL }}/plugins/servlet/webhooks/)\n" +
+				"2. Select **Create Webhook**.\n" +
+				"4. On the **Create Webhook** screen, set the following values:\n" +
+				"   - **Name**: `Mattermost Webhook`\n" +
+				fmt.Sprintf("   - **URL**: `%s`\n", fm.webhookURL) +
+				"   - Select the required Events\n" +
+				"   Select **Save**.\n",
+		).
+		WithButton(continueButton(stepDone))
 }
 
 func (fm *FlowManager) stepCSversionLessthan9() flow.Step {
@@ -505,14 +527,14 @@ func (fm *FlowManager) stepAnnouncementQuestion() flow.Step {
 		WithButton(flow.Button{
 			Name:    "Not now",
 			Color:   flow.ColorDefault,
-			OnClick: flow.Goto(stepDone),
+			OnClick: flow.Goto(stepWebhookInstructions),
 		})
 }
 
 func (fm *FlowManager) stepAnnouncementConfirmation() flow.Step {
 	return flow.NewStep(stepAnnouncementConfirmation).
 		WithText("Message to ~{{ .ChannelName }} was sent.").
-		Next("").
+		Next(stepDone).
 		OnRender(func(f *flow.Flow) { fm.trackCompletAnnouncementWizard(f.UserID) })
 }
 

@@ -98,7 +98,7 @@ func TestGetSubscriptionsByChannelID(t *testing.T) {
 						"testtesttesttes1": {serializer.CommentRemovedEvent, serializer.CommentUpdatedEvent},
 					},
 				},
-				ByURLPagID: map[string]serializer.StringArrayMap{
+				ByURLPageID: map[string]serializer.StringArrayMap{
 					"confluence_subs/test.com/1234": {
 						"testtesttesttes1": {serializer.CommentCreatedEvent, serializer.CommentUpdatedEvent},
 					},
@@ -201,7 +201,7 @@ func TestGetSubscriptionsByURLPageID(t *testing.T) {
 						"testtesttesttes1": {serializer.CommentRemovedEvent, serializer.CommentUpdatedEvent},
 					},
 				},
-				ByURLPagID: map[string]serializer.StringArrayMap{
+				ByURLPageID: map[string]serializer.StringArrayMap{
 					"confluence_subs/test.com/1234": {
 						"testtesttesttes1": {serializer.CommentCreatedEvent, serializer.CommentUpdatedEvent},
 					},
@@ -320,7 +320,7 @@ func TestGetSubscriptionsByURLSpaceKey(t *testing.T) {
 						"testtesttesttes1": {serializer.CommentRemovedEvent, serializer.CommentUpdatedEvent},
 					},
 				},
-				ByURLPagID: map[string]serializer.StringArrayMap{
+				ByURLPageID: map[string]serializer.StringArrayMap{
 					"confluence_subs/test.com/1234": {
 						"testtesttesttes1": {serializer.CommentCreatedEvent, serializer.CommentUpdatedEvent},
 					},

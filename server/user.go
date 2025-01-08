@@ -167,8 +167,6 @@ func (p *Plugin) CompleteOAuth2(mattermostUserID, code, state string, instanceID
 		return nil, nil, err
 	}
 
-	p.ConfluenceClient = &client
-
 	confluenceUser, err := client.GetSelf()
 	if err != nil {
 		return nil, nil, err
@@ -255,20 +253,21 @@ func (p *Plugin) connectUser(instanceID types.ID, mattermostUserID types.ID, con
 		return err
 	}
 
-	if p.ConfluenceClient == nil {
-		return errors.New("error getting confluence client")
-	}
-
-	client := *p.ConfluenceClient
-
 	if connection.IsAdmin {
+		client, err := p.GetServerClient(instanceID, connection)
+		if err != nil {
+			return err
+		}
+
 		if _, err = client.(*confluenceServerClient).CheckConfluenceAdmin(); err != nil {
 			return errors.New("user is not a confluence admin")
 		}
-		if err = store.StoreConnection(instanceID, AdminMattermostUserID, connection, p.pluginVersion); err != nil {
-			return err
-		}
 	}
+
+	if err = store.StoreConnection(instanceID, mattermostUserID, connection, p.pluginVersion); err != nil {
+		return err
+	}
+
 	err = store.StoreUser(user, p.pluginVersion)
 	if err != nil {
 		return err

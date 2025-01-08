@@ -40,7 +40,7 @@ type Plugin struct {
 
 	pluginVersion string
 
-	ConfluenceClient *Client
+	serverVersionGreaterthan9 bool
 
 	telemetryClient telemetry.Client
 	tracker         telemetry.Tracker

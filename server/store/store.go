@@ -260,6 +260,17 @@ func StoreConnection(instanceID, mattermostUserID types.ID, connection *types.Co
 	return nil
 }
 
+func GetMattermostUserIDFromConfluenceID(instanceID, confluenceAccountID types.ID) (*types.ID, error) {
+	var mmUserID types.ID
+
+	err := get(keyWithInstanceID(instanceID, confluenceAccountID), &mmUserID)
+	if err != nil {
+		return nil, err
+	}
+
+	return &mmUserID, nil
+}
+
 func LoadConnection(instanceID, mattermostUserID types.ID, pluginVersion string) (*types.Connection, error) {
 	c := &types.Connection{}
 	err := get(keyWithInstanceID(instanceID, mattermostUserID), c)

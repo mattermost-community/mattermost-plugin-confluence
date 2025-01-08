@@ -22,16 +22,16 @@ func (ps PageSubscription) Add(s *Subscriptions) {
 	}
 	s.ByChannelID[ps.ChannelID][ps.Alias] = ps
 	key := store.GetURLPageIDCombinationKey(ps.BaseURL, ps.PageID)
-	if _, ok := s.ByURLPagID[key]; !ok {
-		s.ByURLPagID[key] = make(map[string][]string)
+	if _, ok := s.ByURLPageID[key]; !ok {
+		s.ByURLPageID[key] = make(map[string][]string)
 	}
-	s.ByURLPagID[key][ps.ChannelID] = ps.Events
+	s.ByURLPageID[key][ps.ChannelID] = ps.Events
 }
 
 func (ps PageSubscription) Remove(s *Subscriptions) {
 	delete(s.ByChannelID[ps.ChannelID], ps.Alias)
 	key := store.GetURLPageIDCombinationKey(ps.BaseURL, ps.PageID)
-	delete(s.ByURLPagID[key], ps.ChannelID)
+	delete(s.ByURLPageID[key], ps.ChannelID)
 }
 
 func (ps PageSubscription) Edit(s *Subscriptions) {
@@ -90,7 +90,7 @@ func (ps PageSubscription) ValidateSubscription(subs *Subscriptions) error {
 		}
 	}
 	key := store.GetURLPageIDCombinationKey(ps.BaseURL, ps.PageID)
-	if urlPageIDSubscriptions, valid := subs.ByURLPagID[key]; valid {
+	if urlPageIDSubscriptions, valid := subs.ByURLPageID[key]; valid {
 		if _, ok := urlPageIDSubscriptions[ps.ChannelID]; ok {
 			return errors.New(urlPageIDAlreadyExist)
 		}
