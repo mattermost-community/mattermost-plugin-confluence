@@ -39,13 +39,13 @@ func httpOAuth2Connect(w http.ResponseWriter, r *http.Request, p *Plugin) {
 
 	instanceURL := config.GetConfig().ConfluenceURL
 	if instanceURL == "" {
-		http.Error(w, "missing confluence base url", http.StatusInternalServerError)
+		http.Error(w, "missing confluence base url. Please run `/confluence install server`", http.StatusInternalServerError)
 		return
 	}
 	instanceID := types.ID(instanceURL)
 
 	connection, err := store.LoadConnection(instanceID, types.ID(mattermostUserID), p.pluginVersion)
-	if err == nil && len(connection.ConfluenceAccountID()) != 0 {
+	if err == nil && connection.AccountID != "" {
 		_, _ = respondErr(w, http.StatusBadRequest,
 			errors.New("you already have a Confluence account linked to your Mattermost account. Please use `/confluence disconnect` to disconnect"))
 		return
@@ -248,13 +248,9 @@ func (p *Plugin) connectUser(instanceID types.ID, mattermostUserID types.ID, con
 	}
 	user.InstanceURL = instanceID
 
-	err = store.StoreConnection(instanceID, mattermostUserID, connection, p.pluginVersion)
-	if err != nil {
-		return err
-	}
-
+	var client Client
 	if connection.IsAdmin {
-		client, err := p.GetServerClient(instanceID, connection)
+		client, err = p.GetServerClient(instanceID, connection)
 		if err != nil {
 			return err
 		}
@@ -262,6 +258,11 @@ func (p *Plugin) connectUser(instanceID types.ID, mattermostUserID types.ID, con
 		if _, err = client.(*confluenceServerClient).CheckConfluenceAdmin(); err != nil {
 			return errors.New("user is not a confluence admin")
 		}
+	}
+
+	err = store.StoreConnection(instanceID, mattermostUserID, connection, p.pluginVersion)
+	if err != nil {
+		return err
 	}
 
 	if err = store.StoreConnection(instanceID, mattermostUserID, connection, p.pluginVersion); err != nil {

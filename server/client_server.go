@@ -21,7 +21,7 @@ const (
 	PathSpaceData              = "/rest/api/space/%s?status=any"
 	PathAllSpaces              = "/rest/api/space"
 	PathGetUserGroupsForServer = "/rest/api/user/memberof?username=%s"
-	PathAdminData              = "/rest/api/audit/retention"
+	PathAdminData              = "/rest/api/audit"
 )
 
 const (
@@ -234,7 +234,7 @@ func (csc *confluenceServerClient) GetSpaceKeyFromSpaceID(spaceID int64) (string
 		start += pageSize
 	}
 
-	return "", errors.New(fmt.Sprintf("confluence GetSpaceKeyFromSpaceID: no space found for the space id %v", spaceID))
+	return "", fmt.Errorf("confluence GetSpaceKeyFromSpaceID: no space found for the space id %v", spaceID)
 }
 
 func (csc *confluenceServerClient) GetUserGroups(connection *types.Connection) ([]*types.UserGroup, error) {

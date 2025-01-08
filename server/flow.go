@@ -66,7 +66,6 @@ func (p *Plugin) NewFlowManager() (*FlowManager, error) {
 		fm.stepCSversionLessthan9(),
 		fm.stepOAuthInput(),
 		fm.stepOAuthConnect(),
-		fm.stepWebhookInstructions(),
 		fm.stepAnnouncementQuestion(),
 		fm.stepAnnouncementConfirmation(),
 		fm.stepDone(),
@@ -79,6 +78,7 @@ func (p *Plugin) NewFlowManager() (*FlowManager, error) {
 		return nil, err
 	}
 	completionFlow.WithSteps(
+		fm.stepWebhookInstructions(),
 		fm.stepDone(),
 		fm.stepCancel("completion"),
 	)
@@ -254,7 +254,7 @@ func (fm *FlowManager) stepCSversionGreaterthan9() flow.Step {
 		WithText(
 			fmt.Sprintf(
 				"%s has been successfully added. To finish the configuration, add an Application Link in your Confluence instance following these steps:\n",
-				fm.confluenceBaseURL,
+				fm.getConfluenceBaseURL(),
 			) +
 				"1. Go to [**Settings > Applications > Application Links**]({{ .ConfluenceURL }}/plugins/servlet/applinks/listApplicationLinks)\n" +
 				"   ![image](https://user-images.githubusercontent.com/90389917/202149868-a3044351-37bc-43c0-9671-aba169706917.png)\n" +
@@ -266,8 +266,7 @@ func (fm *FlowManager) stepCSversionGreaterthan9() flow.Step {
 				"   - **Application Permissions**: `Admin`\n" +
 				"   Select **Continue**.\n" +
 				"5. Copy the `clientID` and `clientSecret` from **Settings**, and paste them into the modal in Mattermost which can be opened by using the `/confluence config add` slash command.\n" +
-				"6. In Mattermost, use the `/confluence connect {{ .ConfluenceURL }} admin` slash command to connect your Mattermost account with your Confluence admin account and save the token of the admin to handle admin-restricted functions.\n" +
-				"7. Use the `/confluence connect` slash command to connect your Mattermost account with your Confluence account for all other users.\n" +
+				"6. In Mattermost, use the `/confluence connect` slash command to connect your Mattermost account with your Confluence admin account\n" +
 				"If you see an option to create a Confluence issue, you're all set! If not, refer to our [documentation](https://mattermost.gitbook.io/plugin-confluence) for troubleshooting help.",
 		).
 		WithButton(continueButton(stepOAuthInput))
@@ -580,10 +579,14 @@ func (fm *FlowManager) submitChannelAnnouncement(f *flow.Flow, submitted map[str
 func (fm *FlowManager) stepDone() flow.Step {
 	return flow.NewStep(stepDone).
 		Terminal().
-		WithText(":tada: You successfully installed Confluence.").
+		WithText(":tada: You have successfully installed Confluence.").
 		OnRender(fm.onDone)
 }
 
 func (fm *FlowManager) onDone(f *flow.Flow) {
 	fm.trackCompleteSetupWizard(f.UserID)
+}
+
+func (fm *FlowManager) getConfluenceBaseURL() string {
+	return fm.confluenceBaseURL
 }

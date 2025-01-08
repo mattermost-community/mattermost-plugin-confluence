@@ -194,7 +194,7 @@ func executeConnect(p *Plugin, context *model.CommandArgs, args ...string) *mode
 	confluenceURL = strings.TrimSuffix(confluenceURL, "/")
 
 	conn, err := store.LoadConnection(types.ID(confluenceURL), types.ID(context.UserId), p.pluginVersion)
-	if err == nil && len(conn.ConfluenceAccountID()) != 0 {
+	if err == nil && conn.AccountID != "" {
 		return p.responsef(context,
 			"You already have a Confluence account linked to your Mattermost account. Please use `/confluence disconnect` to disconnect.")
 	}
@@ -212,11 +212,7 @@ func executeDisconnect(p *Plugin, commArgs *model.CommandArgs, args ...string) *
 
 	disconnected, err := p.DisconnectUser(confluenceURL, types.ID(commArgs.UserId))
 	if errors.Cause(err) == store.ErrNotFound {
-		errorStr := "Your account is not connected to Confluence. Please use `/confluence connect` to connect your account."
-		if confluenceURL != "" {
-			errorStr = fmt.Sprintf("You don't have a Confluence account at %s linked to your Mattermost account currently. Please use `/confluence connect` to connect your account.", confluenceURL)
-		}
-		return p.responsef(commArgs, errorStr)
+		return p.responsef(commArgs, "Your account is not connected to Confluence. Please use `/confluence connect` to connect your account.")
 	}
 	if err != nil {
 		return p.responsef(commArgs, "Could not complete the **disconnection** request. Error: %v", err)
