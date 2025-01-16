@@ -391,7 +391,7 @@ func (fm *FlowManager) submitOAuthConfig(f *flow.Flow, submitted map[string]inte
 }
 
 func (fm *FlowManager) stepOAuthConnect() flow.Step {
-	connectPretext := "##### :white_check_mark: Step 1: Connect your Confluence account"
+	connectPretext := "##### :white_check_mark: Connect your Confluence account"
 	connectURL := fmt.Sprintf("%s/oauth/connect", util.GetPluginURL())
 	connectText := fmt.Sprintf("Go [here](%s) to connect your account.", connectURL)
 	return flow.NewStep(stepOAuthConnect).
