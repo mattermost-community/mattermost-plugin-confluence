@@ -169,7 +169,25 @@ func call(basePath, method, path, contentType string, inBody io.Reader, out inte
 
 	case http.StatusNotFound:
 		return nil, errors.Errorf(ErrorStatusNotFound)
-	}
+	
+	case http.StatusBadRequest:
+		return nil, errors.Errorf("Bad Request")
+	
+	case http.StatusUnauthorized:
+		return nil, errors.Errorf("Unauthorized")
+	
+	case http.StatusForbidden:
+		return nil, errors.Errorf("Forbidden request")
+	
+	case http.StatusInternalServerError:
+		return nil, errors.Errorf("Internal Server Error")
+	
+	case http.StatusBadGateway:
+		return nil, errors.Errorf("Bad Gateway")
+
+	case http.StatusGatewayTimeout:
+		return nil, errors.Errorf("Gateway Timeout")
+	}	
 
 	errResp := ErrorResponse{}
 	if err = json.Unmarshal(responseData, &errResp); err != nil {

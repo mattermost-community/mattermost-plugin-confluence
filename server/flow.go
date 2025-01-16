@@ -8,6 +8,7 @@ import (
 	"github.com/pkg/errors"
 
 	"github.com/mattermost/mattermost-plugin-confluence/server/config"
+	"github.com/mattermost/mattermost-plugin-confluence/server/service"
 	"github.com/mattermost/mattermost-plugin-confluence/server/util"
 
 	"github.com/mattermost/mattermost/server/public/model"
@@ -27,10 +28,10 @@ type FlowManager struct {
 	router            *mux.Router
 	getConfiguration  func() *config.Configuration
 	webhookURL        string
+	MMSiteURL         string
 	confluenceBaseURL string
 	tracker           Tracker
 	setupFlow         *flow.Flow
-	announcementFlow  *flow.Flow
 }
 
 func (p *Plugin) NewFlowManager() (*FlowManager, error) {
@@ -41,6 +42,7 @@ func (p *Plugin) NewFlowManager() (*FlowManager, error) {
 		pluginID:         manifest.Id,
 		botUserID:        p.BotUserID,
 		router:           p.Router,
+		MMSiteURL:        util.GetSiteURL(),
 		webhookURL:       webhookURL,
 		getConfiguration: config.GetConfig,
 
@@ -60,24 +62,10 @@ func (p *Plugin) NewFlowManager() (*FlowManager, error) {
 		fm.stepCSversionLessthan9(),
 		fm.stepOAuthInput(),
 		fm.stepOAuthConnect(),
-		fm.stepAnnouncementQuestion(),
-		fm.stepAnnouncementConfirmation(),
 		fm.stepDone(),
 		fm.stepCancel("setup"),
 	)
 	fm.setupFlow = setupFlow
-
-	announcementFlow, err := fm.newFlow("announcement")
-	if err != nil {
-		return nil, err
-	}
-	announcementFlow.WithSteps(
-		fm.stepAnnouncementQuestion(),
-		fm.stepAnnouncementConfirmation().Terminal(),
-
-		fm.stepCancel("setup announcement"),
-	)
-	fm.announcementFlow = announcementFlow
 
 	return fm, nil
 }
@@ -286,10 +274,10 @@ func (fm *FlowManager) submitConfluenceURL(f *flow.Flow, submitted map[string]in
 		return "", nil, nil, errors.New("confluence_url is not a string")
 	}
 
-	// _, err := service.CheckConfluenceURL(fm.MMSiteURL, confluenceURL, false)
-	// if err != nil {
-	// 	errorList["confluence_url"] = err.Error()
-	// }
+	_, err := service.CheckConfluenceURL(fm.MMSiteURL, confluenceURL, false)
+	if err != nil {
+		errorList["confluence_url"] = err.Error()
+	}
 
 	if len(errorList) != 0 {
 		return "", nil, errorList, nil
@@ -409,116 +397,6 @@ func (fm *FlowManager) stepOAuthConnect() flow.Step {
 	return flow.NewStep(stepOAuthConnect).
 		WithText(connectText).
 		WithPretext(connectPretext)
-}
-
-func (fm *FlowManager) StartAnnouncementWizard(userID string) error {
-	state := fm.getBaseState()
-
-	err := fm.announcementFlow.ForUser(userID).Start(state)
-	if err != nil {
-		return err
-	}
-
-	fm.trackStartAnnouncementWizard(userID)
-
-	return nil
-}
-
-func (fm *FlowManager) trackStartAnnouncementWizard(userID string) {
-	fm.tracker.TrackUserEvent("announcement_wizard_start", userID, map[string]interface{}{
-		"time": model.GetMillis(),
-	})
-}
-
-func (fm *FlowManager) trackCompletAnnouncementWizard(userID string) {
-	fm.tracker.TrackUserEvent("announcement_wizard_complete", userID, map[string]interface{}{
-		"time": model.GetMillis(),
-	})
-}
-
-func (fm *FlowManager) stepAnnouncementQuestion() flow.Step {
-	defaultMessage := "Hi team,\n" +
-		"\n" +
-		"We've set up the Mattermost Confluence plugin to enable notifications from Confluence in Mattermost. To get started, run the `/confluence connect` slash command from any channel within Mattermost to connect that channel with Confluence. See the [documentation](https://mattermost.gitbook.io/plugin-confluence/) for details on using the Confluence plugin."
-
-	return flow.NewStep(stepAnnouncementQuestion).
-		WithText("Want to let your team know?").
-		WithButton(flow.Button{
-			Name:  "Send Message",
-			Color: flow.ColorPrimary,
-			Dialog: &model.Dialog{
-				Title:       "Notify your team",
-				SubmitLabel: "Send message",
-				Elements: []model.DialogElement{
-					{
-						DisplayName: "To",
-						Name:        "channel_id",
-						Type:        "select",
-						Placeholder: "Select channel",
-						DataSource:  "channels",
-					},
-					{
-						DisplayName: "Message",
-						Name:        "message",
-						Type:        "textarea",
-						Default:     defaultMessage,
-						HelpText:    "You can edit this message before sending it.",
-					},
-				},
-			},
-			OnDialogSubmit: fm.submitChannelAnnouncement,
-		}).
-		WithButton(flow.Button{
-			Name:    "Not now",
-			Color:   flow.ColorDefault,
-			OnClick: flow.Goto(stepDone),
-		})
-}
-
-func (fm *FlowManager) stepAnnouncementConfirmation() flow.Step {
-	return flow.NewStep(stepAnnouncementConfirmation).
-		WithText("Message to ~{{ .ChannelName }} was sent.").
-		Next("").
-		OnRender(func(f *flow.Flow) { fm.trackCompletAnnouncementWizard(f.UserID) })
-}
-
-func (fm *FlowManager) submitChannelAnnouncement(f *flow.Flow, submitted map[string]interface{}) (flow.Name, flow.State, map[string]string, error) {
-	channelIDRaw, ok := submitted["channel_id"]
-	if !ok {
-		return "", nil, nil, errors.New("channel_id missing")
-	}
-	channelID, ok := channelIDRaw.(string)
-	if !ok {
-		return "", nil, nil, errors.New("channel_id is not a string")
-	}
-
-	channel, err := fm.client.Channel.Get(channelID)
-	if err != nil {
-		return "", nil, nil, errors.Wrap(err, "failed to get channel")
-	}
-
-	messageRaw, ok := submitted["message"]
-	if !ok {
-		return "", nil, nil, errors.New("message is not a string")
-	}
-	message, ok := messageRaw.(string)
-	if !ok {
-		return "", nil, nil, errors.New("message is not a string")
-	}
-
-	post := &model.Post{
-		UserId:    f.UserID,
-		ChannelId: channel.Id,
-		Message:   message,
-	}
-	err = fm.client.Post.CreatePost(post)
-	if err != nil {
-		return "", nil, nil, errors.Wrap(err, "failed to create announcement post")
-	}
-
-	return stepAnnouncementConfirmation, flow.State{
-		"ChannelName": channel.Name,
-	}, nil, nil
 }
 
 func (fm *FlowManager) stepDone() flow.Step {
