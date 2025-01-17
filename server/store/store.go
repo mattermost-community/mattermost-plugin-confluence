@@ -121,8 +121,7 @@ func get(key string, v interface{}) (returnErr error) {
 		return ErrNotFound
 	}
 
-	err := json.Unmarshal(data, v)
-	if err != nil {
+	if err := json.Unmarshal(data, v); err != nil {
 		return err
 	}
 
@@ -142,8 +141,7 @@ func set(key string, v interface{}) (returnErr error) {
 		return err
 	}
 
-	appErr := config.Mattermost.KVSet(key, data)
-	if appErr != nil {
+	if appErr := config.Mattermost.KVSet(key, data); appErr != nil {
 		return appErr
 	}
 	return nil
@@ -162,9 +160,7 @@ func Load(key string) ([]byte, error) {
 
 // revive:disable-next-line:exported
 func StoreOAuth2State(state string) error {
-	appErr := config.Mattermost.KVSetWithExpiry(
-		hashkey(prefixOneTimeSecret, state), []byte(state), expiryStoreTimeoutSeconds)
-	if appErr != nil {
+	if appErr := config.Mattermost.KVSetWithExpiry(hashkey(prefixOneTimeSecret, state), []byte(state), expiryStoreTimeoutSeconds); appErr != nil {
 		return errors.WithMessage(appErr, "failed to store state "+state)
 	}
 	return nil
@@ -199,13 +195,11 @@ func EnsureAuthTokenEncryptionSecret() (secret []byte, returnErr error) {
 
 	if len(secret) == 0 {
 		newSecret := make([]byte, 32)
-		_, err := rand.Reader.Read(newSecret)
-		if err != nil {
+		if _, err := rand.Reader.Read(newSecret); err != nil {
 			return nil, err
 		}
 
-		appErr = config.Mattermost.KVSet(keyTokenSecret, newSecret)
-		if appErr != nil {
+		if appErr = config.Mattermost.KVSet(keyTokenSecret, newSecret); appErr != nil {
 			return nil, appErr
 		}
 		secret = newSecret
@@ -236,20 +230,17 @@ func StoreConnection(instanceID, mattermostUserID types.ID, connection *types.Co
 
 	connection.PluginVersion = pluginVersion
 
-	err := set(keyWithInstanceID(instanceID, mattermostUserID), connection)
-	if err != nil {
+	if err := set(keyWithInstanceID(instanceID, mattermostUserID), connection); err != nil {
 		return err
 	}
 
-	err = set(keyWithInstanceID(instanceID, connection.ConfluenceAccountID()), mattermostUserID)
-	if err != nil {
+	if err := set(keyWithInstanceID(instanceID, connection.ConfluenceAccountID()), mattermostUserID); err != nil {
 		return err
 	}
 
 	// Also store AccountID -> mattermostUserID because Confluence Cloud is deprecating the name field
 	// https://developer.atlassian.com/cloud/Confluence/platform/api-changes-for-user-privacy-announcement/
-	err = set(keyWithInstanceID(instanceID, connection.ConfluenceAccountID()), mattermostUserID)
-	if err != nil {
+	if err := set(keyWithInstanceID(instanceID, connection.ConfluenceAccountID()), mattermostUserID); err != nil {
 		return err
 	}
 
@@ -262,8 +253,7 @@ func StoreConnection(instanceID, mattermostUserID types.ID, connection *types.Co
 
 func LoadConnection(instanceID, mattermostUserID types.ID, pluginVersion string) (*types.Connection, error) {
 	c := &types.Connection{}
-	err := get(keyWithInstanceID(instanceID, mattermostUserID), c)
-	if err != nil {
+	if err := get(keyWithInstanceID(instanceID, mattermostUserID), c); err != nil {
 		return nil, errors.Wrapf(err,
 			"failed to load connection for Mattermost user ID:%q, Confluence:%q", mattermostUserID, instanceID)
 	}
@@ -300,8 +290,7 @@ func DeleteConnection(instanceID, mattermostUserID types.ID, pluginVersion strin
 		}
 	}
 
-	err = DeleteConnectionFromKVStore(instanceID, mattermostUserID, c)
-	if err != nil {
+	if err = DeleteConnectionFromKVStore(instanceID, mattermostUserID, c); err != nil {
 		return err
 	}
 
@@ -309,13 +298,11 @@ func DeleteConnection(instanceID, mattermostUserID types.ID, pluginVersion strin
 }
 
 func DeleteConnectionFromKVStore(instanceID, mattermostUserID types.ID, c *types.Connection) error {
-	appErr := config.Mattermost.KVDelete(keyWithInstanceID(instanceID, mattermostUserID))
-	if appErr != nil {
+	if appErr := config.Mattermost.KVDelete(keyWithInstanceID(instanceID, mattermostUserID)); appErr != nil {
 		return appErr
 	}
 
-	appErr = config.Mattermost.KVDelete(keyWithInstanceID(instanceID, c.ConfluenceAccountID()))
-	if appErr != nil {
+	if appErr := config.Mattermost.KVDelete(keyWithInstanceID(instanceID, c.ConfluenceAccountID())); appErr != nil {
 		return appErr
 	}
 
@@ -328,10 +315,8 @@ func DeleteConnectionFromKVStore(instanceID, mattermostUserID types.ID, c *types
 func LoadUser(mattermostUserID types.ID) (*types.User, error) {
 	user := types.NewUser(mattermostUserID)
 	key := hashkey(prefixUser, mattermostUserID.String())
-	err := get(key, user)
-	if err != nil {
-		return nil, errors.WithMessage(err,
-			fmt.Sprintf("failed to load confluence user for mattermostUserId:%s", mattermostUserID))
+	if err := get(key, user); err != nil {
+		return nil, errors.WithMessage(err, fmt.Sprintf("failed to load confluence user for mattermostUserId:%s", mattermostUserID))
 	}
 	return user, nil
 }
@@ -349,8 +334,7 @@ func StoreUser(user *types.User, pluginVersion string) (returnErr error) {
 	user.PluginVersion = pluginVersion
 
 	key := hashkey(prefixUser, user.MattermostUserID.String())
-	err := set(key, user)
-	if err != nil {
+	if err := set(key, user); err != nil {
 		return err
 	}
 

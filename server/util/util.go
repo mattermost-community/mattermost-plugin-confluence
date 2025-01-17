@@ -13,11 +13,6 @@ import (
 	"github.com/mattermost/mattermost-plugin-confluence/server/config"
 )
 
-const (
-	Script = "script"
-	Style  = "style"
-)
-
 // GetKeyHash can be used to create a hash from a string
 func GetKeyHash(key string) string {
 	hash := sha256.New()
