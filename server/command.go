@@ -45,6 +45,7 @@ const (
 	invalidCommand          = "Invalid command."
 	installOnlySystemAdmin  = "`/confluence install` can only be run by a system administrator."
 	commandsOnlySystemAdmin = "`/confluence` commands can only be run by a system administrator."
+	oauth2ConnectPath       = "%s/oauth2/connect"
 )
 
 const (
@@ -182,13 +183,13 @@ func (p *Plugin) responsef(commandArgs *model.CommandArgs, format string, args .
 
 func executeConnect(p *Plugin, context *model.CommandArgs, args ...string) *model.CommandResponse {
 	isAdmin := util.IsSystemAdmin(context.UserId)
-	if !isAdmin {
-		return p.responsef(context, "Command is required for admins only")
-	}
 
 	pluginConfig := config.GetConfig()
 	if pluginConfig.ConfluenceURL == "" || pluginConfig.ConfluenceOAuthClientID == "" || pluginConfig.ConfluenceOAuthClientSecret == "" {
-		return p.responsef(context, "Oauth config not set for confluence plugin. Please run `/confluence install server`")
+		if isAdmin {
+			return p.responsef(context, "OAuth config not set for confluence plugin. Please run `/confluence install server`")
+		}
+		return p.responsef(context, "OAuth config not set for confluence plugin. Please ask the admin to setup OAuth for the plugin")
 	}
 	confluenceURL := pluginConfig.ConfluenceURL
 	confluenceURL = strings.TrimSuffix(confluenceURL, "/")
@@ -199,7 +200,7 @@ func executeConnect(p *Plugin, context *model.CommandArgs, args ...string) *mode
 			"You already have a Confluence account linked to your Mattermost account. Please use `/confluence disconnect` to disconnect.")
 	}
 
-	link := fmt.Sprintf("%s/oauth2/connect", util.GetPluginURL())
+	link := fmt.Sprintf(oauth2ConnectPath, util.GetPluginURL())
 	return p.responsef(context, "[Click here to link your Confluence account](%s)", link)
 }
 

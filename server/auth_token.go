@@ -21,7 +21,7 @@ type AuthToken struct {
 	Token *oauth2.Token `json:"token,omitempty"`
 }
 
-func (p *Plugin) NewEncodedAuthToken(token *oauth2.Token) (returnToken string, returnErr error) {
+func (p *Plugin) NewEncodedAuthToken(token *oauth2.Token) (encodedToken string, returnErr error) {
 	defer func() {
 		if returnErr == nil {
 			return
@@ -75,8 +75,7 @@ func (p *Plugin) ParseAuthToken(encoded string) (token *oauth2.Token, returnErr 
 		return nil, err
 	}
 
-	err = json.Unmarshal(jsonBytes, &t)
-	if err != nil {
+	if err = json.Unmarshal(jsonBytes, &t); err != nil {
 		return nil, err
 	}
 
@@ -105,8 +104,7 @@ func encrypt(plain, secret []byte) ([]byte, error) {
 	}
 
 	nonce := make([]byte, aesgcm.NonceSize())
-	_, err = io.ReadFull(rand.Reader, nonce)
-	if err != nil {
+	if _, err = io.ReadFull(rand.Reader, nonce); err != nil {
 		return nil, err
 	}
 

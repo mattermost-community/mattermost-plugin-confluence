@@ -79,8 +79,7 @@ func (p *Plugin) respondSpecialTemplate(w http.ResponseWriter, key string, statu
 		return respondErr(w, http.StatusInternalServerError,
 			errors.New("no template found for "+key))
 	}
-	err := t.Execute(w, values)
-	if err != nil {
+	if err := t.Execute(w, values); err != nil {
 		return http.StatusInternalServerError,
 			errors.WithMessage(err, "failed to write response")
 	}
@@ -95,8 +94,7 @@ func (p *Plugin) respondTemplate(w http.ResponseWriter, r *http.Request, content
 		return respondErr(w, http.StatusInternalServerError,
 			errors.New("no template found for "+path))
 	}
-	err := t.Execute(w, values)
-	if err != nil {
+	if err := t.Execute(w, values); err != nil {
 		return http.StatusInternalServerError, errors.WithMessage(err, "failed to write response")
 	}
 	return http.StatusOK, nil

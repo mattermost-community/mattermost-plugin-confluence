@@ -96,7 +96,7 @@ func httpOAuth2Complete(w http.ResponseWriter, r *http.Request, p *Plugin) {
 
 	mattermostUserID := r.Header.Get(config.HeaderMattermostUserID)
 	if mattermostUserID == "" {
-		http.Error(w, "not authorized", http.StatusInternalServerError)
+		http.Error(w, "not authorized", http.StatusUnauthorized)
 		return
 	}
 
@@ -129,8 +129,7 @@ func (p *Plugin) CompleteOAuth2(mattermostUserID, code, state string, instanceID
 		return nil, nil, errors.New("missing user, code or state")
 	}
 
-	err := store.VerifyOAuth2State(state)
-	if err != nil {
+	if err := store.VerifyOAuth2State(state); err != nil {
 		return nil, nil, errors.WithMessage(err, "missing stored state")
 	}
 
@@ -192,8 +191,7 @@ func (p *Plugin) getUserConnectURL(instanceID types.ID, mattermostUserID string,
 	if isAdmin {
 		state = fmt.Sprintf("%v_%v", state, AdminMattermostUserID)
 	}
-	err = store.StoreOAuth2State(state)
-	if err != nil {
+	if err = store.StoreOAuth2State(state); err != nil {
 		return "", err
 	}
 
@@ -223,13 +221,11 @@ func (p *Plugin) disconnectUser(instanceID types.ID, user *types.User) (*types.C
 		user.InstanceURL = ""
 	}
 
-	err = store.DeleteConnection(instanceID, user.MattermostUserID, p.pluginVersion)
-	if err != nil && errors.Cause(err) != store.ErrNotFound {
+	if err = store.DeleteConnection(instanceID, user.MattermostUserID, p.pluginVersion); err != nil && errors.Cause(err) != store.ErrNotFound {
 		return nil, err
 	}
 
-	err = store.StoreUser(user, p.pluginVersion)
-	if err != nil {
+	if err = store.StoreUser(user, p.pluginVersion); err != nil {
 		return nil, err
 	}
 
@@ -238,7 +234,7 @@ func (p *Plugin) disconnectUser(instanceID types.ID, user *types.User) (*types.C
 	return conn, nil
 }
 
-func (p *Plugin) connectUser(instanceID types.ID, mattermostUserID types.ID, connection *types.Connection) error {
+func (p *Plugin) connectUser(instanceID, mattermostUserID types.ID, connection *types.Connection) error {
 	user, err := store.LoadUser(mattermostUserID)
 	if err != nil {
 		if errors.Cause(err) != store.ErrNotFound {
@@ -248,20 +244,7 @@ func (p *Plugin) connectUser(instanceID types.ID, mattermostUserID types.ID, con
 	}
 	user.InstanceURL = instanceID
 
-	var client Client
-	if connection.IsAdmin {
-		client, err = p.GetServerClient(instanceID, connection)
-		if err != nil {
-			return err
-		}
-
-		if _, err = client.(*confluenceServerClient).CheckConfluenceAdmin(); err != nil {
-			return errors.New("user is not a confluence admin")
-		}
-	}
-
-	err = store.StoreConnection(instanceID, mattermostUserID, connection, p.pluginVersion)
-	if err != nil {
+	if err = store.StoreConnection(instanceID, mattermostUserID, connection, p.pluginVersion); err != nil {
 		return err
 	}
 
@@ -269,13 +252,15 @@ func (p *Plugin) connectUser(instanceID types.ID, mattermostUserID types.ID, con
 		return err
 	}
 
-	err = store.StoreUser(user, p.pluginVersion)
-	if err != nil {
+	if err = store.StoreConnection(instanceID, AdminMattermostUserID, connection, p.pluginVersion); err != nil {
 		return err
 	}
 
-	err = p.flowManager.StartCompletionWizard(mattermostUserID.String())
-	if err != nil {
+	if err = store.StoreUser(user, p.pluginVersion); err != nil {
+		return err
+	}
+
+	if err = p.flowManager.StartCompletionWizard(mattermostUserID.String()); err != nil {
 		return err
 	}
 
@@ -311,8 +296,7 @@ func (p *Plugin) refreshAndStoreToken(connection *types.Connection, instanceID t
 		}
 		connection.OAuth2Token = encryptedToken
 
-		err = store.StoreConnection(instanceID, types.ID(connection.MattermostUserID), connection, p.pluginVersion)
-		if err != nil {
+		if err = store.StoreConnection(instanceID, types.ID(connection.MattermostUserID), connection, p.pluginVersion); err != nil {
 			return nil, err
 		}
 

@@ -187,8 +187,7 @@ func (fm *FlowManager) StartSetupWizard(userID string, delegatedFrom string) err
 func (fm *FlowManager) StartCompletionWizard(userID string) error {
 	state := fm.getBaseState()
 
-	err := fm.completionFlow.ForUser(userID).Start(state)
-	if err != nil {
+	if err := fm.completionFlow.ForUser(userID).Start(state); err != nil {
 		return err
 	}
 
@@ -341,8 +340,7 @@ func (fm *FlowManager) submitConfluenceURL(f *flow.Flow, submitted map[string]in
 		return "", nil, nil, errors.New("confluence_url is not a string")
 	}
 
-	_, err := service.CheckConfluenceURL(fm.MMSiteURL, confluenceURL, false)
-	if err != nil {
+	if _, err := service.CheckConfluenceURL(fm.MMSiteURL, confluenceURL, false); err != nil {
 		errorList["confluence_url"] = err.Error()
 	}
 
@@ -359,8 +357,7 @@ func (fm *FlowManager) submitConfluenceURL(f *flow.Flow, submitted map[string]in
 		return "", nil, nil, err
 	}
 
-	err = fm.client.Configuration.SavePluginConfig(configMap)
-	if err != nil {
+	if err = fm.client.Configuration.SavePluginConfig(configMap); err != nil {
 		return "", nil, nil, errors.Wrap(err, "failed to save plugin config")
 	}
 
@@ -459,7 +456,7 @@ func (fm *FlowManager) submitOAuthConfig(f *flow.Flow, submitted map[string]inte
 
 func (fm *FlowManager) stepOAuthConnect() flow.Step {
 	connectPretext := "##### :white_check_mark: Connect your Confluence account"
-	connectURL := fmt.Sprintf("%s/oauth2/connect", util.GetPluginURL())
+	connectURL := fmt.Sprintf(oauth2ConnectPath, util.GetPluginURL())
 	connectText := fmt.Sprintf("Go [here](%s) to connect your account.", connectURL)
 	return flow.NewStep(stepOAuthConnect).
 		WithText(connectText).
