@@ -79,7 +79,7 @@ func handleConfluenceServerWebhook(w http.ResponseWriter, r *http.Request, p *Pl
 		}
 		eventData.BaseURL = pluginConfig.ConfluenceURL
 
-		notification := getNotification(p)
+		notification := p.getNotification()
 
 		notification.SendConfluenceNotifications(eventData, event.Event, p.BotUserID, mmUserID.String())
 	} else {

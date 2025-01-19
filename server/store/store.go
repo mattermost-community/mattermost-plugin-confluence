@@ -254,8 +254,7 @@ func StoreConnection(instanceID, mattermostUserID types.ID, connection *types.Co
 func GetMattermostUserIDFromConfluenceID(instanceID, confluenceAccountID types.ID) (*types.ID, error) {
 	var mmUserID types.ID
 
-	err := get(keyWithInstanceID(instanceID, confluenceAccountID), &mmUserID)
-	if err != nil {
+	if err := get(keyWithInstanceID(instanceID, confluenceAccountID), &mmUserID); err != nil {
 		return nil, err
 	}
 
@@ -286,8 +285,7 @@ func DeleteConnection(instanceID, mattermostUserID types.ID, pluginVersion strin
 		return err
 	}
 
-	err = DeleteConnectionFromKVStore(instanceID, mattermostUserID, c)
-	if err != nil {
+	if err = DeleteConnectionFromKVStore(instanceID, mattermostUserID, c); err != nil {
 		return err
 	}
 

@@ -265,8 +265,7 @@ func (fm *FlowManager) stepCSversionGreaterthan9() flow.Step {
 				"   - **Application Permissions**: `Admin`\n" +
 				"   Select **Continue**.\n" +
 				"5. Copy the `clientID` and `clientSecret` from **Settings**, and paste them into the modal in Mattermost which can be opened by using the `/confluence config add` slash command.\n" +
-				"6. In Mattermost, use the `/confluence connect` slash command to connect your Mattermost account with your Confluence admin account\n" +
-				"If you see an option to create a Confluence issue, you're all set! If not, refer to our [documentation](https://mattermost.gitbook.io/plugin-confluence) for troubleshooting help.",
+				"6. In Mattermost, use the `/confluence connect` slash command to connect your Mattermost account with your Confluence account\n",
 		).
 		WithButton(continueButton(stepOAuthInput))
 }
@@ -280,7 +279,7 @@ func (fm *FlowManager) stepWebhookInstructions() flow.Step {
 				"4. On the **Create Webhook** screen, set the following values:\n" +
 				"   - **Name**: `Mattermost Webhook`\n" +
 				fmt.Sprintf("   - **URL**: `%s`\n", fm.webhookURL) +
-				"   - Select the required Events\n" +
+				"   - Select all the Events in the list\n" +
 				"   Select **Save**.\n",
 		).
 		WithButton(continueButton(stepDone))

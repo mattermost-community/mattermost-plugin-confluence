@@ -16,7 +16,7 @@ type notification struct {
 	*Plugin
 }
 
-func getNotification(plugin *Plugin) *notification {
+func (plugin *Plugin)getNotification() *notification {
 	return &notification{
 		plugin,
 	}
@@ -24,30 +24,20 @@ func getNotification(plugin *Plugin) *notification {
 
 func (n *notification) SendConfluenceNotifications(event serializer.ConfluenceEventV2, eventType, botUserID, userID string) {
 	url := event.GetURL()
-	var spaceKey string
-	var pageID string
+	if url == "" {
+		return
+	}
 
-	if strings.Contains(eventType, Comment) {
-		spaceKey = event.(*ConfluenceServerEvent).GetCommentSpaceKey()
-		pageID = event.(*ConfluenceServerEvent).GetCommentContainerID()
-	}
-	if strings.Contains(eventType, Page) {
-		spaceKey = event.(*ConfluenceServerEvent).GetPageSpaceKey()
-		pageID = event.GetPageID()
-	}
-	if strings.Contains(eventType, Space) {
-		spaceKey = event.GetSpaceKey()
-		if spaceKey != "" {
-			pageID = defaultPageID
-		} else {
-			return
-		}
+	spaceKey, pageID := n.extractSpaceKeyAndPageID(event, eventType)
+	if spaceKey == "" || pageID == "" {
+		return
 	}
 
 	post := event.GetNotificationPost(eventType, url, botUserID)
-	if post == nil || pageID == "" || url == "" || spaceKey == "" {
+	if post == nil {
 		return
 	}
+
 	subscriptionChannelIDs := n.getNotificationChannelIDs(url, spaceKey, pageID, eventType, userID)
 	for _, channelID := range subscriptionChannelIDs {
 		post.ChannelId = channelID
@@ -55,6 +45,30 @@ func (n *notification) SendConfluenceNotifications(event serializer.ConfluenceEv
 			n.API.LogError("Unable to create Post in Mattermost", "Error", err.Error())
 		}
 	}
+}
+
+func (n *notification) extractSpaceKeyAndPageID(event serializer.ConfluenceEventV2, eventType string) (string, string) {
+	var spaceKey, pageID string
+
+	switch {
+	case strings.Contains(eventType, Comment):
+		if e, ok := event.(*ConfluenceServerEvent); ok {
+			spaceKey = e.GetCommentSpaceKey()
+			pageID = e.GetCommentContainerID()
+		}
+	case strings.Contains(eventType, Page):
+		if e, ok := event.(*ConfluenceServerEvent); ok {
+			spaceKey = e.GetPageSpaceKey()
+			pageID = event.GetPageID()
+		}
+	case strings.Contains(eventType, Space):
+		spaceKey = event.GetSpaceKey()
+		if spaceKey != "" {
+			pageID = defaultPageID
+		}
+	}
+
+	return spaceKey, pageID
 }
 
 func (n *notification) getNotificationChannelIDs(url, spaceKey, pageID, eventType, userID string) []string {
