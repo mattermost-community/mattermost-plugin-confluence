@@ -17,6 +17,8 @@ type PageSubscription struct {
 }
 
 func (ps PageSubscription) Add(s *Subscriptions) {
+	ensureSubscriptionsMapInitialized(s)
+
 	if _, valid := s.ByChannelID[ps.ChannelID]; !valid {
 		s.ByChannelID[ps.ChannelID] = make(StringSubscription)
 	}
@@ -96,4 +98,16 @@ func (ps PageSubscription) ValidateSubscription(subs *Subscriptions) error {
 		}
 	}
 	return nil
+}
+
+func ensureSubscriptionsMapInitialized(s *Subscriptions) {
+	if s.ByChannelID == nil {
+		s.ByChannelID = make(map[string]StringSubscription)
+	}
+	if s.ByURLPageID == nil {
+		s.ByURLPageID = make(map[string]StringArrayMap)
+	}
+	if s.ByURLSpaceKey == nil {
+		s.ByURLSpaceKey = make(map[string]StringArrayMap)
+	}
 }
