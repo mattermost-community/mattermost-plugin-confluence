@@ -7,10 +7,11 @@ import (
 
 	"github.com/thoas/go-funk"
 
+	"github.com/mattermost/mattermost/server/public/model"
+
 	"github.com/mattermost/mattermost-plugin-confluence/server/serializer"
 	"github.com/mattermost/mattermost-plugin-confluence/server/service"
 	"github.com/mattermost/mattermost-plugin-confluence/server/util"
-	"github.com/mattermost/mattermost/server/public/model"
 )
 
 const defaultPageID = "-1"
