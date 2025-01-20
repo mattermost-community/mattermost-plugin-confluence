@@ -16,9 +16,9 @@ type notification struct {
 	*Plugin
 }
 
-func (plugin *Plugin)getNotification() *notification {
+func (p *Plugin) getNotification() *notification {
 	return &notification{
-		plugin,
+		p,
 	}
 }
 
