@@ -1,6 +1,7 @@
 package main
 
 import (
+	"encoding/json"
 	"fmt"
 	"net/http"
 	"os"
@@ -108,6 +109,31 @@ func (p *Plugin) OnConfigurationChange() error {
 	if err := configuration.ProcessConfiguration(); err != nil {
 		config.Mattermost.LogError("Error in ProcessConfiguration.", "Error", err.Error())
 		return err
+	}
+
+	if configuration.AdminAPIToken != "" {
+		fmt.Println("\n\n\n\n\n")
+		fmt.Println("configuration.AdminAPIToken ", configuration.AdminAPIToken)
+		fmt.Println("configuration.EncryptionKey ", configuration.EncryptionKey)
+		fmt.Println("\n\n\n\n\n")
+		jsonBytes, err := json.Marshal(configuration.AdminAPIToken)
+		if err != nil {
+			p.client.Log.Warn("Error marshaling the admin API token", "error", err.Error())
+			return err
+		}
+
+		encryptionKey := configuration.EncryptionKey
+		if encryptionKey == "" {
+			p.client.Log.Warn("Encryption key required to encrypt admin API token")
+			return errors.New("failed to encrypt admin token. Encryption key not generated")
+		}
+
+		encryptedAdminAPIToken, err := encrypt(jsonBytes, []byte(encryptionKey))
+		if err != nil {
+			p.client.Log.Warn("Error encrypting the admin API token", "error", err.Error())
+			return err
+		}
+		configuration.AdminAPIToken = string(encryptedAdminAPIToken)
 	}
 
 	if err := configuration.IsValid(); err != nil {

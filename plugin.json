@@ -26,6 +26,24 @@
             "type": "generated",
             "help_text": "The secret used to authenticate the webhook to Mattermost.",
             "regenerate_help_text": "Regenerates the secret for the webhook URL endpoint. Regenerating the secret invalidates your existing Confluence integrations."
+        },
+        {
+          "key": "EncryptionKey",
+          "display_name": "At Rest Encryption Key:",
+          "type": "generated",
+          "help_text": "The encryption key used to encrypt stored API tokens.",
+          "placeholder": "",
+          "default": null,
+          "secret": true
+        },
+        {
+          "key": "AdminAPIToken",
+          "display_name": "Admin API Token",
+          "type": "text",
+          "help_text": "Set this [API token](https://confluence.atlassian.com/enterprise/using-personal-access-tokens-1026032365.html) to get notified for comment and issue created events when the user triggering the event is not connected to Jira. This is also used for setting up autolink in the plugin.\n **Note:** API token should be created using an admin Jira account. Otherwise, the notification will not be delivered for projects that the user cannot access and autolink will not work.",
+          "placeholder": "",
+          "secret": true,
+          "default": ""
         }
     ]
   }

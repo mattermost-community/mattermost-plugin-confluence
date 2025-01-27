@@ -34,7 +34,7 @@ func (p *Plugin) getNotification() *notification {
 	}
 }
 
-func (n *notification) SendConfluenceNotifications(event serializer.ConfluenceEventV2, eventType, botUserID, userID string) {
+func (n *notification) SendConfluenceNotifications(event serializer.ConfluenceEventV2, eventType, botUserID string) {
 	url := event.GetURL()
 	if url == "" {
 		return
@@ -50,7 +50,7 @@ func (n *notification) SendConfluenceNotifications(event serializer.ConfluenceEv
 		return
 	}
 
-	subscriptionChannelIDs := n.getNotificationChannelIDs(url, spaceKey, pageID, eventType, userID)
+	subscriptionChannelIDs := n.getNotificationChannelIDs(url, spaceKey, pageID, eventType)
 	for _, channelID := range subscriptionChannelIDs {
 		post.ChannelId = channelID
 		if _, err := n.API.CreatePost(post); err != nil {
@@ -111,7 +111,7 @@ func (n *notification) extractSpaceKeyAndPageID(event serializer.ConfluenceEvent
 	return spaceKey, pageID
 }
 
-func (n *notification) getNotificationChannelIDs(url, spaceKey, pageID, eventType, userID string) []string {
+func (n *notification) getNotificationChannelIDs(url, spaceKey, pageID, eventType string) []string {
 	urlSpaceKeySubscriptions, err := service.GetSubscriptionsByURLSpaceKey(url, spaceKey)
 	if err != nil {
 		n.API.LogError("Unable to get subscribed channels for spaceKey.", "Error", err.Error())
