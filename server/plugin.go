@@ -112,10 +112,6 @@ func (p *Plugin) OnConfigurationChange() error {
 	}
 
 	if configuration.AdminAPIToken != "" {
-		fmt.Println("\n\n\n\n\n")
-		fmt.Println("configuration.AdminAPIToken ", configuration.AdminAPIToken)
-		fmt.Println("configuration.EncryptionKey ", configuration.EncryptionKey)
-		fmt.Println("\n\n\n\n\n")
 		jsonBytes, err := json.Marshal(configuration.AdminAPIToken)
 		if err != nil {
 			p.client.Log.Warn("Error marshaling the admin API token", "error", err.Error())
