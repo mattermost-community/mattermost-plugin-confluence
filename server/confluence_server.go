@@ -67,7 +67,9 @@ func handleConfluenceServerWebhook(w http.ResponseWriter, r *http.Request, p *Pl
 					}
 					event.Space.SpaceKey = spaceKey
 				}
-				eventData, err := p.GetEventDataWithAPIToken(event, pluginConfig)
+
+				var eventData *ConfluenceServerEvent
+				eventData, err = p.GetEventDataWithAPIToken(event, pluginConfig)
 				if err != nil {
 					p.client.Log.Error("error getting event data with API token", "error", err)
 					http.Error(w, err.Error(), http.StatusInternalServerError)
@@ -158,7 +160,7 @@ func (p *Plugin) GetSpaceKeyFromSpaceIDWithAPIToken(spaceID int64, pluginConfig 
 
 		response := &apiResponse{}
 
-		body, statusCode, err := p.MakeHttpCallWithAPIToken(path)
+		body, statusCode, err := p.MakeHTTPCallWithAPIToken(path)
 		if err != nil || statusCode != http.StatusOK {
 			return "", errors.Wrapf(err, "error getting spaceKey from spaceID")
 		}
@@ -216,7 +218,7 @@ func (p *Plugin) GetCommentDataWithAPIToken(webhookPayload *serializer.Confluenc
 	commentResponse := &CommentResponse{}
 	path := fmt.Sprintf("%s%s", pluginConfig.ConfluenceURL, fmt.Sprintf(PathCommentData, strconv.FormatInt(webhookPayload.Comment.ID, 10)))
 
-	body, statusCode, err := p.MakeHttpCallWithAPIToken(path)
+	body, statusCode, err := p.MakeHTTPCallWithAPIToken(path)
 	if err != nil || statusCode != http.StatusOK {
 		return nil, err
 	}
@@ -234,7 +236,7 @@ func (p *Plugin) GetPageDataWithAPIToken(pageID int, pluginConfig *config.Config
 	pageResponse := &PageResponse{}
 	path := fmt.Sprintf("%s%s", pluginConfig.ConfluenceURL, fmt.Sprintf(PathPageData, strconv.Itoa(pageID)))
 
-	body, statusCode, err := p.MakeHttpCallWithAPIToken(path)
+	body, statusCode, err := p.MakeHTTPCallWithAPIToken(path)
 	if err != nil || statusCode != http.StatusOK {
 		return nil, err
 	}
@@ -252,7 +254,7 @@ func (p *Plugin) GetSpaceDataWithAPIToken(spaceKey string, pluginConfig *config.
 	spaceResponse := &SpaceResponse{}
 	path := fmt.Sprintf("%s%s", pluginConfig.ConfluenceURL, fmt.Sprintf(PathSpaceData, spaceKey))
 
-	body, statusCode, err := p.MakeHttpCallWithAPIToken(path)
+	body, statusCode, err := p.MakeHTTPCallWithAPIToken(path)
 	if err != nil || statusCode != http.StatusOK {
 		return nil, err
 	}
@@ -264,7 +266,7 @@ func (p *Plugin) GetSpaceDataWithAPIToken(spaceKey string, pluginConfig *config.
 	return spaceResponse, nil
 }
 
-func (p *Plugin) MakeHttpCallWithAPIToken(path string) ([]byte, int, error) {
+func (p *Plugin) MakeHTTPCallWithAPIToken(path string) ([]byte, int, error) {
 	httpClient := &http.Client{}
 	req, err := http.NewRequest(http.MethodGet, path, nil)
 	if err != nil {
