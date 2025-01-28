@@ -27,14 +27,16 @@ var confluenceServerWebhook = &Endpoint{
 }
 
 func handleConfluenceServerWebhook(w http.ResponseWriter, r *http.Request, p *Plugin) {
-	config.Mattermost.LogInfo("Received confluence server event.")
+	p.client.Log.Info("Received confluence server event.")
 
 	if status, err := verifyHTTPSecret(config.GetConfig().Secret, r.FormValue("secret")); err != nil {
 		http.Error(w, err.Error(), status)
 		return
 	}
 
-	if p.serverVersionGreaterthan9 {
+	pluginConfig := config.GetConfig()
+
+	if pluginConfig.ServerVersionGreaterthan9 {
 		body, err := ioutil.ReadAll(r.Body)
 		if err != nil {
 			http.Error(w, err.Error(), http.StatusBadRequest)

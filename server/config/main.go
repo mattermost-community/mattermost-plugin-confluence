@@ -26,6 +26,7 @@ type Configuration struct {
 	ConfluenceOAuthClientID     string
 	ConfluenceOAuthClientSecret string
 	ConfluenceURL               string
+	ServerVersionGreaterthan9   bool
 }
 
 func GetConfig() *Configuration {

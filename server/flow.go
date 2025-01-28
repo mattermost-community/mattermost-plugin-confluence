@@ -235,7 +235,10 @@ func (fm *FlowManager) stepServerVersionQuestion() flow.Step {
 			Name:  "Yes",
 			Color: flow.ColorPrimary,
 			OnClick: func(f *flow.Flow) (flow.Name, flow.State, error) {
-				fm.plugin.serverVersionGreaterthan9 = true
+				pluginConfig := config.GetConfig()
+				pluginConfig.ServerVersionGreaterthan9 = true
+				config.SetConfig(pluginConfig)
+
 				return stepCSversionGreaterthan9, nil, nil
 			},
 		}).
@@ -243,6 +246,10 @@ func (fm *FlowManager) stepServerVersionQuestion() flow.Step {
 			Name:  "No",
 			Color: flow.ColorDefault,
 			OnClick: func(f *flow.Flow) (flow.Name, flow.State, error) {
+				pluginConfig := config.GetConfig()
+				pluginConfig.ServerVersionGreaterthan9 = false
+				config.SetConfig(pluginConfig)
+
 				return stepCSversionLessthan9, nil, nil
 			},
 		})

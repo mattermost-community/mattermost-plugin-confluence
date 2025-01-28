@@ -41,8 +41,6 @@ type Plugin struct {
 
 	pluginVersion string
 
-	serverVersionGreaterthan9 bool
-
 	telemetryClient telemetry.Client
 	tracker         telemetry.Tracker
 }
