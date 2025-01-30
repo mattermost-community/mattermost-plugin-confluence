@@ -257,10 +257,7 @@ func (fm *FlowManager) stepCSversionGreaterthan9() flow.Step {
 				fmt.Sprintf("   - **Redirect URL**: `%s`\n", fm.GetRedirectURL()) +
 				"   - **Application Permissions**: `Admin`\n" +
 				"   Select **Continue**.\n" +
-				"5. Copy the `clientID` and `clientSecret` from **Settings**, and paste them into the modal in Mattermost which can be opened by using the `/confluence config add` slash command.\n" +
-				"6. In Mattermost, use the `/confluence connect {{ .ConfluenceURL }} admin` slash command to connect your Mattermost account with your Confluence admin account and save the token of the admin to handle admin-restricted functions.\n" +
-				"7. Use the `/confluence connect` slash command to connect your Mattermost account with your Confluence account for all other users.\n" +
-				"If you see an option to create a Confluence issue, you're all set! If not, refer to our [documentation](https://mattermost.gitbook.io/plugin-confluence) for troubleshooting help.",
+				"5. Copy the `clientID` and `clientSecret` from **Settings**, and paste them into the modal in Mattermost which can be opened by using the `/confluence config add` slash command.",
 		).
 		WithButton(continueButton(stepOAuthInput))
 }
