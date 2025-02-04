@@ -574,7 +574,7 @@ func (fm *FlowManager) submitChannelAnnouncement(f *flow.Flow, submitted map[str
 func (fm *FlowManager) stepDone() flow.Step {
 	return flow.NewStep(stepDone).
 		Terminal().
-		WithText(":tada: You have successfully installed Confluence.").
+		WithText(":tada: You are successfully connected to Confluence.").
 		OnRender(fm.onDone)
 }
 
