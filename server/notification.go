@@ -62,6 +62,7 @@ func (n *notification) SendGenericWHNotification(event *serializer.ConfluenceSer
 
 	action, exists := eventActions[eventType]
 	if !exists {
+		n.client.Log.Info("Unsupported Confluence action. Generic notification will not be sent", "event type", eventType)
 		return
 	}
 
