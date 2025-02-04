@@ -10,8 +10,6 @@ import (
 	"github.com/mattermost/mattermost-plugin-confluence/server/util"
 )
 
-const defaultPageID = "-1"
-
 type notification struct {
 	*Plugin
 }
@@ -64,7 +62,7 @@ func (n *notification) extractSpaceKeyAndPageID(event serializer.ConfluenceEvent
 	case strings.Contains(eventType, Space):
 		spaceKey = event.GetSpaceKey()
 		if spaceKey != "" {
-			pageID = defaultPageID
+			pageID = ""
 		}
 	}
 
@@ -74,12 +72,12 @@ func (n *notification) extractSpaceKeyAndPageID(event serializer.ConfluenceEvent
 func (n *notification) getNotificationChannelIDs(url, spaceKey, pageID, eventType, userID string) []string {
 	urlSpaceKeySubscriptions, err := service.GetSubscriptionsByURLSpaceKey(url, spaceKey)
 	if err != nil {
-		n.API.LogError("Unable to get subscribed channels for spaceKey.", "Error", err.Error())
+		n.API.LogError("Unable to get subscribed channels for spaceKey", "SpaceKey", spaceKey, "Error", err.Error())
 		return nil
 	}
 	urlPageIDSubscriptions, err := service.GetSubscriptionsByURLPageID(url, pageID)
 	if err != nil {
-		n.API.LogError("Unable to get subscribed channels for pageID.", "Error", err.Error())
+		n.API.LogError("Unable to get subscribed channels for page", "PageID", pageID, "Error", err.Error())
 		return nil
 	}
 

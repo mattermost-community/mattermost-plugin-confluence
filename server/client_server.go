@@ -16,11 +16,10 @@ import (
 
 const (
 	PathCurrentUser            = "/rest/api/user/current"
-	PathCommentData            = "/rest/api/content/%s?expand=body.view,container,space,history"
-	PathPageData               = "/rest/api/content/%s?status=any&expand=body.view,container,space,history"
-	PathSpaceData              = "/rest/api/space/%s?status=any"
+	PathCommentData            = "/rest/api/content/"
+	PathPageData               = "/rest/api/content/"
+	PathSpaceData              = "/rest/api/space/"
 	PathAllSpaces              = "/rest/api/space"
-	PathGetUserGroupsForServer = "/rest/api/user/memberof?username=%s"
 	PathAdminData              = "/rest/api/audit"
 )
 
@@ -70,6 +69,7 @@ type Links struct {
 type View struct {
 	Value string `json:"value"`
 }
+
 type Body struct {
 	View View `json:"view"`
 }
@@ -160,7 +160,7 @@ func (csc *confluenceServerClient) GetEventData(webhookPayload *serializer.Confl
 
 func (csc *confluenceServerClient) GetCommentData(webhookPayload *serializer.ConfluenceServerWebhookPayload) (*CommentResponse, error) {
 	commentResponse := &CommentResponse{}
-	if _, err := service.CallJSONWithURL(csc.URL, fmt.Sprintf(PathCommentData, strconv.FormatInt(webhookPayload.Comment.ID, 10)), http.MethodGet, nil, commentResponse, csc.HTTPClient); err != nil {
+	if _, err := service.CallJSONWithURL(csc.URL, fmt.Sprintf("%s%s?expand=body.view,container,space,history", PathCommentData, strconv.FormatInt(webhookPayload.Comment.ID, 10)), http.MethodGet, nil, commentResponse, csc.HTTPClient); err != nil {
 		return nil, err
 	}
 
@@ -171,7 +171,7 @@ func (csc *confluenceServerClient) GetCommentData(webhookPayload *serializer.Con
 
 func (csc *confluenceServerClient) GetPageData(pageID int) (*PageResponse, error) {
 	pageResponse := &PageResponse{}
-	if _, err := service.CallJSONWithURL(csc.URL, fmt.Sprintf(PathPageData, strconv.Itoa(pageID)), http.MethodGet, nil, pageResponse, csc.HTTPClient); err != nil {
+	if _, err := service.CallJSONWithURL(csc.URL, fmt.Sprintf("%s%s?status=any&expand=body.view,container,space,history", PathPageData, strconv.Itoa(pageID)), http.MethodGet, nil, pageResponse, csc.HTTPClient); err != nil {
 		return nil, err
 	}
 
@@ -182,7 +182,7 @@ func (csc *confluenceServerClient) GetPageData(pageID int) (*PageResponse, error
 
 func (csc *confluenceServerClient) GetSpaceData(spaceKey string) (*SpaceResponse, error) {
 	spaceResponse := &SpaceResponse{}
-	if _, err := service.CallJSONWithURL(csc.URL, fmt.Sprintf(PathSpaceData, spaceKey), http.MethodGet, nil, spaceResponse, csc.HTTPClient); err != nil {
+	if _, err := service.CallJSONWithURL(csc.URL, fmt.Sprintf("%s%s?status=any", PathSpaceData, spaceKey), http.MethodGet, nil, spaceResponse, csc.HTTPClient); err != nil {
 		return nil, err
 	}
 
@@ -190,19 +190,19 @@ func (csc *confluenceServerClient) GetSpaceData(spaceKey string) (*SpaceResponse
 }
 
 func (csc *confluenceServerClient) GetSpaceKeyFromSpaceID(spaceID int64) (string, error) {
+	type apiResponse struct {
+		Results []struct {
+			ID   int64  `json:"id"`
+			Key  string `json:"key"`
+			Name string `json:"name"`
+		} `json:"results"`
+		Size int `json:"size"`
+	}
+	
 	start := 0
 
 	for {
 		path := fmt.Sprintf("%s?start=%d&limit=%d", PathAllSpaces, start, pageSize)
-
-		type apiResponse struct {
-			Results []struct {
-				ID   int64  `json:"id"`
-				Key  string `json:"key"`
-				Name string `json:"name"`
-			} `json:"results"`
-			Size int `json:"size"`
-		}
 
 		response := &apiResponse{}
 
@@ -224,14 +224,4 @@ func (csc *confluenceServerClient) GetSpaceKeyFromSpaceID(spaceID int64) (string
 	}
 
 	return "", fmt.Errorf("confluence GetSpaceKeyFromSpaceID: no space found for the space key")
-}
-
-func (csc *confluenceServerClient) GetUserGroups(connection *types.Connection) ([]*types.UserGroup, error) {
-	userGroups := types.UserGroups{}
-
-	if _, err := service.CallJSONWithURL(csc.URL, PathGetUserGroupsForServer, http.MethodGet, nil, &userGroups, csc.HTTPClient); err != nil {
-		return nil, errors.Wrap(err, "confluence GetUserGroups")
-	}
-
-	return userGroups.Groups, nil
 }
