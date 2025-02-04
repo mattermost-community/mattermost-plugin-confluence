@@ -257,7 +257,7 @@ func (fm *FlowManager) stepCSversionGreaterthan9() flow.Step {
 				fmt.Sprintf("   - **Redirect URL**: `%s`\n", fm.GetRedirectURL()) +
 				"   - **Application Permissions**: `Admin`\n" +
 				"   Select **Continue**.\n" +
-				"5. Copy the `clientID` and `clientSecret` from **Settings**, and paste them into the modal in Mattermost which can be opened by using the `/confluence config add` slash command.",
+				"5. Copy the `clientID` and `clientSecret` from **Settings**.",
 		).
 		WithButton(continueButton(stepOAuthInput))
 }
@@ -552,7 +552,7 @@ func (fm *FlowManager) submitChannelAnnouncement(f *flow.Flow, submitted map[str
 func (fm *FlowManager) stepDone() flow.Step {
 	return flow.NewStep(stepDone).
 		Terminal().
-		WithText(":tada: You successfully installed Confluence.").
+		WithText(":tada: You are successfully connected to Confluence.").
 		OnRender(fm.onDone)
 }
 
