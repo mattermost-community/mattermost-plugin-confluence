@@ -15,12 +15,12 @@ import (
 )
 
 const (
-	PathCurrentUser            = "/rest/api/user/current"
-	PathCommentData            = "/rest/api/content/"
-	PathPageData               = "/rest/api/content/"
-	PathSpaceData              = "/rest/api/space/"
-	PathAllSpaces              = "/rest/api/space"
-	PathAdminData              = "/rest/api/audit"
+	PathCurrentUser = "/rest/api/user/current"
+	PathCommentData = "/rest/api/content/"
+	PathPageData    = "/rest/api/content/"
+	PathSpaceData   = "/rest/api/space/"
+	PathAllSpaces   = "/rest/api/space"
+	PathAdminData   = "/rest/api/audit"
 )
 
 const (
@@ -198,7 +198,7 @@ func (csc *confluenceServerClient) GetSpaceKeyFromSpaceID(spaceID int64) (string
 		} `json:"results"`
 		Size int `json:"size"`
 	}
-	
+
 	start := 0
 
 	for {
