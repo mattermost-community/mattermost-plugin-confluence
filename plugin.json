@@ -40,10 +40,8 @@
           "key": "AdminAPIToken",
           "display_name": "Admin API Token",
           "type": "text",
-          "help_text": "Set this [API token](https://confluence.atlassian.com/enterprise/using-personal-access-tokens-1026032365.html) to get notified for comment and issue created events when the user triggering the event is not connected to Jira. This is also used for setting up autolink in the plugin.\n **Note:** API token should be created using an admin Jira account. Otherwise, the notification will not be delivered for projects that the user cannot access and autolink will not work.",
-          "placeholder": "",
-          "secret": true,
-          "default": ""
+          "help_text": "Set this [API token](https://confluence.atlassian.com/enterprise/using-personal-access-tokens-1026032365.html) to get notified for comment and issue created events when the user triggering the event is not connected to Confluence.\n**Note:** API token should be created using an admin JiConfluence account. Otherwise, the notification will not be delivered.",
+          "secret": true
         }
     ]
   }

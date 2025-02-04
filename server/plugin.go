@@ -118,8 +118,8 @@ func (p *Plugin) OnConfigurationChange() error {
 
 		encryptionKey := configuration.EncryptionKey
 		if encryptionKey == "" {
-			p.client.Log.Warn("Encryption key required to encrypt admin API token")
-			return errors.New("failed to encrypt admin token. Encryption key not generated")
+			p.client.Log.Warn("Encryption key is required to encrypt admin API token")
+			return errors.New("failed to encrypt admin token. Encryption key is not generated")
 		}
 
 		encryptedAdminAPIToken, err := encrypt(jsonBytes, []byte(encryptionKey))

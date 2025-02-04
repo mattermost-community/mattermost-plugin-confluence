@@ -59,12 +59,12 @@ func handleConfluenceServerWebhook(w http.ResponseWriter, r *http.Request, p *Pl
 		client, _, err := p.GetClientFromUserKey(instanceID, types.ID(event.UserKey))
 		if err != nil {
 			if pluginConfig.AdminAPIToken != "" {
-				config.Mattermost.LogInfo("Error getting client for the user who triggered webhook event. Sending notification using admin API token")
-				var spaceKey string
+				p.client.Log.Info("Error getting client for the user who triggered webhook event. Sending notification using admin API token")
 				if strings.Contains(event.Event, Space) {
+					var spaceKey string
 					spaceKey, err = p.GetSpaceKeyFromSpaceIDWithAPIToken(event.Space.ID, pluginConfig)
 					if err != nil {
-						p.client.Log.Error("error getting space key using space ID with API token", "error", err)
+						p.client.Log.Error("Error getting space key using space ID with API token", "error", err)
 						http.Error(w, err.Error(), http.StatusInternalServerError)
 						return
 					}
@@ -74,7 +74,7 @@ func handleConfluenceServerWebhook(w http.ResponseWriter, r *http.Request, p *Pl
 				var eventData *ConfluenceServerEvent
 				eventData, err = p.GetEventDataWithAPIToken(event, pluginConfig)
 				if err != nil {
-					p.client.Log.Error("error getting event data with API token", "error", err)
+					p.client.Log.Error("Error getting event data with API token", "error", err)
 					http.Error(w, err.Error(), http.StatusInternalServerError)
 					return
 				}
@@ -82,7 +82,7 @@ func handleConfluenceServerWebhook(w http.ResponseWriter, r *http.Request, p *Pl
 				eventData.BaseURL = pluginConfig.ConfluenceURL
 				notification.SendConfluenceNotifications(eventData, event.Event, p.BotUserID)
 			} else {
-				config.Mattermost.LogInfo("Error getting client for the user who triggered webhook event. Sending generic notification")
+				p.client.Log.Info("Error getting client for the user who triggered webhook event. Sending generic notification")
 				notification.SendGenericWHNotification(event, p.BotUserID, pluginConfig.ConfluenceURL)
 			}
 
@@ -153,15 +153,6 @@ func (p *Plugin) GetSpaceKeyFromSpaceIDWithAPIToken(spaceID int64, pluginConfig 
 	for {
 		path := fmt.Sprintf("%s%s?start=%d&limit=%d", pluginConfig.ConfluenceURL, PathAllSpaces, start, pageSize)
 
-		type apiResponse struct {
-			Results []struct {
-				ID   int64  `json:"id"`
-				Key  string `json:"key"`
-				Name string `json:"name"`
-			} `json:"results"`
-			Size int `json:"size"`
-		}
-
 		response := &apiResponse{}
 
 		body, statusCode, err := p.MakeHTTPCallWithAPIToken(path)
@@ -170,7 +161,6 @@ func (p *Plugin) GetSpaceKeyFromSpaceIDWithAPIToken(spaceID int64, pluginConfig 
 		}
 
 		if err = json.Unmarshal(body, response); err != nil {
-			fmt.Println("GetSpaceKeyFromSpaceIDWithAPIToken 4")
 			return "", errors.Wrapf(err, "failed to unmarshal spaceKey data")
 		}
 
@@ -220,7 +210,7 @@ func (p *Plugin) GetEventDataWithAPIToken(webhookPayload *serializer.ConfluenceS
 
 func (p *Plugin) GetCommentDataWithAPIToken(webhookPayload *serializer.ConfluenceServerWebhookPayload, pluginConfig *config.Configuration) (*CommentResponse, error) {
 	commentResponse := &CommentResponse{}
-	path := fmt.Sprintf("%s%s", pluginConfig.ConfluenceURL, fmt.Sprintf(PathCommentData, strconv.FormatInt(webhookPayload.Comment.ID, 10)))
+	path := fmt.Sprintf("%s%s", pluginConfig.ConfluenceURL, fmt.Sprintf("%s%s?expand=body.view,container,space,history", PathCommentData, strconv.FormatInt(webhookPayload.Comment.ID, 10)))
 
 	body, statusCode, err := p.MakeHTTPCallWithAPIToken(path)
 	if err != nil || statusCode != http.StatusOK {
@@ -228,7 +218,7 @@ func (p *Plugin) GetCommentDataWithAPIToken(webhookPayload *serializer.Confluenc
 	}
 
 	if err := json.Unmarshal(body, commentResponse); err != nil {
-		return nil, errors.Wrapf(err, "error getting comment data with APIToken")
+		return nil, errors.Wrapf(err, "error getting comment data with API token")
 	}
 
 	commentResponse.Body.View.Value = util.GetBodyForExcerpt(commentResponse.Body.View.Value)
@@ -238,7 +228,7 @@ func (p *Plugin) GetCommentDataWithAPIToken(webhookPayload *serializer.Confluenc
 
 func (p *Plugin) GetPageDataWithAPIToken(pageID int, pluginConfig *config.Configuration) (*PageResponse, error) {
 	pageResponse := &PageResponse{}
-	path := fmt.Sprintf("%s%s", pluginConfig.ConfluenceURL, fmt.Sprintf(PathPageData, strconv.Itoa(pageID)))
+	path := fmt.Sprintf("%s%s", pluginConfig.ConfluenceURL, fmt.Sprintf("%s%s?status=any&expand=body.view,container,space,history", PathPageData, strconv.Itoa(pageID)))
 
 	body, statusCode, err := p.MakeHTTPCallWithAPIToken(path)
 	if err != nil || statusCode != http.StatusOK {
@@ -246,7 +236,7 @@ func (p *Plugin) GetPageDataWithAPIToken(pageID int, pluginConfig *config.Config
 	}
 
 	if err := json.Unmarshal(body, pageResponse); err != nil {
-		return nil, errors.Wrapf(err, "error getting page data with APIToken")
+		return nil, errors.Wrapf(err, "error getting page data with API token")
 	}
 
 	pageResponse.Body.View.Value = util.GetBodyForExcerpt(pageResponse.Body.View.Value)
@@ -256,7 +246,7 @@ func (p *Plugin) GetPageDataWithAPIToken(pageID int, pluginConfig *config.Config
 
 func (p *Plugin) GetSpaceDataWithAPIToken(spaceKey string, pluginConfig *config.Configuration) (*SpaceResponse, error) {
 	spaceResponse := &SpaceResponse{}
-	path := fmt.Sprintf("%s%s", pluginConfig.ConfluenceURL, fmt.Sprintf(PathSpaceData, spaceKey))
+	path := fmt.Sprintf("%s%s", pluginConfig.ConfluenceURL, fmt.Sprintf("%s%s?status=any", PathSpaceData, spaceKey))
 
 	body, statusCode, err := p.MakeHTTPCallWithAPIToken(path)
 	if err != nil || statusCode != http.StatusOK {
@@ -274,28 +264,28 @@ func (p *Plugin) MakeHTTPCallWithAPIToken(path string) ([]byte, int, error) {
 	httpClient := &http.Client{}
 	req, err := http.NewRequest(http.MethodGet, path, nil)
 	if err != nil {
-		return nil, 0, err
+		return nil, http.StatusInternalServerError, err
 	}
 
 	err = p.SetAdminAPITokenRequestHeader(req)
 	if err != nil {
-		return nil, 0, err
+		return nil, http.StatusInternalServerError, err
 	}
 
 	resp, err := httpClient.Do(req)
 	if err != nil {
-		return nil, 0, err
+		return nil, http.StatusInternalServerError, err
 	}
 
 	if resp == nil || resp.Body == nil {
-		return nil, 0, err
+		return nil, http.StatusInternalServerError, err
 	}
 
 	defer resp.Body.Close()
 
 	body, err := io.ReadAll(resp.Body)
 	if err != nil {
-		return nil, 0, err
+		return nil, http.StatusInternalServerError, err
 	}
 
 	return body, resp.StatusCode, err
@@ -310,8 +300,7 @@ func (p *Plugin) SetAdminAPITokenRequestHeader(req *http.Request) error {
 	}
 
 	var adminAPIToken string
-	err = json.Unmarshal(jsonBytes, &adminAPIToken)
-	if err != nil {
+	if err = json.Unmarshal(jsonBytes, &adminAPIToken); err != nil {
 		return err
 	}
 
