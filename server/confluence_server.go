@@ -100,6 +100,7 @@ func handleConfluenceServerWebhook(w http.ResponseWriter, r *http.Request, p *Pl
 			}
 			event.Space.SpaceKey = spaceKey
 		}
+
 		eventData, err := p.GetEventData(event, client)
 		if err != nil {
 			http.Error(w, err.Error(), http.StatusInternalServerError)
