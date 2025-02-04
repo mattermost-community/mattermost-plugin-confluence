@@ -40,7 +40,7 @@
           "key": "AdminAPIToken",
           "display_name": "Admin API Token",
           "type": "text",
-          "help_text": "Set this [API token](https://confluence.atlassian.com/enterprise/using-personal-access-tokens-1026032365.html) to get notified for comment and issue created events when the user triggering the event is not connected to Confluence.\n**Note:** API token should be created using an admin JiConfluence account. Otherwise, the notification will not be delivered.",
+          "help_text": "Set this [API token](https://confluence.atlassian.com/enterprise/using-personal-access-tokens-1026032365.html) to get notified for confluence events when the user triggering the event is not connected to Confluence.\n**Note:** API token should be created using an amdin Confluence account. Otherwise, the notification will not be delivered.",
           "secret": true
         }
     ]
