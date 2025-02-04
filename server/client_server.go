@@ -189,16 +189,16 @@ func (csc *confluenceServerClient) GetSpaceData(spaceKey string) (*SpaceResponse
 	return spaceResponse, nil
 }
 
-func (csc *confluenceServerClient) GetSpaceKeyFromSpaceID(spaceID int64) (string, error) {
-	type apiResponse struct {
-		Results []struct {
-			ID   int64  `json:"id"`
-			Key  string `json:"key"`
-			Name string `json:"name"`
-		} `json:"results"`
-		Size int `json:"size"`
-	}
+type apiResponse struct {
+	Results []struct {
+		ID   int64  `json:"id"`
+		Key  string `json:"key"`
+		Name string `json:"name"`
+	} `json:"results"`
+	Size int `json:"size"`
+}
 
+func (csc *confluenceServerClient) GetSpaceKeyFromSpaceID(spaceID int64) (string, error) {
 	start := 0
 
 	for {
