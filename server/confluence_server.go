@@ -50,7 +50,7 @@ func handleConfluenceServerWebhook(w http.ResponseWriter, r *http.Request, p *Pl
 
 		client, mmUserID, err := p.GetClientFromUserKey(instanceID, types.ID(event.UserKey))
 		if err != nil {
-			config.Mattermost.LogInfo("Error getting client for the user who triggered webhook event. Sending generic notification")
+			config.Mattermost.LogError("Error getting client for the user who triggered webhook event. Sending generic notification")
 			notification.SendGenericWHNotification(event, p.BotUserID, pluginConfig.ConfluenceURL)
 			w.Header().Set("Content-Type", "application/json")
 			ReturnStatusOK(w)
