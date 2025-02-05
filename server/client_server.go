@@ -223,5 +223,5 @@ func (csc *confluenceServerClient) GetSpaceKeyFromSpaceID(spaceID int64) (string
 		start += pageSize
 	}
 
-	return "", fmt.Errorf("confluence GetSpaceKeyFromSpaceID: no space found for the space key")
+	return "", fmt.Errorf("confluence GetSpaceKeyFromSpaceID: no space key found for the space id")
 }

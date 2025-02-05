@@ -39,7 +39,7 @@ func httpOAuth2Connect(w http.ResponseWriter, r *http.Request, p *Plugin) {
 
 	instanceURL := config.GetConfig().ConfluenceURL
 	if instanceURL == "" {
-		http.Error(w, "missing confluence base url. Please run `/confluence install server`", http.StatusInternalServerError)
+		http.Error(w, "missing Confluence base url. Please run `/confluence install server`", http.StatusInternalServerError)
 		return
 	}
 	instanceID := types.ID(instanceURL)

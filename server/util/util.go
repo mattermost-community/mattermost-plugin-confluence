@@ -117,27 +117,26 @@ func Deduplicate(a []string) []string {
 
 func GetBodyForExcerpt(htmlBodyValue string) string {
 	var str string
-	domDocTest := html.NewTokenizer(strings.NewReader(htmlBodyValue))
-	previousStartTokenTest := domDocTest.Token()
-loopDomTest:
+	domDoc := html.NewTokenizer(strings.NewReader(htmlBodyValue))
+	var previousStartToken html.Token
+
 	for {
-		tt := domDocTest.Next()
-		switch {
-		case tt == html.ErrorToken:
-			break loopDomTest // End of the document,  done
-		case tt == html.StartTagToken:
-			previousStartTokenTest = domDocTest.Token()
-		case tt == html.TextToken:
-			if previousStartTokenTest.Data == Script || previousStartTokenTest.Data == Style {
+		tt := domDoc.Next()
+		switch tt {
+		case html.ErrorToken:
+			return str // End of the document, return extracted text
+		case html.StartTagToken:
+			previousStartToken = domDoc.Token()
+		case html.TextToken:
+			if previousStartToken.Data == Script || previousStartToken.Data == Style {
 				continue
 			}
-			TextContent := strings.TrimSpace(html.UnescapeString(string(domDocTest.Text())))
-			if len(TextContent) > 0 {
-				str = fmt.Sprintf("%s\n%s", str, TextContent)
+			textContent := strings.TrimSpace(html.UnescapeString(string(domDoc.Text())))
+			if len(textContent) > 0 {
+				str = fmt.Sprintf("%s\n%s", str, textContent)
 			}
 		}
 	}
-	return str
 }
 
 func GetUsernameOrAnonymousName(username string) string {
