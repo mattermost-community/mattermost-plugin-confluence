@@ -8,8 +8,6 @@ import (
 	"github.com/mattermost/mattermost/server/public/pluginapi"
 	"github.com/mattermost/mattermost/server/public/pluginapi/experimental/bot/logger"
 	"github.com/mattermost/mattermost/server/public/pluginapi/experimental/telemetry"
-
-	"github.com/mattermost/mattermost-plugin-confluence/server/config"
 )
 
 const (
@@ -29,20 +27,6 @@ func (p *Plugin) TrackUserEvent(event, userID string, properties map[string]inte
 	if err != nil {
 		p.API.LogDebug("Error sending user telemetry event", "event", event, "error", err.Error())
 	}
-}
-
-func (p *Plugin) SendDailyTelemetry() {
-	config := config.GetConfig()
-
-	connectedUserCount, err := p.getConnectedUserCount()
-	if err != nil {
-		p.client.Log.Warn("Failed to get the number of connected users for telemetry", "error", err)
-	}
-
-	p.TrackEvent("stats", map[string]interface{}{
-		"connected_user_count": connectedUserCount,
-		"is_oauth_configured":  config.IsOAuthConfigured(),
-	})
 }
 
 func (p *Plugin) getConnectedUserCount() (int64, error) {

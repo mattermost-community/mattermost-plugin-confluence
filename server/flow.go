@@ -169,7 +169,7 @@ func (fm *FlowManager) trackCompleteSetupWizard(userID string) {
 }
 
 func (fm *FlowManager) stepWelcome() flow.Step {
-	welcomeText := ":wave: Welcome to your Confluence integration! [Learn more](https://mattermost.gitbook.io/plugin-confluence/)"
+	welcomeText := ":wave: Welcome to your Confluence integration! [Learn more](https://github.com/mattermost-community/mattermost-plugin-confluence#readme)"
 	welcomePretext := "Just a few configuration steps to go!"
 
 	return flow.NewStep(stepWelcome).
