@@ -40,7 +40,7 @@ func newServerClient(url string, httpClient *http.Client) Client {
 
 func (csc *confluenceServerClient) GetSelf() (*types.ConfluenceUser, error) {
 	confluenceServerUser := &ConfluenceServerUser{}
-	if _, err := service.CallJSONWithURL(csc.URL, PathCurrentUser, http.MethodGet, nil, confluenceServerUser, csc.HTTPClient); err != nil {
+	if _, _, err := service.CallJSONWithURL(csc.URL, PathCurrentUser, http.MethodGet, nil, confluenceServerUser, csc.HTTPClient); err != nil {
 		return nil, errors.Wrap(err, "confluence GetSelf. Error getting the current user")
 	}
 
