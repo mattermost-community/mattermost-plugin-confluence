@@ -20,7 +20,7 @@ var (
 )
 
 type Configuration struct {
-	Secret                      string `json:"Secret"`
+	Secret                      string
 	ConfluenceOAuthClientID     string
 	ConfluenceOAuthClientSecret string
 	ConfluenceURL               string
@@ -49,7 +49,7 @@ func (c *Configuration) IsValid() error {
 }
 
 func (c *Configuration) Sanitize() {
-	// Ensure Confluence ends with a slash
+	// Ensure ConfluenceURL does not have trailing slashes by trimming any '/'
 	c.ConfluenceURL = strings.TrimRight(c.ConfluenceURL, "/")
 
 	c.ConfluenceOAuthClientID = strings.TrimSpace(c.ConfluenceOAuthClientID)

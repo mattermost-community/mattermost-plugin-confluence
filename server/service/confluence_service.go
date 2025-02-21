@@ -5,7 +5,6 @@ import (
 	"encoding/json"
 	"fmt"
 	"io"
-	"io/ioutil"
 	"net/http"
 	"net/url"
 	"path"
@@ -27,9 +26,10 @@ type ErrorResponse struct {
 func NormalizeConfluenceURL(confluenceURL string) (string, error) {
 	u, err := url.Parse(confluenceURL)
 	if err != nil {
-		return "", err
+		return "", fmt.Errorf("could not parse confluence url: %w", err)
 	}
 
+	// If the parsed URL does not contain a host, trying to extract the host from the path
 	if u.Host == "" {
 		ss := strings.Split(u.Path, "/")
 		if len(ss) > 0 && ss[0] != "" {
@@ -42,6 +42,7 @@ func NormalizeConfluenceURL(confluenceURL string) (string, error) {
 		}
 	}
 
+	// If the URL still lacks a hostname, return an error
 	if u.Host == "" {
 		return "", errors.Errorf("Invalid URL, no hostname: %q", confluenceURL)
 	}
@@ -58,36 +59,29 @@ func NormalizeConfluenceURL(confluenceURL string) (string, error) {
 func CheckConfluenceURL(mattermostSiteURL, confluenceURL string, requireHTTPS bool) (_ string, err error) {
 	confluenceURL, err = NormalizeConfluenceURL(confluenceURL)
 	if err != nil {
-		return "", err
+		return "", fmt.Errorf("unable to normalize confluence url. Confluence URL %s. %w", confluenceURL, err)
 	}
 
 	if confluenceURL == strings.TrimSuffix(mattermostSiteURL, "/") {
-		return "", errors.Errorf("%s is the Mattermost site URL. Please use your Confluence URL", confluenceURL)
+		return "", fmt.Errorf("%s is the Mattermost site URL. Please use your Confluence URL", confluenceURL)
 	}
 
-	defer func() {
-		if err != nil {
-			err = errors.Wrap(err, "we couldn't validate the connection to your Confluence server. "+
-				"This could be because of existing firewall or proxy rules, or because the URL was entered incorrectly")
-		}
-	}()
-
 	var status ConfluenceStatus
-	if _, err = CallJSON(confluenceURL, http.MethodGet, "/status", nil, &status, &http.Client{}); err != nil {
-		return "", err
+	if _, statusCode, err := CallJSON(confluenceURL, http.MethodGet, "/status", nil, &status, &http.Client{}); err != nil {
+		return "", fmt.Errorf("error making call to get confluence server status. Confluence URL: %s. StatusCode:  %d, %w", confluenceURL, statusCode, err)
 	}
 
 	if status.State != "RUNNING" {
-		return "", errors.Errorf("Confluence server is not in correct state, it should be up and running: %q", confluenceURL)
+		return "", fmt.Errorf("Confluence server is not in correct state, it should be up and running: %q", confluenceURL)
 	}
 
 	return confluenceURL, nil
 }
 
-func CallJSONWithURL(instanceURL, path, method string, in, out interface{}, httpClient *http.Client) (responseData []byte, err error) {
+func CallJSONWithURL(instanceURL, path, method string, in, out interface{}, httpClient *http.Client) (responseData []byte, statusCode int, err error) {
 	urlPath, err := GetEndpointURL(instanceURL, path)
 	if err != nil {
-		return nil, err
+		return nil, 0, err
 	}
 
 	return CallJSON(instanceURL, method, urlPath, in, out, httpClient)
@@ -102,97 +96,68 @@ func GetEndpointURL(instanceURL, path string) (string, error) {
 	return endpointURL.String(), nil
 }
 
-func CallJSON(url, method, path string, in, out interface{}, httpClient *http.Client) (responseData []byte, err error) {
+func CallJSON(url, method, path string, in, out interface{}, httpClient *http.Client) (responseData []byte, statusCode int, err error) {
 	contentType := "application/json"
 	buf := &bytes.Buffer{}
 	if err = json.NewEncoder(buf).Encode(in); err != nil {
-		return nil, err
+		return nil, 0, err
 	}
 
 	return call(url, method, path, contentType, buf, out, httpClient)
 }
 
-func call(basePath, method, path, contentType string, inBody io.Reader, out interface{}, httpClient *http.Client) (responseData []byte, err error) {
-	errContext := fmt.Sprintf("confluence: Call failed: method:%s, path:%s", method, path)
+func call(basePath, method, path, contentType string, inBody io.Reader, out interface{}, httpClient *http.Client) (responseData []byte, statusCode int, err error) {
 	pathURL, err := url.Parse(path)
 	if err != nil {
-		return nil, errors.WithMessage(err, errContext)
+		return nil, 0, errors.Wrap(err, "failed to parse request path")
 	}
 
 	if pathURL.Scheme == "" || pathURL.Host == "" {
-		var baseURL *url.URL
-		baseURL, err = url.Parse(basePath)
+		baseURL, err := url.Parse(basePath)
 		if err != nil {
-			return nil, errors.WithMessage(err, errContext)
+			return nil, 0, errors.Wrap(err, "failed to parse base URL")
 		}
-		if path[0] != '/' {
-			path = "/" + path
-		}
-		path = baseURL.String() + path
+		pathURL = baseURL.ResolveReference(pathURL)
 	}
 
-	req, err := http.NewRequest(method, path, inBody)
+	req, err := http.NewRequest(method, pathURL.String(), inBody)
 	if err != nil {
-		return nil, err
+		return nil, 0, errors.Wrap(err, "failed to create request")
 	}
 	if contentType != "" {
-		req.Header.Add("Content-Type", contentType)
+		req.Header.Set("Content-Type", contentType)
 	}
 
 	resp, err := httpClient.Do(req)
 	if err != nil {
-		return nil, err
-	}
-
-	if resp.Body == nil {
-		return nil, nil
+		return nil, 0, errors.Wrap(err, "request failed")
 	}
 	defer resp.Body.Close()
 
-	responseData, err = ioutil.ReadAll(resp.Body)
+	statusCode = resp.StatusCode
+
+	responseData, err = io.ReadAll(resp.Body)
 	if err != nil {
-		return nil, err
+		return nil, statusCode, errors.Wrap(err, "failed to read response body")
 	}
 
-	switch resp.StatusCode {
-	case http.StatusOK, http.StatusCreated:
+	if statusCode == http.StatusOK || statusCode == http.StatusCreated {
 		if out != nil {
-			err = json.Unmarshal(responseData, out)
-			if err != nil {
-				return responseData, err
+			if err := json.Unmarshal(responseData, out); err != nil {
+				return responseData, statusCode, errors.Wrap(err, "failed to parse response JSON")
 			}
 		}
-		return responseData, nil
+		return responseData, statusCode, nil
+	}
 
-	case http.StatusNoContent:
-		return nil, nil
-
-	case http.StatusNotFound:
-		return nil, errors.Errorf(ErrorStatusNotFound)
-
-	case http.StatusBadRequest:
-		return nil, errors.Errorf("Bad Request")
-
-	case http.StatusUnauthorized:
-		return nil, errors.Errorf("Unauthorized")
-
-	case http.StatusForbidden:
-		return nil, errors.Errorf("Forbidden request")
-
-	case http.StatusInternalServerError:
-		return nil, errors.Errorf("Internal Server Error")
-
-	case http.StatusBadGateway:
-		return nil, errors.Errorf("Bad Gateway")
-
-	case http.StatusGatewayTimeout:
-		return nil, errors.Errorf("Gateway Timeout")
+	if statusCode == http.StatusNoContent {
+		return nil, statusCode, nil
 	}
 
 	errResp := ErrorResponse{}
-	if err = json.Unmarshal(responseData, &errResp); err != nil {
-		return nil, err
+	if json.Unmarshal(responseData, &errResp) == nil && errResp.Message != "" {
+		return nil, statusCode, errors.New(errResp.Message)
 	}
 
-	return responseData, errors.New(errResp.Message)
+	return nil, statusCode, errors.Errorf("unexpected response status: %d", statusCode)
 }
