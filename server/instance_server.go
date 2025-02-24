@@ -13,12 +13,11 @@ import (
 	"github.com/mattermost/mattermost-plugin-confluence/server/util/types"
 )
 
-func (p *Plugin) GetServerOAuth2Config(instanceID types.ID, isAdmin bool) (*oauth2.Config, error) {
+func (p *Plugin) GetServerOAuth2Config(instanceURL string, isAdmin bool) (*oauth2.Config, error) {
 	config := config.GetConfig()
 	if config == nil {
 		return nil, errors.New("error getting plugin configurations")
 	}
-	instanceURL := instanceID.String()
 
 	var scopes []string
 	if isAdmin {
@@ -43,7 +42,7 @@ func (p *Plugin) GetServerOAuth2Config(instanceID types.ID, isAdmin bool) (*oaut
 	}, nil
 }
 
-func (p *Plugin) GetServerClient(instanceID types.ID, connection *types.Connection) (Client, error) {
+func (p *Plugin) GetServerClient(instanceID string, connection *types.Connection) (Client, error) {
 	oconf, err := p.GetServerOAuth2Config(instanceID, connection.IsAdmin)
 	if err != nil {
 		return nil, err
@@ -55,14 +54,14 @@ func (p *Plugin) GetServerClient(instanceID types.ID, connection *types.Connecti
 	}
 	httpClient := oconf.Client(context.Background(), token)
 
-	return newServerClient(instanceID.String(), httpClient), nil
+	return newServerClient(instanceID, httpClient), nil
 }
 
 func (p *Plugin) GetRedirectURL() string {
 	return fmt.Sprintf("%s%s", util.GetPluginURL(), routeUserComplete)
 }
 
-func (p *Plugin) ResolveWebhookInstanceURL(instanceURL string) (types.ID, error) {
+func (p *Plugin) ResolveWebhookInstanceURL(instanceURL string) (string, error) {
 	var err error
 	if instanceURL != "" {
 		instanceURL, err = service.NormalizeConfluenceURL(instanceURL)
@@ -71,5 +70,5 @@ func (p *Plugin) ResolveWebhookInstanceURL(instanceURL string) (types.ID, error)
 		}
 	}
 
-	return types.ID(instanceURL), nil
+	return instanceURL, nil
 }

@@ -10,7 +10,6 @@ import (
 	"github.com/mattermost/mattermost-plugin-confluence/server/serializer"
 	"github.com/mattermost/mattermost-plugin-confluence/server/service"
 	"github.com/mattermost/mattermost-plugin-confluence/server/store"
-	"github.com/mattermost/mattermost-plugin-confluence/server/util/types"
 )
 
 var confluenceServerWebhook = &Endpoint{
@@ -44,14 +43,14 @@ func handleConfluenceServerWebhook(w http.ResponseWriter, r *http.Request, p *Pl
 		}
 
 		pluginConfig := config.GetConfig()
-		instanceID := types.ID(pluginConfig.ConfluenceURL)
+		instanceID := pluginConfig.ConfluenceURL
 
-		mmUserID, err := store.GetMattermostUserIDFromConfluenceID(instanceID, types.ID(event.UserKey))
+		mmUserID, err := store.GetMattermostUserIDFromConfluenceID(instanceID, event.UserKey)
 		if err != nil {
 			http.Error(w, err.Error(), http.StatusInternalServerError)
 			return
 		}
-		connection, err := store.LoadConnection(instanceID, *mmUserID, p.pluginVersion)
+		connection, err := store.LoadConnection(instanceID, *mmUserID)
 		if err != nil {
 			http.Error(w, err.Error(), http.StatusInternalServerError)
 			return
@@ -82,7 +81,7 @@ func handleConfluenceServerWebhook(w http.ResponseWriter, r *http.Request, p *Pl
 
 		notification := p.getNotification()
 
-		notification.SendConfluenceNotifications(eventData, event.Event, p.BotUserID, mmUserID.String())
+		notification.SendConfluenceNotifications(eventData, event.Event, p.BotUserID, *mmUserID)
 	} else {
 		event := serializer.ConfluenceServerEventFromJSON(r.Body)
 		go service.SendConfluenceNotifications(event, event.Event)
