@@ -72,7 +72,7 @@ func CheckConfluenceURL(mattermostSiteURL, confluenceURL string, requireHTTPS bo
 	}
 
 	if status.State != "RUNNING" {
-		return "", fmt.Errorf("Confluence server is not in correct state, it should be up and running: %q", confluenceURL)
+		return "", fmt.Errorf("confluence server is not in correct state, it should be up and running: %q", confluenceURL)
 	}
 
 	return confluenceURL, nil
@@ -113,7 +113,8 @@ func call(basePath, method, path, contentType string, inBody io.Reader, out inte
 	}
 
 	if pathURL.Scheme == "" || pathURL.Host == "" {
-		baseURL, err := url.Parse(basePath)
+		var baseURL *url.URL
+		baseURL, err = url.Parse(basePath)
 		if err != nil {
 			return nil, 0, errors.Wrap(err, "failed to parse base URL")
 		}
