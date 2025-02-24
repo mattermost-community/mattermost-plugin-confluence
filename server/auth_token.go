@@ -14,7 +14,7 @@ import (
 	"github.com/pkg/errors"
 	"golang.org/x/oauth2"
 
-	"github.com/mattermost/mattermost-plugin-confluence/server/store"
+	"github.com/mattermost/mattermost-plugin-confluence/server/config"
 )
 
 type AuthToken struct {
@@ -23,16 +23,12 @@ type AuthToken struct {
 
 func (p *Plugin) NewEncodedAuthToken(token *oauth2.Token) (encodedToken string, returnErr error) {
 	defer func() {
-		if returnErr == nil {
-			return
+		if returnErr != nil {
+			returnErr = errors.WithMessage(returnErr, "failed to create auth token")
 		}
-		returnErr = errors.WithMessage(returnErr, "failed to create auth token")
 	}()
 
-	encryptionSecret, err := store.EnsureAuthTokenEncryptionSecret()
-	if err != nil {
-		return "", err
-	}
+	encryptionSecret := config.GetConfig().EncryptionKey
 
 	t := AuthToken{
 		Token: token,
@@ -43,7 +39,7 @@ func (p *Plugin) NewEncodedAuthToken(token *oauth2.Token) (encodedToken string, 
 		return "", err
 	}
 
-	encrypted, err := encrypt(jsonBytes, encryptionSecret)
+	encrypted, err := encrypt(jsonBytes, []byte(encryptionSecret))
 	if err != nil {
 		return "", err
 	}
@@ -60,17 +56,14 @@ func (p *Plugin) ParseAuthToken(encoded string) (token *oauth2.Token, returnErr 
 	}()
 
 	t := AuthToken{}
-	encryptionSecret, err := store.EnsureAuthTokenEncryptionSecret()
-	if err != nil {
-		return nil, err
-	}
+	encryptionSecret := config.GetConfig().EncryptionKey
 
 	decoded, err := decode(encoded)
 	if err != nil {
 		return nil, err
 	}
 
-	jsonBytes, err := decrypt(decoded, encryptionSecret)
+	jsonBytes, err := decrypt(decoded, []byte(encryptionSecret))
 	if err != nil {
 		return nil, err
 	}

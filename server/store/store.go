@@ -1,9 +1,7 @@
 package store
 
 import (
-	"bytes"
-	"crypto/md5" // #nosec G501
-	"crypto/rand"
+	"bytes" // #nosec G501
 	"encoding/json"
 	"fmt"
 	url2 "net/url"
@@ -28,6 +26,11 @@ const (
 )
 
 var ErrNotFound = errors.New("not found")
+
+// lint is suggesting to rename the function names from `storeConnection` to `Connection` so that when the function is accessed from any other packge
+// it looks like `store.Connnection, but this reduces the readibility within the function`
+
+// revive:disable:exported
 
 func GetURLSpaceKeyCombinationKey(url, spaceKey string) string {
 	u, _ := url2.Parse(url)
@@ -93,16 +96,12 @@ func AtomicModify(key string, modify func(initialValue []byte) ([]byte, error)) 
 	return nil
 }
 
-func keyWithInstanceID(instanceID, key types.ID) string {
-	h := md5.New() // #nosec G401
-	fmt.Fprintf(h, "%s/%s", instanceID, key)
-	return fmt.Sprintf("%x", h.Sum(nil))
+func keyWithInstanceID(instanceID, key string) string {
+	return fmt.Sprintf("%s_%s", instanceID, key)
 }
 
 func hashkey(prefix, key string) string {
-	h := md5.New() // #nosec G401
-	_, _ = h.Write([]byte(key))
-	return fmt.Sprintf("%s%x", prefix, h.Sum(nil))
+	return fmt.Sprintf("%s_%s", prefix, key)
 }
 
 func get(key string, v interface{}) (returnErr error) {
@@ -158,7 +157,6 @@ func Load(key string) ([]byte, error) {
 	return data, nil
 }
 
-// revive:disable-next-line:exported
 func StoreOAuth2State(state string) error {
 	if appErr := config.Mattermost.KVSetWithExpiry(hashkey(prefixOneTimeSecret, state), []byte(state), expiryStoreTimeoutSeconds); appErr != nil {
 		return errors.WithMessage(appErr, "failed to store state "+state)
@@ -179,47 +177,7 @@ func VerifyOAuth2State(state string) error {
 	return nil
 }
 
-func EnsureAuthTokenEncryptionSecret() (secret []byte, returnErr error) {
-	defer func() {
-		if returnErr == nil {
-			return
-		}
-		returnErr = errors.WithMessage(returnErr, "failed to ensure auth token secret")
-	}()
-
-	// nil, nil == NOT_FOUND, if we don't already have a key, try to generate one.
-	secret, appErr := config.Mattermost.KVGet(keyTokenSecret)
-	if appErr != nil {
-		return nil, appErr
-	}
-
-	if len(secret) == 0 {
-		newSecret := make([]byte, 32)
-		if _, err := rand.Reader.Read(newSecret); err != nil {
-			return nil, err
-		}
-
-		if appErr = config.Mattermost.KVSet(keyTokenSecret, newSecret); appErr != nil {
-			return nil, appErr
-		}
-		secret = newSecret
-		config.Mattermost.LogDebug("Stored: auth token secret")
-	}
-
-	// If we weren't able to save a new key above, another server must have beat us to it. Get the
-	// key from the database, and if that fails, error out.
-	if secret == nil {
-		secret, appErr = config.Mattermost.KVGet(keyTokenSecret)
-		if appErr != nil {
-			return nil, appErr
-		}
-	}
-
-	return secret, nil
-}
-
-// revive:disable-next-line:exported
-func StoreConnection(instanceID, mattermostUserID types.ID, connection *types.Connection, pluginVersion string) (returnErr error) {
+func StoreConnection(instanceID, mattermostUserID string, connection *types.Connection) (returnErr error) {
 	defer func() {
 		if returnErr == nil {
 			return
@@ -227,8 +185,6 @@ func StoreConnection(instanceID, mattermostUserID types.ID, connection *types.Co
 		returnErr = errors.WithMessage(returnErr,
 			fmt.Sprintf("failed to store connection, mattermostUserID:%s, Confluence user:%s", mattermostUserID, connection.DisplayName))
 	}()
-
-	connection.PluginVersion = pluginVersion
 
 	if err := set(keyWithInstanceID(instanceID, mattermostUserID), connection); err != nil {
 		return err
@@ -251,17 +207,16 @@ func StoreConnection(instanceID, mattermostUserID types.ID, connection *types.Co
 	return nil
 }
 
-func LoadConnection(instanceID, mattermostUserID types.ID, pluginVersion string) (*types.Connection, error) {
+func LoadConnection(instanceID, mattermostUserID string) (*types.Connection, error) {
 	c := &types.Connection{}
 	if err := get(keyWithInstanceID(instanceID, mattermostUserID), c); err != nil {
 		return nil, errors.Wrapf(err,
 			"failed to load connection for Mattermost user ID:%q, Confluence:%q", mattermostUserID, instanceID)
 	}
-	c.PluginVersion = pluginVersion
 	return c, nil
 }
 
-func DeleteConnection(instanceID, mattermostUserID types.ID, pluginVersion string) (returnErr error) {
+func DeleteConnection(instanceID, mattermostUserID string) (returnErr error) {
 	defer func() {
 		if returnErr == nil {
 			return
@@ -270,14 +225,14 @@ func DeleteConnection(instanceID, mattermostUserID types.ID, pluginVersion strin
 			fmt.Sprintf("failed to delete user, mattermostUserId:%s", mattermostUserID))
 	}()
 
-	c, err := LoadConnection(instanceID, mattermostUserID, pluginVersion)
+	c, err := LoadConnection(instanceID, mattermostUserID)
 	if err != nil {
 		return err
 	}
 
 	// Check for whether the admin token stored for each confluenceURL is of the current user or not. If it is then delete that admin connection also
 	if c.IsAdmin {
-		adminConnection, lErr := LoadConnection(instanceID, AdminMattermostUserID, pluginVersion)
+		adminConnection, lErr := LoadConnection(instanceID, AdminMattermostUserID)
 		if lErr != nil {
 			return lErr
 		}
@@ -297,7 +252,7 @@ func DeleteConnection(instanceID, mattermostUserID types.ID, pluginVersion strin
 	return nil
 }
 
-func DeleteConnectionFromKVStore(instanceID, mattermostUserID types.ID, c *types.Connection) error {
+func DeleteConnectionFromKVStore(instanceID, mattermostUserID string, c *types.Connection) error {
 	if appErr := config.Mattermost.KVDelete(keyWithInstanceID(instanceID, mattermostUserID)); appErr != nil {
 		return appErr
 	}
@@ -312,17 +267,16 @@ func DeleteConnectionFromKVStore(instanceID, mattermostUserID types.ID, c *types
 	return nil
 }
 
-func LoadUser(mattermostUserID types.ID) (*types.User, error) {
+func LoadUser(mattermostUserID string) (*types.User, error) {
 	user := types.NewUser(mattermostUserID)
-	key := hashkey(prefixUser, mattermostUserID.String())
+	key := hashkey(prefixUser, mattermostUserID)
 	if err := get(key, user); err != nil {
 		return nil, errors.WithMessage(err, fmt.Sprintf("failed to load confluence user for mattermostUserId:%s", mattermostUserID))
 	}
 	return user, nil
 }
 
-// revive:disable-next-line:exported
-func StoreUser(user *types.User, pluginVersion string) (returnErr error) {
+func StoreUser(user *types.User) (returnErr error) {
 	defer func() {
 		if returnErr == nil {
 			return
@@ -331,9 +285,7 @@ func StoreUser(user *types.User, pluginVersion string) (returnErr error) {
 			fmt.Sprintf("failed to store user, mattermostUserId:%s", user.MattermostUserID))
 	}()
 
-	user.PluginVersion = pluginVersion
-
-	key := hashkey(prefixUser, user.MattermostUserID.String())
+	key := hashkey(prefixUser, user.MattermostUserID)
 	if err := set(key, user); err != nil {
 		return err
 	}

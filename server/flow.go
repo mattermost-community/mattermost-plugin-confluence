@@ -140,7 +140,7 @@ func cancelButton() flow.Button {
 func (fm *FlowManager) stepCancel(command string) flow.Step {
 	return flow.NewStep(stepCancel).
 		Terminal().
-		WithText(fmt.Sprintf("Confluence integration setup has stopped. Restart setup later by running `/confluence %s`. Learn more about the plugin [here](https://mattermost.gitbook.io/plugin-confluence/).", command)).
+		WithText(fmt.Sprintf("Confluence integration setup has stopped. Restart setup later by running `/confluence %s`. Learn more about the plugin [here](%s).", command, documentationURL)).
 		WithColor(flow.ColorDanger)
 }
 
@@ -160,7 +160,7 @@ func (fm *FlowManager) getBaseState() flow.State {
 	config := fm.getConfiguration()
 	isOAuthConfigured := config.ConfluenceOAuthClientID != "" || config.ConfluenceOAuthClientSecret != ""
 	return flow.State{
-		keyConfluenceURL:     config.ConfluenceURL,
+		keyConfluenceURL:     config.GetConfluenceBaseURL(),
 		keyIsOAuthConfigured: isOAuthConfigured,
 	}
 }
@@ -214,7 +214,7 @@ func (fm *FlowManager) trackCompleteSetupWizard(userID string) {
 }
 
 func (fm *FlowManager) stepWelcome() flow.Step {
-	welcomeText := ":wave: Welcome to your Confluence integration! [Learn more](https://github.com/mattermost-community/mattermost-plugin-confluence#readme)"
+	welcomeText := fmt.Sprintf(":wave: Welcome to your Confluence integration! [Learn more](%s)", documentationURL)
 	welcomePretext := "Just a few configuration steps to go!"
 
 	return flow.NewStep(stepWelcome).
@@ -340,7 +340,7 @@ func (fm *FlowManager) submitConfluenceURL(f *flow.Flow, submitted map[string]in
 	fm.confluenceBaseURL = confluenceURL
 
 	return stepServerVersionQuestion, flow.State{
-		keyConfluenceURL: config.ConfluenceURL,
+		keyConfluenceURL: config.GetConfluenceBaseURL(),
 	}, nil, nil
 }
 
@@ -465,9 +465,9 @@ func (fm *FlowManager) trackCompletAnnouncementWizard(userID string) {
 }
 
 func (fm *FlowManager) stepAnnouncementQuestion() flow.Step {
-	defaultMessage := "Hi team,\n" +
+	defaultMessage := fmt.Sprintf("Hi team,\n" +
 		"\n" +
-		"We've set up the Mattermost Confluence plugin to enable notifications from Confluence in Mattermost. To get started, run the `/confluence connect` slash command from any channel within Mattermost to connect that channel with Confluence. See the [documentation](https://mattermost.gitbook.io/plugin-confluence/) for details on using the Confluence plugin."
+		"We've set up the Mattermost Confluence plugin to enable notifications from Confluence in Mattermost. To get started, run the `/confluence connect` slash command from any channel within Mattermost to connect that channel with Confluence. See the [documentation](%s) for details on using the Confluence plugin.", documentationURL)
 
 	return flow.NewStep(stepAnnouncementQuestion).
 		WithText("Want to let your team know?").
