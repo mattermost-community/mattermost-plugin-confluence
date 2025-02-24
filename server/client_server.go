@@ -117,7 +117,7 @@ func newServerClient(url string, httpClient *http.Client) Client {
 
 func (csc *confluenceServerClient) GetSelf() (*types.ConfluenceUser, error) {
 	confluenceServerUser := &ConfluenceServerUser{}
-	if _, err := service.CallJSONWithURL(csc.URL, PathCurrentUser, http.MethodGet, nil, confluenceServerUser, csc.HTTPClient); err != nil {
+	if _, _, err := service.CallJSONWithURL(csc.URL, PathCurrentUser, http.MethodGet, nil, confluenceServerUser, csc.HTTPClient); err != nil {
 		return nil, errors.Wrap(err, "confluence GetSelf. Error getting the current user")
 	}
 
@@ -160,7 +160,7 @@ func (csc *confluenceServerClient) GetEventData(webhookPayload *serializer.Confl
 
 func (csc *confluenceServerClient) GetCommentData(webhookPayload *serializer.ConfluenceServerWebhookPayload) (*CommentResponse, error) {
 	commentResponse := &CommentResponse{}
-	if _, err := service.CallJSONWithURL(csc.URL, fmt.Sprintf("%s%s?expand=body.view,container,space,history", PathCommentData, strconv.FormatInt(webhookPayload.Comment.ID, 10)), http.MethodGet, nil, commentResponse, csc.HTTPClient); err != nil {
+	if _, _, err := service.CallJSONWithURL(csc.URL, fmt.Sprintf("%s%s?expand=body.view,container,space,history", PathCommentData, strconv.FormatInt(webhookPayload.Comment.ID, 10)), http.MethodGet, nil, commentResponse, csc.HTTPClient); err != nil {
 		return nil, err
 	}
 
@@ -171,7 +171,7 @@ func (csc *confluenceServerClient) GetCommentData(webhookPayload *serializer.Con
 
 func (csc *confluenceServerClient) GetPageData(pageID int) (*PageResponse, error) {
 	pageResponse := &PageResponse{}
-	if _, err := service.CallJSONWithURL(csc.URL, fmt.Sprintf("%s%s?status=any&expand=body.view,container,space,history", PathPageData, strconv.Itoa(pageID)), http.MethodGet, nil, pageResponse, csc.HTTPClient); err != nil {
+	if _, _, err := service.CallJSONWithURL(csc.URL, fmt.Sprintf("%s%s?status=any&expand=body.view,container,space,history", PathPageData, strconv.Itoa(pageID)), http.MethodGet, nil, pageResponse, csc.HTTPClient); err != nil {
 		return nil, err
 	}
 
@@ -182,7 +182,7 @@ func (csc *confluenceServerClient) GetPageData(pageID int) (*PageResponse, error
 
 func (csc *confluenceServerClient) GetSpaceData(spaceKey string) (*SpaceResponse, error) {
 	spaceResponse := &SpaceResponse{}
-	if _, err := service.CallJSONWithURL(csc.URL, fmt.Sprintf("%s%s?status=any", PathSpaceData, spaceKey), http.MethodGet, nil, spaceResponse, csc.HTTPClient); err != nil {
+	if _, _, err := service.CallJSONWithURL(csc.URL, fmt.Sprintf("%s%s?status=any", PathSpaceData, spaceKey), http.MethodGet, nil, spaceResponse, csc.HTTPClient); err != nil {
 		return nil, err
 	}
 
@@ -206,7 +206,7 @@ func (csc *confluenceServerClient) GetSpaceKeyFromSpaceID(spaceID int64) (string
 
 		response := &apiResponse{}
 
-		if _, err := service.CallJSONWithURL(csc.URL, path, http.MethodGet, nil, response, csc.HTTPClient); err != nil {
+		if _, _, err := service.CallJSONWithURL(csc.URL, path, http.MethodGet, nil, response, csc.HTTPClient); err != nil {
 			return "", errors.Wrap(err, "confluence GetSpaceKeyFromSpaceID")
 		}
 
@@ -223,5 +223,5 @@ func (csc *confluenceServerClient) GetSpaceKeyFromSpaceID(spaceID int64) (string
 		start += pageSize
 	}
 
-	return "", fmt.Errorf("confluence GetSpaceKeyFromSpaceID: no space found for the space key")
+	return "", fmt.Errorf("confluence GetSpaceKeyFromSpaceID: no space key found for the space id")
 }

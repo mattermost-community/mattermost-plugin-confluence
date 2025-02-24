@@ -144,7 +144,7 @@ func cancelButton() flow.Button {
 func (fm *FlowManager) stepCancel(command string) flow.Step {
 	return flow.NewStep(stepCancel).
 		Terminal().
-		WithText(fmt.Sprintf("Confluence integration setup has stopped. Restart setup later by running `/confluence %s`. Learn more about the plugin [here](https://mattermost.gitbook.io/plugin-confluence/).", command)).
+		WithText(fmt.Sprintf("Confluence integration setup has stopped. Restart setup later by running `/confluence %s`. Learn more about the plugin [here](%s).", command, documentationURL)).
 		WithColor(flow.ColorDanger)
 }
 
@@ -164,7 +164,7 @@ func (fm *FlowManager) getBaseState() flow.State {
 	config := fm.getConfiguration()
 	isOAuthConfigured := config.ConfluenceOAuthClientID != "" || config.ConfluenceOAuthClientSecret != ""
 	return flow.State{
-		keyConfluenceURL:     config.ConfluenceURL,
+		keyConfluenceURL:     config.GetConfluenceBaseURL(),
 		keyIsOAuthConfigured: isOAuthConfigured,
 	}
 }
@@ -218,7 +218,7 @@ func (fm *FlowManager) trackCompleteSetupWizard(userID string) {
 }
 
 func (fm *FlowManager) stepWelcome() flow.Step {
-	welcomeText := ":wave: Welcome to your Confluence integration! [Learn more](https://mattermost.gitbook.io/plugin-confluence/)"
+	welcomeText := fmt.Sprintf(":wave: Welcome to your Confluence integration! [Learn more](%s)", documentationURL)
 	welcomePretext := "Just a few configuration steps to go!"
 
 	return flow.NewStep(stepWelcome).
@@ -272,7 +272,7 @@ func (fm *FlowManager) stepCSversionGreaterthan9() flow.Step {
 func (fm *FlowManager) stepWebhookInstructions() flow.Step {
 	return flow.NewStep(stepWebhookInstructions).
 		WithText(
-			"You have successfully connected your mattermost acoount to confluence server. To finish the configuration, add a Webhook in your Confluence server following these steps:\n" +
+			"You have successfully connected your Mattermost acoount to Confluence server. To finish the configuration, add a Webhook in your Confluence server following these steps:\n" +
 				"1. Go to [**Settings > Plugins > Servlet > Webhooks**]({{ .ConfluenceURL }}/plugins/servlet/webhooks/)\n" +
 				"2. Select **Create Webhook**.\n" +
 				"4. On the **Create Webhook** screen, set the following values:\n" +
@@ -362,7 +362,7 @@ func (fm *FlowManager) submitConfluenceURL(f *flow.Flow, submitted map[string]in
 	fm.confluenceBaseURL = confluenceURL
 
 	return stepServerVersionQuestion, flow.State{
-		keyConfluenceURL: config.ConfluenceURL,
+		keyConfluenceURL: config.GetConfluenceBaseURL(),
 	}, nil, nil
 }
 
@@ -487,9 +487,9 @@ func (fm *FlowManager) trackCompletAnnouncementWizard(userID string) {
 }
 
 func (fm *FlowManager) stepAnnouncementQuestion() flow.Step {
-	defaultMessage := "Hi team,\n" +
-		"\n" +
-		"We've set up the Mattermost Confluence plugin to enable notifications from Confluence in Mattermost. To get started, run the `/confluence connect` slash command from any channel within Mattermost to connect that channel with Confluence. See the [documentation](https://mattermost.gitbook.io/plugin-confluence/) for details on using the Confluence plugin."
+	defaultMessage := fmt.Sprintf("Hi team,\n"+
+		"\n"+
+		"We've set up the Mattermost Confluence plugin to enable notifications from Confluence in Mattermost. To get started, run the `/confluence connect` slash command from any channel within Mattermost to connect that channel with Confluence. See the [documentation](%s) for details on using the Confluence plugin.", documentationURL)
 
 	return flow.NewStep(stepAnnouncementQuestion).
 		WithText("Want to let your team know?").

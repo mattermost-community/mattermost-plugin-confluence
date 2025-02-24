@@ -13,7 +13,6 @@ import (
 	"github.com/mattermost/mattermost-plugin-confluence/server/service"
 	"github.com/mattermost/mattermost-plugin-confluence/server/store"
 	"github.com/mattermost/mattermost-plugin-confluence/server/util"
-	"github.com/mattermost/mattermost-plugin-confluence/server/util/types"
 )
 
 type PluginAPI interface {
@@ -167,17 +166,8 @@ func (ch Handler) Handle(p *Plugin, context *model.CommandArgs, args ...string) 
 	return ch.defaultHandler(p, context, args...)
 }
 
-func (p *Plugin) postCommandResponse(context *model.CommandArgs, text string) {
-	post := &model.Post{
-		UserId:    config.BotUserID,
-		ChannelId: context.ChannelId,
-		Message:   text,
-	}
-	_ = config.Mattermost.SendEphemeralPost(context.UserId, post)
-}
-
 func (p *Plugin) responsef(commandArgs *model.CommandArgs, format string, args ...interface{}) *model.CommandResponse {
-	p.postCommandResponse(commandArgs, fmt.Sprintf(format, args...))
+	postCommandResponse(commandArgs, fmt.Sprintf(format, args...))
 	return &model.CommandResponse{}
 }
 
@@ -185,17 +175,17 @@ func executeConnect(p *Plugin, context *model.CommandArgs, args ...string) *mode
 	isAdmin := util.IsSystemAdmin(context.UserId)
 
 	pluginConfig := config.GetConfig()
-	if pluginConfig.ConfluenceURL == "" || pluginConfig.ConfluenceOAuthClientID == "" || pluginConfig.ConfluenceOAuthClientSecret == "" {
+	if pluginConfig.ConfluenceURL == "" || !pluginConfig.IsOAuthConfigured() {
 		if isAdmin {
 			return p.responsef(context, "OAuth config not set for confluence plugin. Please run `/confluence install server`")
 		}
 		return p.responsef(context, "OAuth config not set for confluence plugin. Please ask the admin to setup OAuth for the plugin")
 	}
-	confluenceURL := pluginConfig.ConfluenceURL
+	confluenceURL := pluginConfig.GetConfluenceBaseURL()
 	confluenceURL = strings.TrimSuffix(confluenceURL, "/")
 
-	conn, err := store.LoadConnection(types.ID(confluenceURL), types.ID(context.UserId), p.pluginVersion)
-	if err == nil && conn.AccountID != "" {
+	conn, err := store.LoadConnection(confluenceURL, context.UserId)
+	if err == nil && len(conn.ConfluenceAccountID()) != 0 {
 		return p.responsef(context,
 			"You already have a Confluence account linked to your Mattermost account. Please use `/confluence disconnect` to disconnect.")
 	}
@@ -205,13 +195,13 @@ func executeConnect(p *Plugin, context *model.CommandArgs, args ...string) *mode
 }
 
 func executeDisconnect(p *Plugin, commArgs *model.CommandArgs, args ...string) *model.CommandResponse {
-	user, err := store.LoadUser(types.ID(commArgs.UserId))
+	user, err := store.LoadUser(commArgs.UserId)
 	if err != nil {
 		return p.responsef(commArgs, "Could not complete the **disconnection** request. Error: %v", err)
 	}
-	confluenceURL := user.InstanceURL.String()
+	confluenceURL := user.InstanceURL
 
-	disconnected, err := p.DisconnectUser(confluenceURL, types.ID(commArgs.UserId))
+	disconnected, err := p.DisconnectUser(confluenceURL, commArgs.UserId)
 	if errors.Cause(err) == store.ErrNotFound {
 		return p.responsef(commArgs, "Your account is not connected to Confluence. Please use `/confluence connect` to connect your account.")
 	}
