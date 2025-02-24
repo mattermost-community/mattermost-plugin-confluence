@@ -21,7 +21,7 @@ type UserGroup struct {
 
 type Connection struct {
 	ConfluenceUser
-	OAuth2Token      string `json:"token,omitempty"`
+	OAuth2Token       string `json:"token,omitempty"`
 	DefaultProjectKey string `json:"default_project_key,omitempty"`
 	IsAdmin           bool   `json:"is_admin,omitempty"`
 	MattermostUserID  string `json:"mattermost_user_id,omitempty"`

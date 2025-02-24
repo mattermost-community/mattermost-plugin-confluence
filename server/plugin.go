@@ -41,7 +41,7 @@ type Plugin struct {
 	templates map[string]*template.Template
 
 	serverVersionGreaterthan9 bool
-	ConfluenceClient *Client
+	ConfluenceClient          *Client
 
 	telemetryClient telemetry.Client
 	tracker         telemetry.Tracker
