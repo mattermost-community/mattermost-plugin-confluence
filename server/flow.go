@@ -465,8 +465,8 @@ func (fm *FlowManager) trackCompletAnnouncementWizard(userID string) {
 }
 
 func (fm *FlowManager) stepAnnouncementQuestion() flow.Step {
-	defaultMessage := fmt.Sprintf("Hi team,\n" +
-		"\n" +
+	defaultMessage := fmt.Sprintf("Hi team,\n"+
+		"\n"+
 		"We've set up the Mattermost Confluence plugin to enable notifications from Confluence in Mattermost. To get started, run the `/confluence connect` slash command from any channel within Mattermost to connect that channel with Confluence. See the [documentation](%s) for details on using the Confluence plugin.", documentationURL)
 
 	return flow.NewStep(stepAnnouncementQuestion).

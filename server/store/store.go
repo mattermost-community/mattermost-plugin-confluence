@@ -27,7 +27,7 @@ const (
 
 var ErrNotFound = errors.New("not found")
 
-// lint is suggesting to rename the function names from `storeConnection` to `Connection` so that when the function is accessed from any other packge
+// lint is suggesting to rename the function names from `storeConnection` to `Connection` so that when the function is accessed from any other package
 // it looks like `store.Connnection, but this reduces the readibility within the function`
 
 // revive:disable:exported
@@ -105,13 +105,6 @@ func hashkey(prefix, key string) string {
 }
 
 func get(key string, v interface{}) (returnErr error) {
-	defer func() {
-		if returnErr == nil {
-			return
-		}
-		returnErr = errors.WithMessage(returnErr, "failed to get from store")
-	}()
-
 	data, appErr := config.Mattermost.KVGet(key)
 	if appErr != nil {
 		return appErr
@@ -128,13 +121,6 @@ func get(key string, v interface{}) (returnErr error) {
 }
 
 func set(key string, v interface{}) (returnErr error) {
-	defer func() {
-		if returnErr == nil {
-			return
-		}
-		returnErr = errors.WithMessage(returnErr, fmt.Sprintf("failed to set the value of given key: %s", key))
-	}()
-
 	data, err := json.Marshal(v)
 	if err != nil {
 		return err
@@ -178,14 +164,6 @@ func VerifyOAuth2State(state string) error {
 }
 
 func StoreConnection(instanceID, mattermostUserID string, connection *types.Connection) (returnErr error) {
-	defer func() {
-		if returnErr == nil {
-			return
-		}
-		returnErr = errors.WithMessage(returnErr,
-			fmt.Sprintf("failed to store connection, mattermostUserID:%s, Confluence user:%s", mattermostUserID, connection.DisplayName))
-	}()
-
 	if err := set(keyWithInstanceID(instanceID, mattermostUserID), connection); err != nil {
 		return err
 	}
@@ -217,14 +195,6 @@ func LoadConnection(instanceID, mattermostUserID string) (*types.Connection, err
 }
 
 func DeleteConnection(instanceID, mattermostUserID string) (returnErr error) {
-	defer func() {
-		if returnErr == nil {
-			return
-		}
-		returnErr = errors.WithMessage(returnErr,
-			fmt.Sprintf("failed to delete user, mattermostUserId:%s", mattermostUserID))
-	}()
-
 	c, err := LoadConnection(instanceID, mattermostUserID)
 	if err != nil {
 		return err
@@ -277,14 +247,6 @@ func LoadUser(mattermostUserID string) (*types.User, error) {
 }
 
 func StoreUser(user *types.User) (returnErr error) {
-	defer func() {
-		if returnErr == nil {
-			return
-		}
-		returnErr = errors.WithMessage(returnErr,
-			fmt.Sprintf("failed to store user, mattermostUserId:%s", user.MattermostUserID))
-	}()
-
 	key := hashkey(prefixUser, user.MattermostUserID)
 	if err := set(key, user); err != nil {
 		return err

@@ -22,12 +22,6 @@ type AuthToken struct {
 }
 
 func (p *Plugin) NewEncodedAuthToken(token *oauth2.Token) (encodedToken string, returnErr error) {
-	defer func() {
-		if returnErr != nil {
-			returnErr = errors.WithMessage(returnErr, "failed to create auth token")
-		}
-	}()
-
 	encryptionSecret := config.GetConfig().EncryptionKey
 
 	t := AuthToken{
@@ -48,13 +42,6 @@ func (p *Plugin) NewEncodedAuthToken(token *oauth2.Token) (encodedToken string, 
 }
 
 func (p *Plugin) ParseAuthToken(encoded string) (token *oauth2.Token, returnErr error) {
-	defer func() {
-		if returnErr == nil {
-			return
-		}
-		returnErr = errors.WithMessage(returnErr, "failed to parse auth token")
-	}()
-
 	t := AuthToken{}
 	encryptionSecret := config.GetConfig().EncryptionKey
 
