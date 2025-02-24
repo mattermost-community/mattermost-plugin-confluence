@@ -37,21 +37,20 @@ func httpOAuth2Connect(w http.ResponseWriter, r *http.Request, p *Plugin) {
 		return
 	}
 
-	instanceURL := config.GetConfig().ConfluenceURL
+	instanceURL := config.GetConfig().GetConfluenceBaseURL()
 	if instanceURL == "" {
-		http.Error(w, "missing confluence base url. Please run `/confluence install server`", http.StatusInternalServerError)
+		http.Error(w, "missing Confluence base url. Please run `/confluence install server`", http.StatusInternalServerError)
 		return
 	}
-	instanceID := types.ID(instanceURL)
 
-	connection, err := store.LoadConnection(instanceID, types.ID(mattermostUserID), p.pluginVersion)
-	if err == nil && connection.AccountID != "" {
+	connection, err := store.LoadConnection(instanceURL, mattermostUserID)
+	if err == nil && len(connection.ConfluenceAccountID()) != 0 {
 		_, _ = respondErr(w, http.StatusBadRequest,
 			errors.New("you already have a Confluence account linked to your Mattermost account. Please use `/confluence disconnect` to disconnect"))
 		return
 	}
 
-	redirectURL, err := p.getUserConnectURL(instanceID, mattermostUserID, isAdmin)
+	redirectURL, err := p.getUserConnectURL(instanceURL, mattermostUserID, isAdmin)
 	if err != nil {
 		_, _ = respondErr(w, http.StatusInternalServerError, err)
 		return
@@ -100,16 +99,15 @@ func httpOAuth2Complete(w http.ResponseWriter, r *http.Request, p *Plugin) {
 		return
 	}
 
-	instanceURL := config.GetConfig().ConfluenceURL
+	instanceURL := config.GetConfig().GetConfluenceBaseURL()
 	if instanceURL == "" {
 		http.Error(w, "missing confluence base url", http.StatusInternalServerError)
 		return
 	}
-	instanceID := types.ID(instanceURL)
 
 	isAdmin := IsAdmin(w, r)
 
-	cuser, mmuser, err := p.CompleteOAuth2(mattermostUserID, code, state, instanceID, isAdmin)
+	cuser, mmuser, err := p.CompleteOAuth2(mattermostUserID, code, state, instanceURL, isAdmin)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
@@ -124,7 +122,7 @@ func httpOAuth2Complete(w http.ResponseWriter, r *http.Request, p *Plugin) {
 	})
 }
 
-func (p *Plugin) CompleteOAuth2(mattermostUserID, code, state string, instanceID types.ID, isAdmin bool) (*types.ConfluenceUser, *model.User, error) {
+func (p *Plugin) CompleteOAuth2(mattermostUserID, code, state string, instanceID string, isAdmin bool) (*types.ConfluenceUser, *model.User, error) {
 	if mattermostUserID == "" || code == "" || state == "" {
 		return nil, nil, errors.New("missing user, code or state")
 	}
@@ -143,7 +141,8 @@ func (p *Plugin) CompleteOAuth2(mattermostUserID, code, state string, instanceID
 		return nil, nil, err
 	}
 
-	ctx := context.Background()
+	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
+	defer cancel()
 	tok, err := oconf.Exchange(ctx, code)
 	if err != nil {
 		return nil, nil, err
@@ -155,7 +154,6 @@ func (p *Plugin) CompleteOAuth2(mattermostUserID, code, state string, instanceID
 	}
 
 	connection := &types.Connection{
-		PluginVersion:    manifest.Version,
 		OAuth2Token:      encryptedToken,
 		IsAdmin:          isAdmin,
 		MattermostUserID: mattermostUserID,
@@ -172,7 +170,7 @@ func (p *Plugin) CompleteOAuth2(mattermostUserID, code, state string, instanceID
 	}
 	connection.ConfluenceUser = *confluenceUser
 
-	err = p.connectUser(instanceID, types.ID(mattermostUserID), connection)
+	err = p.connectUser(instanceID, mattermostUserID, connection)
 	if err != nil {
 		return nil, nil, err
 	}
@@ -182,7 +180,7 @@ func (p *Plugin) CompleteOAuth2(mattermostUserID, code, state string, instanceID
 	return &connection.ConfluenceUser, mmuser, nil
 }
 
-func (p *Plugin) getUserConnectURL(instanceID types.ID, mattermostUserID string, isAdmin bool) (string, error) {
+func (p *Plugin) getUserConnectURL(instanceID string, mattermostUserID string, isAdmin bool) (string, error) {
 	conf, err := p.GetServerOAuth2Config(instanceID, isAdmin)
 	if err != nil {
 		return "", err
@@ -198,21 +196,21 @@ func (p *Plugin) getUserConnectURL(instanceID types.ID, mattermostUserID string,
 	return conf.AuthCodeURL(state, oauth2.AccessTypeOffline), nil
 }
 
-func (p *Plugin) DisconnectUser(instanceURL string, mattermostUserID types.ID) (*types.Connection, error) {
+func (p *Plugin) DisconnectUser(instanceURL string, mattermostUserID string) (*types.Connection, error) {
 	user, err := store.LoadUser(mattermostUserID)
 	if err != nil {
 		return nil, err
 	}
 
-	return p.disconnectUser(types.ID(instanceURL), user)
+	return p.disconnectUser(instanceURL, user)
 }
 
-func (p *Plugin) disconnectUser(instanceID types.ID, user *types.User) (*types.Connection, error) {
+func (p *Plugin) disconnectUser(instanceID string, user *types.User) (*types.Connection, error) {
 	if user.InstanceURL != instanceID {
 		return nil, errors.Wrapf(store.ErrNotFound, "user is not connected to %q", instanceID)
 	}
 
-	conn, err := store.LoadConnection(instanceID, user.MattermostUserID, p.pluginVersion)
+	conn, err := store.LoadConnection(instanceID, user.MattermostUserID)
 	if err != nil {
 		return nil, err
 	}
@@ -221,20 +219,20 @@ func (p *Plugin) disconnectUser(instanceID types.ID, user *types.User) (*types.C
 		user.InstanceURL = ""
 	}
 
-	if err = store.DeleteConnection(instanceID, user.MattermostUserID, p.pluginVersion); err != nil && errors.Cause(err) != store.ErrNotFound {
+	if err = store.DeleteConnection(instanceID, user.MattermostUserID); err != nil && errors.Cause(err) != store.ErrNotFound {
 		return nil, err
 	}
 
-	if err = store.StoreUser(user, p.pluginVersion); err != nil {
+	if err = store.StoreUser(user); err != nil {
 		return nil, err
 	}
 
-	p.track("userDisconnected", user.MattermostUserID.String())
+	p.track("userDisconnected", user.MattermostUserID)
 
 	return conn, nil
 }
 
-func (p *Plugin) connectUser(instanceID, mattermostUserID types.ID, connection *types.Connection) error {
+func (p *Plugin) connectUser(instanceID, mattermostUserID string, connection *types.Connection) error {
 	user, err := store.LoadUser(mattermostUserID)
 	if err != nil {
 		if errors.Cause(err) != store.ErrNotFound {
@@ -244,34 +242,34 @@ func (p *Plugin) connectUser(instanceID, mattermostUserID types.ID, connection *
 	}
 	user.InstanceURL = instanceID
 
-	if err = store.StoreConnection(instanceID, mattermostUserID, connection, p.pluginVersion); err != nil {
+	if err = store.StoreConnection(instanceID, mattermostUserID, connection); err != nil {
 		return err
 	}
 
-	if err = store.StoreConnection(instanceID, mattermostUserID, connection, p.pluginVersion); err != nil {
+	if err = store.StoreConnection(instanceID, mattermostUserID, connection); err != nil {
 		return err
 	}
 
-	if err = store.StoreConnection(instanceID, AdminMattermostUserID, connection, p.pluginVersion); err != nil {
+	if err = store.StoreConnection(instanceID, AdminMattermostUserID, connection); err != nil {
 		return err
 	}
 
-	if err = store.StoreUser(user, p.pluginVersion); err != nil {
+	if err = store.StoreUser(user); err != nil {
 		return err
 	}
 
-	if err = p.flowManager.StartCompletionWizard(mattermostUserID.String()); err != nil {
+	if err = p.flowManager.StartCompletionWizard(mattermostUserID); err != nil {
 		return err
 	}
 
-	p.track("userConnected", mattermostUserID.String())
+	p.track("userConnected", mattermostUserID)
 
 	return nil
 }
 
 // refreshAndStoreToken checks whether the current access token is expired or not. If it is,
 // then it refreshes the token and stores the new pair of access and refresh tokens in kv store.
-func (p *Plugin) refreshAndStoreToken(connection *types.Connection, instanceID types.ID, oconf *oauth2.Config) (*oauth2.Token, error) {
+func (p *Plugin) refreshAndStoreToken(connection *types.Connection, instanceID string, oconf *oauth2.Config) (*oauth2.Token, error) {
 	token, err := p.ParseAuthToken(connection.OAuth2Token)
 	if err != nil {
 		return nil, err
@@ -296,12 +294,12 @@ func (p *Plugin) refreshAndStoreToken(connection *types.Connection, instanceID t
 		}
 		connection.OAuth2Token = encryptedToken
 
-		if err = store.StoreConnection(instanceID, types.ID(connection.MattermostUserID), connection, p.pluginVersion); err != nil {
+		if err = store.StoreConnection(instanceID, connection.MattermostUserID, connection); err != nil {
 			return nil, err
 		}
 
 		if connection.IsAdmin {
-			if err = store.StoreConnection(instanceID, AdminMattermostUserID, connection, p.pluginVersion); err != nil {
+			if err = store.StoreConnection(instanceID, AdminMattermostUserID, connection); err != nil {
 				return nil, err
 			}
 		}

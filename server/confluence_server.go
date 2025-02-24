@@ -16,7 +16,6 @@ import (
 	"github.com/mattermost/mattermost-plugin-confluence/server/service"
 	"github.com/mattermost/mattermost-plugin-confluence/server/store"
 	"github.com/mattermost/mattermost-plugin-confluence/server/util"
-	"github.com/mattermost/mattermost-plugin-confluence/server/util/types"
 )
 
 var confluenceServerWebhook = &Endpoint{
@@ -46,17 +45,17 @@ func handleConfluenceServerWebhook(w http.ResponseWriter, r *http.Request, p *Pl
 		var event *serializer.ConfluenceServerWebhookPayload
 		err = json.Unmarshal(body, &event)
 		if err != nil {
-			config.Mattermost.LogError("Error occurred while unmarshalling confluence server webhook payload.", "Error", err.Error())
+			config.Mattermost.LogError("Error occurred while unmarshalling Confluence server webhook payload.", "Error", err.Error())
 			http.Error(w, err.Error(), http.StatusInternalServerError)
 			return
 		}
 
 		pluginConfig := config.GetConfig()
-		instanceID := types.ID(pluginConfig.ConfluenceURL)
+		instanceID := pluginConfig.ConfluenceURL
 
 		notification := p.getNotification()
 
-		client, _, err := p.GetClientFromUserKey(instanceID, types.ID(event.UserKey))
+		client, _, err := p.GetClientFromUserKey(instanceID, event.UserKey)
 		if err != nil {
 			if pluginConfig.AdminAPIToken != "" {
 				p.client.Log.Info("Error getting client for the user who triggered webhook event. Sending notification using admin API token")
@@ -129,12 +128,12 @@ func (p *Plugin) GetEventData(webhookPayload *serializer.ConfluenceServerWebhook
 	return eventData, nil
 }
 
-func (p *Plugin) GetClientFromUserKey(instanceID, eventUserKey types.ID) (Client, *types.ID, error) {
+func (p *Plugin) GetClientFromUserKey(instanceID, eventUserKey string) (Client, *string, error) {
 	mmUserID, err := store.GetMattermostUserIDFromConfluenceID(instanceID, eventUserKey)
 	if err != nil {
 		return nil, nil, err
 	}
-	connection, err := store.LoadConnection(instanceID, *mmUserID, p.pluginVersion)
+	connection, err := store.LoadConnection(instanceID, *mmUserID)
 	if err != nil {
 		return nil, nil, err
 	}

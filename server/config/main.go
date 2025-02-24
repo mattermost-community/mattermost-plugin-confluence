@@ -48,11 +48,15 @@ func (c *Configuration) IsValid() error {
 		return errors.New("please provide the Webhook Secret")
 	}
 
+	if c.EncryptionKey == "" {
+		return errors.New("please provide the Encryption Key")
+	}
+
 	return nil
 }
 
 func (c *Configuration) Sanitize() {
-	// Ensure Confluence ends with a slash
+	// Ensure ConfluenceURL does not have trailing slashes by trimming any '/'
 	c.ConfluenceURL = strings.TrimRight(c.ConfluenceURL, "/")
 
 	c.ConfluenceOAuthClientID = strings.TrimSpace(c.ConfluenceOAuthClientID)

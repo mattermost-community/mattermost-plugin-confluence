@@ -24,6 +24,8 @@ const (
 	botUserName    = "confluence"
 	botDisplayName = "Confluence"
 	botDescription = "Bot for confluence plugin."
+
+	documentationURL = "https://github.com/mattermost-community/mattermost-plugin-confluence#readme"
 )
 
 type Plugin struct {
@@ -39,7 +41,7 @@ type Plugin struct {
 	// templates are loaded on startup
 	templates map[string]*template.Template
 
-	pluginVersion string
+	serverVersionGreaterthan9 bool
 
 	telemetryClient telemetry.Client
 	tracker         telemetry.Tracker
@@ -71,8 +73,6 @@ func (p *Plugin) OnActivate() error {
 		return err
 	}
 	p.templates = templates
-
-	p.pluginVersion = manifest.Version
 
 	flowManager, err := p.NewFlowManager()
 	if err != nil {

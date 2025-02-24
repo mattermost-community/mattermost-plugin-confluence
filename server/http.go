@@ -48,27 +48,35 @@ func (p *Plugin) loadTemplates(dir string) (map[string]*template.Template, error
 func splitInstancePath(route string) (instanceURL string, remainingPath string) {
 	leadingSlash := ""
 	ss := strings.Split(route, "/")
+
+	// Remove leading slash if present
 	if len(ss) > 1 && ss[0] == "" {
 		leadingSlash = "/"
 		ss = ss[1:]
 	}
 
+	// If there's not enough parts in the path, return the original route
 	if len(ss) < 2 {
 		return "", route
 	}
 
+	// Remove API version prefix if present (e.g., "api/v1")
 	if ss[0] == "api" && strings.Contains(ss[1], "v") {
 		ss = ss[2:]
 	}
 
+	// If the first segment is not the expected instance prefix, return the route as is
 	if ss[0] != routePrefixInstance {
 		return route, route
 	}
 
+	// Try to decode the instance ID
 	id, err := decode(ss[1])
 	if err != nil {
 		return "", route
 	}
+
+	// Return the decoded instance ID and the remaining path
 	return string(id), leadingSlash + strings.Join(ss[2:], "/")
 }
 
