@@ -185,6 +185,16 @@ func StoreConnection(instanceID, mattermostUserID string, connection *types.Conn
 	return nil
 }
 
+func GetMattermostUserIDFromConfluenceID(instanceID, confluenceAccountID string) (*string, error) {
+	var mmUserID string
+
+	if err := get(keyWithInstanceID(instanceID, confluenceAccountID), &mmUserID); err != nil {
+		return nil, err
+	}
+
+	return &mmUserID, nil
+}
+
 func LoadConnection(instanceID, mattermostUserID string) (*types.Connection, error) {
 	c := &types.Connection{}
 	if err := get(keyWithInstanceID(instanceID, mattermostUserID), c); err != nil {
@@ -198,21 +208,6 @@ func DeleteConnection(instanceID, mattermostUserID string) (returnErr error) {
 	c, err := LoadConnection(instanceID, mattermostUserID)
 	if err != nil {
 		return err
-	}
-
-	// Check for whether the admin token stored for each confluenceURL is of the current user or not. If it is then delete that admin connection also
-	if c.IsAdmin {
-		adminConnection, lErr := LoadConnection(instanceID, AdminMattermostUserID)
-		if lErr != nil {
-			return lErr
-		}
-
-		// Check if both the tokens are same or not
-		if c.OAuth2Token == adminConnection.OAuth2Token {
-			if err = DeleteConnectionFromKVStore(instanceID, AdminMattermostUserID, c); err != nil {
-				return err
-			}
-		}
 	}
 
 	if err = DeleteConnectionFromKVStore(instanceID, mattermostUserID, c); err != nil {

@@ -40,7 +40,7 @@ type Plugin struct {
 	// templates are loaded on startup
 	templates map[string]*template.Template
 
-	ConfluenceClient *Client
+	serverVersionGreaterthan9 bool
 
 	telemetryClient telemetry.Client
 	tracker         telemetry.Tracker

@@ -12,4 +12,7 @@ type Client interface {
 // or a fully-qualified URL, with a non-empty scheme.
 type RESTService interface {
 	GetSelf() (*types.ConfluenceUser, error)
+	GetSpaceData(string) (*SpaceResponse, error)
+	GetPageData(int) (*PageResponse, error)
+	GetSpaceKeyFromSpaceID(int64) (string, error)
 }

@@ -203,11 +203,7 @@ func executeDisconnect(p *Plugin, commArgs *model.CommandArgs, args ...string) *
 
 	disconnected, err := p.DisconnectUser(confluenceURL, commArgs.UserId)
 	if errors.Cause(err) == store.ErrNotFound {
-		errorStr := "Your account is not connected to Confluence. Please use `/confluence connect <instance url>` to connect your account."
-		if confluenceURL != "" {
-			errorStr = fmt.Sprintf("Your Mattermost account is not linked to your Confluence account at %s. Please use `/confluence connect` to connect your account.", confluenceURL)
-		}
-		return p.responsef(commArgs, errorStr)
+		return p.responsef(commArgs, "Your account is not connected to Confluence. Please use `/confluence connect` to connect your account.")
 	}
 	if err != nil {
 		return p.responsef(commArgs, "Could not complete the **disconnection** request. Error: %v", err)

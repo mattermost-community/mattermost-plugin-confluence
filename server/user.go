@@ -39,7 +39,7 @@ func httpOAuth2Connect(w http.ResponseWriter, r *http.Request, p *Plugin) {
 
 	instanceURL := config.GetConfig().GetConfluenceBaseURL()
 	if instanceURL == "" {
-		http.Error(w, "missing confluence base url", http.StatusInternalServerError)
+		http.Error(w, "missing Confluence base url. Please run `/confluence install server`", http.StatusInternalServerError)
 		return
 	}
 
@@ -164,8 +164,6 @@ func (p *Plugin) CompleteOAuth2(mattermostUserID, code, state string, instanceID
 		return nil, nil, err
 	}
 
-	p.ConfluenceClient = &client
-
 	confluenceUser, err := client.GetSelf()
 	if err != nil {
 		return nil, nil, err
@@ -248,8 +246,8 @@ func (p *Plugin) connectUser(instanceID, mattermostUserID string, connection *ty
 		return err
 	}
 
-	if p.ConfluenceClient == nil {
-		return errors.New("error getting confluence client")
+	if err = store.StoreConnection(instanceID, mattermostUserID, connection); err != nil {
+		return err
 	}
 
 	if err = store.StoreConnection(instanceID, AdminMattermostUserID, connection); err != nil {

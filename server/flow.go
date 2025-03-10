@@ -23,6 +23,7 @@ type Tracker interface {
 
 type FlowManager struct {
 	client            *pluginapi.Client
+	plugin            *Plugin
 	pluginID          string
 	botUserID         string
 	router            *mux.Router
@@ -42,6 +43,7 @@ func (p *Plugin) NewFlowManager() (*FlowManager, error) {
 
 	fm := &FlowManager{
 		client:           p.client,
+		plugin:           p,
 		pluginID:         manifest.Id,
 		botUserID:        p.BotUserID,
 		router:           p.Router,
@@ -76,6 +78,7 @@ func (p *Plugin) NewFlowManager() (*FlowManager, error) {
 		return nil, err
 	}
 	completionFlow.WithSteps(
+		fm.stepWebhookInstructions(),
 		fm.stepDone(),
 		fm.stepCancel("completion"),
 	)
@@ -119,6 +122,7 @@ const (
 	stepOAuthInput               flow.Name = "oauth-input"
 	stepCSversionLessthan9       flow.Name = "server-version-less-than-9"
 	stepCSversionGreaterthan9    flow.Name = "server-version-greater-than-9"
+	stepWebhookInstructions      flow.Name = "webhook-instruction"
 	stepAnnouncementQuestion     flow.Name = "announcement-question"
 	stepAnnouncementConfirmation flow.Name = "announcement-confirmation"
 	stepDone                     flow.Name = "done"
@@ -228,9 +232,12 @@ func (fm *FlowManager) stepServerVersionQuestion() flow.Step {
 	return flow.NewStep(stepServerVersionQuestion).
 		WithText(delegateQuestionText).
 		WithButton(flow.Button{
-			Name:    "Yes",
-			Color:   flow.ColorPrimary,
-			OnClick: flow.Goto(stepCSversionGreaterthan9),
+			Name:  "Yes",
+			Color: flow.ColorPrimary,
+			OnClick: func(f *flow.Flow) (flow.Name, flow.State, error) {
+				fm.plugin.serverVersionGreaterthan9 = true
+				return stepCSversionGreaterthan9, nil, nil
+			},
 		}).
 		WithButton(flow.Button{
 			Name:  "No",
@@ -246,7 +253,7 @@ func (fm *FlowManager) stepCSversionGreaterthan9() flow.Step {
 		WithText(
 			fmt.Sprintf(
 				"%s has been successfully added. To finish the configuration, add an Application Link in your Confluence instance following these steps:\n",
-				fm.confluenceBaseURL,
+				fm.getConfluenceBaseURL(),
 			) +
 				"1. Go to [**Settings > Applications > Application Links**]({{ .ConfluenceURL }}/plugins/servlet/applinks/listApplicationLinks)\n" +
 				"   ![image](https://user-images.githubusercontent.com/90389917/202149868-a3044351-37bc-43c0-9671-aba169706917.png)\n" +
@@ -260,6 +267,21 @@ func (fm *FlowManager) stepCSversionGreaterthan9() flow.Step {
 				"5. Copy the `clientID` and `clientSecret` from **Settings**.",
 		).
 		WithButton(continueButton(stepOAuthInput))
+}
+
+func (fm *FlowManager) stepWebhookInstructions() flow.Step {
+	return flow.NewStep(stepWebhookInstructions).
+		WithText(
+			"You have successfully connected your Mattermost acoount to Confluence server. To finish the configuration, add a Webhook in your Confluence server following these steps:\n" +
+				"1. Go to [**Settings > Plugins > Servlet > Webhooks**]({{ .ConfluenceURL }}/plugins/servlet/webhooks/)\n" +
+				"2. Select **Create Webhook**.\n" +
+				"4. On the **Create Webhook** screen, set the following values:\n" +
+				"   - **Name**: `Mattermost Webhook`\n" +
+				fmt.Sprintf("   - **URL**: `%s`\n", fm.webhookURL) +
+				"   - Select all the Events in the list\n" +
+				"   Select **Save**.\n",
+		).
+		WithButton(continueButton(stepDone))
 }
 
 func (fm *FlowManager) stepCSversionLessthan9() flow.Step {
@@ -499,14 +521,14 @@ func (fm *FlowManager) stepAnnouncementQuestion() flow.Step {
 		WithButton(flow.Button{
 			Name:    "Not now",
 			Color:   flow.ColorDefault,
-			OnClick: flow.Goto(stepDone),
+			OnClick: flow.Goto(stepWebhookInstructions),
 		})
 }
 
 func (fm *FlowManager) stepAnnouncementConfirmation() flow.Step {
 	return flow.NewStep(stepAnnouncementConfirmation).
 		WithText("Message to ~{{ .ChannelName }} was sent.").
-		Next("").
+		Next(stepDone).
 		OnRender(func(f *flow.Flow) { fm.trackCompletAnnouncementWizard(f.UserID) })
 }
 
@@ -558,4 +580,8 @@ func (fm *FlowManager) stepDone() flow.Step {
 
 func (fm *FlowManager) onDone(f *flow.Flow) {
 	fm.trackCompleteSetupWizard(f.UserID)
+}
+
+func (fm *FlowManager) getConfluenceBaseURL() string {
+	return fm.confluenceBaseURL
 }
