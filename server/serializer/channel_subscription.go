@@ -63,6 +63,18 @@ type Subscriptions struct {
 	ByURLSpaceKey map[string]StringArrayMap
 }
 
+func (s *Subscriptions) EnsureDefaults() {
+	if s.ByChannelID == nil {
+		s.ByChannelID = make(map[string]StringSubscription)
+	}
+	if s.ByURLPageID == nil {
+		s.ByURLPageID = make(map[string]StringArrayMap)
+	}
+	if s.ByURLSpaceKey == nil {
+		s.ByURLSpaceKey = make(map[string]StringArrayMap)
+	}
+}
+
 func NewSubscriptions() *Subscriptions {
 	return &Subscriptions{
 		ByChannelID:   map[string]StringSubscription{},
