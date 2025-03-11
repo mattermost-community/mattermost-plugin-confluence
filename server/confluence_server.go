@@ -4,7 +4,6 @@ import (
 	"encoding/json"
 	"fmt"
 	"io"
-	"io/ioutil"
 	"net/http"
 	"strconv"
 	"strings"
@@ -36,7 +35,7 @@ func handleConfluenceServerWebhook(w http.ResponseWriter, r *http.Request, p *Pl
 	pluginConfig := config.GetConfig()
 
 	if pluginConfig.ServerVersionGreaterthan9 {
-		body, err := ioutil.ReadAll(r.Body)
+		body, err := io.ReadAll(r.Body)
 		if err != nil {
 			http.Error(w, err.Error(), http.StatusBadRequest)
 			return
@@ -150,7 +149,7 @@ func (p *Plugin) GetSpaceKeyFromSpaceIDWithAPIToken(spaceID int64, pluginConfig 
 	start := 0
 
 	for {
-		path := fmt.Sprintf("%s%s?start=%d&limit=%d", pluginConfig.ConfluenceURL, PathAllSpaces, start, pageSize)
+		path := fmt.Sprintf("%s%s?start=%d&limit=%d", pluginConfig.ConfluenceURL, PathSpaceData, start, pageSize)
 
 		response := &apiResponse{}
 
@@ -209,7 +208,7 @@ func (p *Plugin) GetEventDataWithAPIToken(webhookPayload *serializer.ConfluenceS
 
 func (p *Plugin) GetCommentDataWithAPIToken(webhookPayload *serializer.ConfluenceServerWebhookPayload, pluginConfig *config.Configuration) (*CommentResponse, error) {
 	commentResponse := &CommentResponse{}
-	path := fmt.Sprintf("%s%s", pluginConfig.ConfluenceURL, fmt.Sprintf("%s%s?expand=body.view,container,space,history", PathCommentData, strconv.FormatInt(webhookPayload.Comment.ID, 10)))
+	path := fmt.Sprintf("%s%s", pluginConfig.ConfluenceURL, fmt.Sprintf("%s%s?expand=body.view,container,space,history", PathContentData, strconv.FormatInt(webhookPayload.Comment.ID, 10)))
 
 	body, statusCode, err := p.MakeHTTPCallWithAPIToken(path)
 	if err != nil || statusCode != http.StatusOK {
@@ -227,7 +226,7 @@ func (p *Plugin) GetCommentDataWithAPIToken(webhookPayload *serializer.Confluenc
 
 func (p *Plugin) GetPageDataWithAPIToken(pageID int, pluginConfig *config.Configuration) (*PageResponse, error) {
 	pageResponse := &PageResponse{}
-	path := fmt.Sprintf("%s%s", pluginConfig.ConfluenceURL, fmt.Sprintf("%s%s?status=any&expand=body.view,container,space,history", PathPageData, strconv.Itoa(pageID)))
+	path := fmt.Sprintf("%s%s", pluginConfig.ConfluenceURL, fmt.Sprintf("%s%s?status=any&expand=body.view,container,space,history", PathContentData, strconv.Itoa(pageID)))
 
 	body, statusCode, err := p.MakeHTTPCallWithAPIToken(path)
 	if err != nil || statusCode != http.StatusOK {
