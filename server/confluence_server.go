@@ -2,7 +2,7 @@ package main
 
 import (
 	"encoding/json"
-	"io/ioutil"
+	"io"
 	"net/http"
 	"strings"
 
@@ -28,7 +28,7 @@ func handleConfluenceServerWebhook(w http.ResponseWriter, r *http.Request, p *Pl
 	}
 
 	if p.serverVersionGreaterthan9 {
-		body, err := ioutil.ReadAll(r.Body)
+		body, err := io.ReadAll(r.Body)
 		if err != nil {
 			http.Error(w, err.Error(), http.StatusBadRequest)
 			return
@@ -72,6 +72,8 @@ func handleConfluenceServerWebhook(w http.ResponseWriter, r *http.Request, p *Pl
 			return
 		}
 		eventData.BaseURL = pluginConfig.ConfluenceURL
+
+		notification := p.getNotification()
 
 		notification.SendConfluenceNotifications(eventData, event.Event, p.BotUserID, *mmUserID)
 	} else {
