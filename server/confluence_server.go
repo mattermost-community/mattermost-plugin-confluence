@@ -55,6 +55,11 @@ func handleConfluenceServerWebhook(w http.ResponseWriter, r *http.Request, p *Pl
 		notification := p.getNotification()
 
 		client, _, err := p.GetClientFromUserKey(instanceID, event.UserKey)
+		// If there is an error while retrieving the client from the event user key, it could be due to one of the following reasons:
+		// - An expected error occurred.
+		// - The user who triggered the event in Confluence is not connected to Mattermost.
+		// If the Admin API token is available, we will attempt to fetch additional data using it to send a detailed notification.
+		// Otherwise, a generic notification will be sent.
 		if err != nil {
 			if pluginConfig.AdminAPIToken != "" {
 				p.client.Log.Info("Error getting client for the user who triggered webhook event. Sending notification using admin API token")
