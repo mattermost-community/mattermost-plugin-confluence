@@ -5,15 +5,14 @@ import (
 	"os"
 	"path/filepath"
 
+	"github.com/gorilla/mux"
 	"github.com/pkg/errors"
 
 	"github.com/mattermost/mattermost/server/public/model"
 	"github.com/mattermost/mattermost/server/public/plugin"
 	"github.com/mattermost/mattermost/server/public/pluginapi"
 
-	"github.com/mattermost/mattermost-plugin-confluence/server/command"
 	"github.com/mattermost/mattermost-plugin-confluence/server/config"
-	"github.com/mattermost/mattermost-plugin-confluence/server/controller"
 	"github.com/mattermost/mattermost-plugin-confluence/server/util"
 )
 
@@ -26,6 +25,12 @@ const (
 type Plugin struct {
 	plugin.MattermostPlugin
 	client *pluginapi.Client
+
+	BotUserID string
+
+	Router *mux.Router
+
+	flowManager *FlowManager
 }
 
 func (p *Plugin) OnActivate() error {
@@ -37,11 +42,19 @@ func (p *Plugin) OnActivate() error {
 		return err
 	}
 
+	p.Router = p.InitAPI()
+
 	if err := p.OnConfigurationChange(); err != nil {
 		return err
 	}
 
-	cmd, err := command.GetCommand(p.API)
+	flowManager, err := p.NewFlowManager()
+	if err != nil {
+		return errors.Wrap(err, "failed to create flow manager")
+	}
+	p.flowManager = flowManager
+
+	cmd, err := GetCommand(p.API)
 	if err != nil {
 		return errors.Wrap(err, "failed to get command")
 	}
@@ -105,6 +118,7 @@ func (p *Plugin) setUpBotUser() error {
 	}
 
 	config.BotUserID = botUserID
+	p.BotUserID = botUserID
 	return nil
 }
 
@@ -116,7 +130,7 @@ func (p *Plugin) ExecuteCommand(context *plugin.Context, commandArgs *model.Comm
 			Text:         argErr.Error(),
 		}, nil
 	}
-	return command.ConfluenceCommandHandler.Handle(commandArgs, args[1:]...), nil
+	return ConfluenceCommandHandler.Handle(p, commandArgs, args[1:]...), nil
 }
 
 func (p *Plugin) ServeHTTP(c *plugin.Context, w http.ResponseWriter, r *http.Request) {
@@ -129,7 +143,7 @@ func (p *Plugin) ServeHTTP(c *plugin.Context, w http.ResponseWriter, r *http.Req
 		return
 	}
 
-	controller.InitAPI().ServeHTTP(w, r)
+	p.Router.ServeHTTP(w, r)
 }
 
 func main() {

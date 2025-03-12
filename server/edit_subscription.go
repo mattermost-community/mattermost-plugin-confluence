@@ -1,27 +1,26 @@
-package controller
+package main
 
 import (
 	"net/http"
 
 	"github.com/gorilla/mux"
+	"github.com/mattermost/mattermost/server/public/model"
 
 	"github.com/mattermost/mattermost-plugin-confluence/server/config"
 	"github.com/mattermost/mattermost-plugin-confluence/server/serializer"
 	"github.com/mattermost/mattermost-plugin-confluence/server/service"
-
-	"github.com/mattermost/mattermost/server/public/model"
 )
 
-const subscriptionSaveSuccess = "Your subscription has been saved."
-
-var saveChannelSubscription = &Endpoint{
+var editChannelSubscription = &Endpoint{
 	RequiresAdmin: true,
 	Path:          "/{channelID:[A-Za-z0-9]+}/subscription/{type:[A-Za-z_]+}",
-	Method:        http.MethodPost,
-	Execute:       handleSaveSubscription,
+	Method:        http.MethodPut,
+	Execute:       handleEditChannelSubscription,
 }
 
-func handleSaveSubscription(w http.ResponseWriter, r *http.Request) {
+const subscriptionEditSuccess = "Your subscription has been edited successfully."
+
+func handleEditChannelSubscription(w http.ResponseWriter, r *http.Request) {
 	params := mux.Vars(r)
 	channelID := params["channelID"]
 	subscriptionType := params["type"]
@@ -43,15 +42,15 @@ func handleSaveSubscription(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 	}
-	if statusCode, sErr := service.SaveSubscription(subscription); sErr != nil {
-		config.Mattermost.LogError(sErr.Error())
-		http.Error(w, sErr.Error(), statusCode)
+	if err := service.EditSubscription(subscription); err != nil {
+		config.Mattermost.LogError(err.Error())
+		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
 	}
 	post := &model.Post{
 		UserId:    config.BotUserID,
 		ChannelId: channelID,
-		Message:   subscriptionSaveSuccess,
+		Message:   subscriptionEditSuccess,
 	}
 	_ = config.Mattermost.SendEphemeralPost(userID, post)
 	ReturnStatusOK(w)
