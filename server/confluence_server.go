@@ -186,8 +186,10 @@ func (p *Plugin) GetSpaceKeyFromSpaceIDWithAPIToken(spaceID int64, pluginConfig 
 func (p *Plugin) GetEventDataWithAPIToken(webhookPayload *serializer.ConfluenceServerWebhookPayload, pluginConfig *config.Configuration) (*ConfluenceServerEvent, error) {
 	var confluenceServerEvent ConfluenceServerEvent
 	var err error
+	supportedWHEventFound := false
 
 	if strings.Contains(webhookPayload.Event, Comment) {
+		supportedWHEventFound = true
 		confluenceServerEvent.Comment, err = p.GetCommentDataWithAPIToken(webhookPayload, pluginConfig)
 		if err != nil {
 			return nil, errors.Wrapf(err, "error getting comment data for the event using API token")
@@ -195,6 +197,7 @@ func (p *Plugin) GetEventDataWithAPIToken(webhookPayload *serializer.ConfluenceS
 	}
 
 	if strings.Contains(webhookPayload.Event, Page) {
+		supportedWHEventFound = true
 		confluenceServerEvent.Page, err = p.GetPageDataWithAPIToken(int(webhookPayload.Page.ID), pluginConfig)
 		if err != nil {
 			return nil, errors.Wrapf(err, "error getting page data for the event using API token")
@@ -202,10 +205,15 @@ func (p *Plugin) GetEventDataWithAPIToken(webhookPayload *serializer.ConfluenceS
 	}
 
 	if strings.Contains(webhookPayload.Event, Space) {
+		supportedWHEventFound = true
 		confluenceServerEvent.Space, err = p.GetSpaceDataWithAPIToken(webhookPayload.Space.SpaceKey, pluginConfig)
 		if err != nil {
 			return nil, errors.Wrapf(err, "error getting space data for the event using API token")
 		}
+	}
+
+	if !supportedWHEventFound {
+		return nil, errors.New("unable to get data for unsupported webhook event.")
 	}
 
 	return &confluenceServerEvent, nil
