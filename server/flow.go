@@ -16,11 +16,6 @@ import (
 	"github.com/mattermost/mattermost/server/public/pluginapi/experimental/flow"
 )
 
-type Tracker interface {
-	TrackEvent(event string, properties map[string]interface{})
-	TrackUserEvent(event, userID string, properties map[string]interface{})
-}
-
 type FlowManager struct {
 	client            *pluginapi.Client
 	pluginID          string
@@ -30,7 +25,6 @@ type FlowManager struct {
 	webhookURL        string
 	MMSiteURL         string
 	confluenceBaseURL string
-	tracker           Tracker
 	setupFlow         *flow.Flow
 }
 
@@ -45,8 +39,6 @@ func (p *Plugin) NewFlowManager() (*FlowManager, error) {
 		MMSiteURL:        util.GetSiteURL(),
 		webhookURL:       webhookURL,
 		getConfiguration: config.GetConfig,
-
-		tracker: p,
 	}
 
 	setupFlow, err := fm.newFlow("setup")
@@ -150,22 +142,7 @@ func (fm *FlowManager) StartSetupWizard(userID string, delegatedFrom string) err
 
 	fm.client.Log.Debug("Started setup wizard", "userID", userID, "delegatedFrom", delegatedFrom)
 
-	fm.trackStartSetupWizard(userID, delegatedFrom != "")
-
 	return nil
-}
-
-func (fm *FlowManager) trackStartSetupWizard(userID string, fromInvite bool) {
-	fm.tracker.TrackUserEvent("setup_wizard_start", userID, map[string]interface{}{
-		"from_invite": fromInvite,
-		"time":        model.GetMillis(),
-	})
-}
-
-func (fm *FlowManager) trackCompleteSetupWizard(userID string) {
-	fm.tracker.TrackUserEvent("setup_wizard_complete", userID, map[string]interface{}{
-		"time": model.GetMillis(),
-	})
 }
 
 func (fm *FlowManager) stepWelcome() flow.Step {
@@ -399,10 +376,5 @@ func (fm *FlowManager) stepOAuthConnect() flow.Step {
 func (fm *FlowManager) stepDone() flow.Step {
 	return flow.NewStep(stepDone).
 		Terminal().
-		WithText(":tada: You successfully installed Confluence.").
-		OnRender(fm.onDone)
-}
-
-func (fm *FlowManager) onDone(f *flow.Flow) {
-	fm.trackCompleteSetupWizard(f.UserID)
+		WithText(":tada: You successfully installed Confluence.")
 }

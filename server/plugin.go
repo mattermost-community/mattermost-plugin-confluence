@@ -47,7 +47,6 @@ func (p *Plugin) OnActivate() error {
 	}
 
 	p.Router = p.InitAPI()
-	p.initializeTelemetry()
 
 	if err := p.OnConfigurationChange(); err != nil {
 		return err
