@@ -1,7 +1,6 @@
 package main
 
 import (
-	"encoding/json"
 	"fmt"
 	"net/http"
 	"os"
@@ -108,19 +107,13 @@ func (p *Plugin) OnConfigurationChange() error {
 	}
 
 	if configuration.AdminAPIToken != "" {
-		jsonBytes, err := json.Marshal(configuration.AdminAPIToken)
-		if err != nil {
-			p.client.Log.Warn("Error marshaling the admin API token", "error", err.Error())
-			return err
-		}
-
 		encryptionKey := configuration.EncryptionKey
 		if encryptionKey == "" {
 			p.client.Log.Warn("Encryption key is required to encrypt admin API token")
 			return errors.New("failed to encrypt admin token. Encryption key is not generated")
 		}
 
-		encryptedAdminAPIToken, err := encrypt(jsonBytes, []byte(encryptionKey))
+		encryptedAdminAPIToken, err := encrypt([]byte(configuration.AdminAPIToken), []byte(encryptionKey))
 		if err != nil {
 			p.client.Log.Warn("Error encrypting the admin API token", "error", err.Error())
 			return err

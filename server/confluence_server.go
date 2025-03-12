@@ -305,17 +305,12 @@ func (p *Plugin) MakeHTTPCallWithAPIToken(path string) ([]byte, int, error) {
 func (p *Plugin) SetAdminAPITokenRequestHeader(req *http.Request) error {
 	pluginConfig := config.GetConfig()
 
-	jsonBytes, err := decrypt([]byte(pluginConfig.AdminAPIToken), []byte(pluginConfig.EncryptionKey))
+	adminAPIToken, err := decrypt([]byte(pluginConfig.AdminAPIToken), []byte(pluginConfig.EncryptionKey))
 	if err != nil {
 		return err
 	}
 
-	var adminAPIToken string
-	if err = json.Unmarshal(jsonBytes, &adminAPIToken); err != nil {
-		return err
-	}
-
-	req.Header.Set("Authorization", fmt.Sprintf("Bearer %s", adminAPIToken))
+	req.Header.Set("Authorization", fmt.Sprintf("Bearer %s", string(adminAPIToken)))
 	req.Header.Set("Accept", "application/json")
 
 	return nil
