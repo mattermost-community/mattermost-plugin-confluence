@@ -175,8 +175,6 @@ func (p *Plugin) CompleteOAuth2(mattermostUserID, code, state string, instanceID
 		return nil, nil, err
 	}
 
-	p.track("userConnected", mattermostUserID)
-
 	return &connection.ConfluenceUser, mmuser, nil
 }
 
@@ -227,8 +225,6 @@ func (p *Plugin) disconnectUser(instanceID string, user *types.User) (*types.Con
 		return nil, err
 	}
 
-	p.track("userDisconnected", user.MattermostUserID)
-
 	return conn, nil
 }
 
@@ -261,8 +257,6 @@ func (p *Plugin) connectUser(instanceID, mattermostUserID string, connection *ty
 	if err = p.flowManager.StartCompletionWizard(mattermostUserID); err != nil {
 		return err
 	}
-
-	p.track("userConnected", mattermostUserID)
 
 	return nil
 }

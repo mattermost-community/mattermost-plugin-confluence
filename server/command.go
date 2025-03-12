@@ -233,9 +233,9 @@ func showInstallServerHelp(p *Plugin, context *model.CommandArgs, args ...string
 		return &model.CommandResponse{}
 	}
 
-	postCommandResponse(context, "Please continue with confluence bot DM for the setup.")
-
-	return &model.CommandResponse{}
+	return &model.CommandResponse{
+		Text: "Please continue with confluence bot DM for the setup.",
+	}
 }
 
 func deleteSubscription(_ *Plugin, context *model.CommandArgs, args ...string) *model.CommandResponse {
