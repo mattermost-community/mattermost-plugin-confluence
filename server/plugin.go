@@ -11,7 +11,6 @@ import (
 	"github.com/mattermost/mattermost/server/public/model"
 	"github.com/mattermost/mattermost/server/public/plugin"
 	"github.com/mattermost/mattermost/server/public/pluginapi"
-	"github.com/mattermost/mattermost/server/public/pluginapi/experimental/telemetry"
 
 	"github.com/mattermost/mattermost-plugin-confluence/server/config"
 	"github.com/mattermost/mattermost-plugin-confluence/server/util"
@@ -32,9 +31,6 @@ type Plugin struct {
 	Router *mux.Router
 
 	flowManager *FlowManager
-
-	telemetryClient telemetry.Client
-	tracker         telemetry.Tracker
 }
 
 func (p *Plugin) OnActivate() error {
