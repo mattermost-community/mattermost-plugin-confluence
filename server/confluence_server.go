@@ -213,7 +213,7 @@ func (p *Plugin) GetEventDataWithAPIToken(webhookPayload *serializer.ConfluenceS
 	}
 
 	if !supportedWHEventFound {
-		return nil, errors.New("unable to get data for unsupported webhook event.")
+		return nil, errors.New("unable to get data for unsupported webhook event")
 	}
 
 	return &confluenceServerEvent, nil
