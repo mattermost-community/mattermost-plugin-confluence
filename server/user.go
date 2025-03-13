@@ -72,7 +72,7 @@ func httpOAuth2Complete(w http.ResponseWriter, r *http.Request, p *Plugin) {
 		if len(errText) > 0 {
 			errText = strings.ToUpper(errText[:1]) + errText[1:]
 		}
-		status, err = p.respondSpecialTemplate(w, "/other/message.html", status, "text/html", struct {
+		status, err = p.respondTemplate(w, "/other/message.html", nil, status, "text/html", struct {
 			Header  string
 			Message string
 		}{
@@ -113,7 +113,7 @@ func httpOAuth2Complete(w http.ResponseWriter, r *http.Request, p *Plugin) {
 		return
 	}
 
-	_, _ = p.respondTemplate(w, r, "text/html", struct {
+	_, _ = p.respondTemplate(w, "", r, http.StatusOK, "text/html", struct {
 		MattermostDisplayName string
 		ConfluenceDisplayName string
 	}{
@@ -175,8 +175,6 @@ func (p *Plugin) CompleteOAuth2(mattermostUserID, code, state string, instanceID
 		return nil, nil, err
 	}
 
-	p.track("userConnected", mattermostUserID)
-
 	return &connection.ConfluenceUser, mmuser, nil
 }
 
@@ -227,8 +225,6 @@ func (p *Plugin) disconnectUser(instanceID string, user *types.User) (*types.Con
 		return nil, err
 	}
 
-	p.track("userDisconnected", user.MattermostUserID)
-
 	return conn, nil
 }
 
@@ -261,8 +257,6 @@ func (p *Plugin) connectUser(instanceID, mattermostUserID string, connection *ty
 	if err = p.flowManager.StartCompletionWizard(mattermostUserID); err != nil {
 		return err
 	}
-
-	p.track("userConnected", mattermostUserID)
 
 	return nil
 }

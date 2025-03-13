@@ -45,6 +45,8 @@ func (p *Plugin) loadTemplates(dir string) (map[string]*template.Template, error
 	return templates, nil
 }
 
+// splitInstancePath extracts the instance ID from a given route and returns the instance URL along with the remaining path
+// if the route does not contain a valid instance ID, the original route is returned.
 func splitInstancePath(route string) (instanceURL string, remainingPath string) {
 	leadingSlash := ""
 	ss := strings.Split(route, "/")
@@ -80,30 +82,18 @@ func splitInstancePath(route string) (instanceURL string, remainingPath string) 
 	return string(id), leadingSlash + strings.Join(ss[2:], "/")
 }
 
-func (p *Plugin) respondSpecialTemplate(w http.ResponseWriter, key string, status int, contentType string, values interface{}) (int, error) {
+func (p *Plugin) respondTemplate(w http.ResponseWriter, key string, r *http.Request, status int, contentType string, values interface{}) (int, error) {
+	if key == "" {
+		_, key = splitInstancePath(r.URL.Path) // Extract key from URL if not provided
+	}
+
 	w.Header().Set("Content-Type", contentType)
 	t := p.templates[key]
 	if t == nil {
-		return respondErr(w, http.StatusInternalServerError,
-			errors.New("no template found for "+key))
-	}
-	if err := t.Execute(w, values); err != nil {
-		return http.StatusInternalServerError,
-			errors.WithMessage(err, "failed to write response")
-	}
-	return status, nil
-}
-
-func (p *Plugin) respondTemplate(w http.ResponseWriter, r *http.Request, contentType string, values interface{}) (int, error) {
-	_, path := splitInstancePath(r.URL.Path)
-	w.Header().Set("Content-Type", contentType)
-	t := p.templates[path]
-	if t == nil {
-		return respondErr(w, http.StatusInternalServerError,
-			errors.New("no template found for "+path))
+		return respondErr(w, http.StatusInternalServerError, errors.New("no template found for "+key))
 	}
 	if err := t.Execute(w, values); err != nil {
 		return http.StatusInternalServerError, errors.WithMessage(err, "failed to write response")
 	}
-	return http.StatusOK, nil
+	return status, nil
 }

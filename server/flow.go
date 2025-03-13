@@ -16,11 +16,6 @@ import (
 	"github.com/mattermost/mattermost/server/public/pluginapi/experimental/flow"
 )
 
-type Tracker interface {
-	TrackEvent(event string, properties map[string]interface{})
-	TrackUserEvent(event, userID string, properties map[string]interface{})
-}
-
 type FlowManager struct {
 	client            *pluginapi.Client
 	plugin            *Plugin
@@ -32,7 +27,6 @@ type FlowManager struct {
 	GetRedirectURL    func() string
 	webhookURL        string
 	confluenceBaseURL string
-	tracker           Tracker
 	setupFlow         *flow.Flow
 	completionFlow    *flow.Flow
 	announcementFlow  *flow.Flow
@@ -51,7 +45,6 @@ func (p *Plugin) NewFlowManager() (*FlowManager, error) {
 		getConfiguration: config.GetConfig,
 		MMSiteURL:        util.GetSiteURL(),
 		GetRedirectURL:   p.GetRedirectURL,
-		tracker:          p,
 	}
 
 	setupFlow, err := fm.newFlow("setup")
@@ -179,8 +172,6 @@ func (fm *FlowManager) StartSetupWizard(userID string, delegatedFrom string) err
 
 	fm.client.Log.Debug("Started setup wizard", "userID", userID, "delegatedFrom", delegatedFrom)
 
-	fm.trackStartSetupWizard(userID, delegatedFrom != "")
-
 	return nil
 }
 
@@ -193,28 +184,7 @@ func (fm *FlowManager) StartCompletionWizard(userID string) error {
 
 	fm.client.Log.Debug("Started setup wizard", "userID", userID)
 
-	fm.trackStartCompletionWizard(userID)
-
 	return nil
-}
-
-func (fm *FlowManager) trackStartCompletionWizard(userID string) {
-	fm.tracker.TrackUserEvent("completion_wizard_start", userID, map[string]interface{}{
-		"time": model.GetMillis(),
-	})
-}
-
-func (fm *FlowManager) trackStartSetupWizard(userID string, fromInvite bool) {
-	fm.tracker.TrackUserEvent("setup_wizard_start", userID, map[string]interface{}{
-		"from_invite": fromInvite,
-		"time":        model.GetMillis(),
-	})
-}
-
-func (fm *FlowManager) trackCompleteSetupWizard(userID string) {
-	fm.tracker.TrackUserEvent("setup_wizard_complete", userID, map[string]interface{}{
-		"time": model.GetMillis(),
-	})
 }
 
 func (fm *FlowManager) stepWelcome() flow.Step {
@@ -476,21 +446,7 @@ func (fm *FlowManager) StartAnnouncementWizard(userID string) error {
 		return err
 	}
 
-	fm.trackStartAnnouncementWizard(userID)
-
 	return nil
-}
-
-func (fm *FlowManager) trackStartAnnouncementWizard(userID string) {
-	fm.tracker.TrackUserEvent("announcement_wizard_start", userID, map[string]interface{}{
-		"time": model.GetMillis(),
-	})
-}
-
-func (fm *FlowManager) trackCompletAnnouncementWizard(userID string) {
-	fm.tracker.TrackUserEvent("announcement_wizard_complete", userID, map[string]interface{}{
-		"time": model.GetMillis(),
-	})
 }
 
 func (fm *FlowManager) stepAnnouncementQuestion() flow.Step {
@@ -535,8 +491,7 @@ func (fm *FlowManager) stepAnnouncementQuestion() flow.Step {
 func (fm *FlowManager) stepAnnouncementConfirmation() flow.Step {
 	return flow.NewStep(stepAnnouncementConfirmation).
 		WithText("Message to ~{{ .ChannelName }} was sent.").
-		Next(stepDone).
-		OnRender(func(f *flow.Flow) { fm.trackCompletAnnouncementWizard(f.UserID) })
+		Next(stepDone)
 }
 
 func (fm *FlowManager) submitChannelAnnouncement(f *flow.Flow, submitted map[string]interface{}) (flow.Name, flow.State, map[string]string, error) {
@@ -581,12 +536,7 @@ func (fm *FlowManager) submitChannelAnnouncement(f *flow.Flow, submitted map[str
 func (fm *FlowManager) stepDone() flow.Step {
 	return flow.NewStep(stepDone).
 		Terminal().
-		WithText(":tada: You are successfully connected to Confluence.").
-		OnRender(fm.onDone)
-}
-
-func (fm *FlowManager) onDone(f *flow.Flow) {
-	fm.trackCompleteSetupWizard(f.UserID)
+		WithText(":tada: You successfully installed Confluence.")
 }
 
 func (fm *FlowManager) getConfluenceBaseURL() string {

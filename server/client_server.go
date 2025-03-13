@@ -116,7 +116,7 @@ func newServerClient(url string, httpClient *http.Client) Client {
 func (csc *confluenceServerClient) GetSelf() (*types.ConfluenceUser, error) {
 	confluenceServerUser := &ConfluenceServerUser{}
 	if _, _, err := service.CallJSONWithURL(csc.URL, PathCurrentUser, http.MethodGet, nil, confluenceServerUser, csc.HTTPClient); err != nil {
-		return nil, errors.Wrap(err, "confluence GetSelf. Error getting the current user")
+		return nil, errors.Wrap(err, "Confluence GetSelf. Error getting the current user")
 	}
 
 	confluenceUser := &types.ConfluenceUser{
@@ -221,5 +221,5 @@ func (csc *confluenceServerClient) GetSpaceKeyFromSpaceID(spaceID int64) (string
 		start += pageSize
 	}
 
-	return "", fmt.Errorf("confluence GetSpaceKeyFromSpaceID: no space key found for the space id")
+	return "", fmt.Errorf("confluence GetSpaceKeyFromSpaceID: no space key found for the space ID")
 }
