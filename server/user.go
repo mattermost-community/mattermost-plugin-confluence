@@ -72,7 +72,7 @@ func httpOAuth2Complete(w http.ResponseWriter, r *http.Request, p *Plugin) {
 		if len(errText) > 0 {
 			errText = strings.ToUpper(errText[:1]) + errText[1:]
 		}
-		status, err = p.respondSpecialTemplate(w, "/other/message.html", status, "text/html", struct {
+		status, err = p.respondTemplate(w, "/other/message.html", nil, status, "text/html", struct {
 			Header  string
 			Message string
 		}{
@@ -113,7 +113,7 @@ func httpOAuth2Complete(w http.ResponseWriter, r *http.Request, p *Plugin) {
 		return
 	}
 
-	_, _ = p.respondTemplate(w, r, "text/html", struct {
+	_, _ = p.respondTemplate(w, "", r, http.StatusOK, "text/html", struct {
 		MattermostDisplayName string
 		ConfluenceDisplayName string
 	}{
