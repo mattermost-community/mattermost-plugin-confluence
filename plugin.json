@@ -32,7 +32,7 @@
           "key": "EncryptionKey",
           "display_name": "At Rest Encryption Key:",
           "type": "generated",
-          "help_text": "The encryption key used to encrypt stored API tokens.",
+          "help_text": "The encryption key used to encrypt tokens.",
           "placeholder": "",
           "default": null,
           "secret": true
