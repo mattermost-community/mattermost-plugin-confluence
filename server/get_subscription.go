@@ -1,4 +1,4 @@
-package controller
+package main
 
 import (
 	"encoding/json"
@@ -16,7 +16,7 @@ var getChannelSubscription = &Endpoint{
 	Execute:       handleGetChannelSubscription,
 }
 
-func handleGetChannelSubscription(w http.ResponseWriter, r *http.Request) {
+func handleGetChannelSubscription(w http.ResponseWriter, r *http.Request, _ *Plugin) {
 	params := mux.Vars(r)
 	channelID := params["channelID"]
 	alias := r.FormValue("alias")

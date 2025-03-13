@@ -63,7 +63,7 @@ func TestGetChannelSubscription(t *testing.T) {
 						"testtesttesttest": {serializer.CommentRemovedEvent, serializer.CommentUpdatedEvent},
 					},
 				},
-				ByURLPagID: map[string]serializer.StringArrayMap{
+				ByURLPageID: map[string]serializer.StringArrayMap{
 					"confluence_subs/test.com/1234": {
 						"testtesttesttes1": {serializer.CommentCreatedEvent, serializer.CommentUpdatedEvent},
 					},

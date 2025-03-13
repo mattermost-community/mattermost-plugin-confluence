@@ -27,6 +27,22 @@
             "help_text": "The secret used to authenticate the webhook to Mattermost.",
             "regenerate_help_text": "Regenerates the secret for the webhook URL endpoint. Regenerating the secret invalidates your existing Confluence integrations.",
             "secret": true
+        },
+        {
+          "key": "EncryptionKey",
+          "display_name": "At Rest Encryption Key:",
+          "type": "generated",
+          "help_text": "The encryption key used to encrypt tokens.",
+          "placeholder": "",
+          "default": null,
+          "secret": true
+        },
+        {
+          "key": "AdminAPIToken",
+          "display_name": "Confluence Admin API Token",
+          "type": "text",
+          "help_text": "Set this [API token](https://confluence.atlassian.com/enterprise/using-personal-access-tokens-1026032365.html) to get notified for confluence events when the user triggering the event is not connected to Confluence.\n**Note:** API token should be created using an admin Confluence account. Otherwise, the notification will not be delivered for the spaces/pages user does not have access.",
+          "secret": true
         }
     ]
   }

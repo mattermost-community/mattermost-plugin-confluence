@@ -4,13 +4,20 @@ import (
 	"crypto/sha256"
 	"encoding/base64"
 	"errors"
+	"fmt"
 	"net/url"
 	"regexp"
 	"strings"
 
+	html "github.com/levigross/exp-html"
 	"github.com/mattermost/mattermost/server/public/model"
 
 	"github.com/mattermost/mattermost-plugin-confluence/server/config"
+)
+
+const (
+	Script = "script"
+	Style  = "style"
 )
 
 // GetKeyHash can be used to create a hash from a string
@@ -106,4 +113,35 @@ func Deduplicate(a []string) []string {
 	}
 
 	return result
+}
+
+func GetBodyForExcerpt(htmlBodyValue string) string {
+	var str string
+	domDoc := html.NewTokenizer(strings.NewReader(htmlBodyValue))
+	var previousStartToken html.Token
+
+	for {
+		tt := domDoc.Next()
+		switch tt {
+		case html.ErrorToken:
+			return str // End of the document, return extracted text
+		case html.StartTagToken:
+			previousStartToken = domDoc.Token()
+		case html.TextToken:
+			if previousStartToken.Data == Script || previousStartToken.Data == Style {
+				continue
+			}
+			textContent := strings.TrimSpace(html.UnescapeString(string(domDoc.Text())))
+			if len(textContent) > 0 {
+				str = fmt.Sprintf("%s\n%s", str, textContent)
+			}
+		}
+	}
+}
+
+func GetUsernameOrAnonymousName(username string) string {
+	if username == "" {
+		return "Someone"
+	}
+	return username
 }

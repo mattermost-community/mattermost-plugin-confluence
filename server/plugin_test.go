@@ -16,19 +16,11 @@ import (
 )
 
 const (
-	specifyAlias              = "Please specify a subscription name."
-	subscriptionDeleteSuccess = "Subscription **%s** has been deleted."
-	helpText                  = "###### Mattermost Confluence Plugin - Slash Command Help\n\n" +
+	helpText = "###### Mattermost Confluence Plugin - Slash Command Help\n\n" +
 		"* `/confluence subscribe` - Subscribe the current channel to notifications from Confluence.\n" +
 		"* `/confluence unsubscribe \"<name>\"` - Unsubscribe the current channel from notifications associated with the given subscription name.\n" +
 		"* `/confluence list` - List all subscriptions for the current channel.\n" +
 		"* `/confluence edit \"<name>\"` - Edit the subscription settings associated with the given subscription name.\n"
-	sysAdminHelpText = "\n###### For System Administrators:\n" +
-		"Setup Instructions:\n" +
-		"* `/confluence install cloud` - Connect Mattermost to a Confluence Cloud instance.\n" +
-		"* `/confluence install server` - Connect Mattermost to a Confluence Server or Data Center instance.\n"
-	invalidCommand          = "Invalid command parameters. Please use `/confluence help` for more information."
-	commandsOnlySystemAdmin = "`/confluence` commands can only be run by a system administrator."
 )
 
 func baseMock() *plugintest.API {

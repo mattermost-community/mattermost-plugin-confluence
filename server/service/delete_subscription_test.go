@@ -84,7 +84,7 @@ func TestDeleteSubscription(t *testing.T) {
 						"testtesttesttest": {serializer.CommentRemovedEvent, serializer.CommentUpdatedEvent},
 					},
 				},
-				ByURLPagID: map[string]serializer.StringArrayMap{
+				ByURLPageID: map[string]serializer.StringArrayMap{
 					"testKey1": {
 						"testtesttesttes1": {serializer.CommentCreatedEvent, serializer.CommentUpdatedEvent},
 					},

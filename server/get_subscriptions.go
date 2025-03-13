@@ -1,4 +1,4 @@
-package controller
+package main
 
 import (
 	"encoding/json"
@@ -16,7 +16,7 @@ var autocompleteGetChannelSubscriptions = &Endpoint{
 	Execute:       handleGetChannelSubscriptions,
 }
 
-func handleGetChannelSubscriptions(w http.ResponseWriter, r *http.Request) {
+func handleGetChannelSubscriptions(w http.ResponseWriter, r *http.Request, _ *Plugin) {
 	channelID := r.FormValue("channel_id")
 	subscriptions, err := service.GetSubscriptionsByChannelID(channelID)
 	if err != nil {

@@ -152,6 +152,28 @@ type ConfluenceServerEvent struct {
 	Timestamp      int64                     `json:"timestamp"`
 }
 
+type CommentPayload struct {
+	ID int64 `json:"id"`
+}
+
+type PagePayload struct {
+	ID int64 `json:"id"`
+}
+
+type SpacePayload struct {
+	ID       int64  `json:"id"`
+	SpaceKey string `json:"spaceKey"`
+}
+
+type ConfluenceServerWebhookPayload struct {
+	Timestamp int64          `json:"timestamp"`
+	Event     string         `json:"event"`
+	UserKey   string         `json:"userKey"`
+	Comment   CommentPayload `json:"comment"`
+	Page      PagePayload    `json:"page"`
+	Space     SpacePayload   `json:"space"`
+}
+
 func ConfluenceServerEventFromJSON(data io.Reader) *ConfluenceServerEvent {
 	var confluenceServerEvent ConfluenceServerEvent
 	if err := json.NewDecoder(data).Decode(&confluenceServerEvent); err != nil {

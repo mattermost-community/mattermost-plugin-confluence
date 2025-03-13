@@ -1,19 +1,20 @@
 package main
 
 import (
+	"fmt"
 	"net/http"
 	"os"
 	"path/filepath"
+	"text/template"
 
+	"github.com/gorilla/mux"
 	"github.com/pkg/errors"
 
 	"github.com/mattermost/mattermost/server/public/model"
 	"github.com/mattermost/mattermost/server/public/plugin"
 	"github.com/mattermost/mattermost/server/public/pluginapi"
 
-	"github.com/mattermost/mattermost-plugin-confluence/server/command"
 	"github.com/mattermost/mattermost-plugin-confluence/server/config"
-	"github.com/mattermost/mattermost-plugin-confluence/server/controller"
 	"github.com/mattermost/mattermost-plugin-confluence/server/util"
 )
 
@@ -21,11 +22,22 @@ const (
 	botUserName    = "confluence"
 	botDisplayName = "Confluence"
 	botDescription = "Bot for confluence plugin."
+
+	documentationURL = "https://github.com/mattermost-community/mattermost-plugin-confluence#readme"
 )
 
 type Plugin struct {
 	plugin.MattermostPlugin
 	client *pluginapi.Client
+
+	BotUserID string
+
+	Router *mux.Router
+
+	flowManager *FlowManager
+
+	// templates are loaded on startup
+	templates map[string]*template.Template
 }
 
 func (p *Plugin) OnActivate() error {
@@ -37,11 +49,30 @@ func (p *Plugin) OnActivate() error {
 		return err
 	}
 
+	p.Router = p.InitAPI()
+
 	if err := p.OnConfigurationChange(); err != nil {
 		return err
 	}
 
-	cmd, err := command.GetCommand(p.API)
+	bundlePath, err := p.API.GetBundlePath()
+	if err != nil {
+		return errors.Wrap(err, "couldn't get bundle path")
+	}
+
+	templates, err := p.loadTemplates(filepath.Join(bundlePath, "assets", "templates"))
+	if err != nil {
+		return err
+	}
+	p.templates = templates
+
+	flowManager, err := p.NewFlowManager()
+	if err != nil {
+		return errors.Wrap(err, "failed to create flow manager")
+	}
+	p.flowManager = flowManager
+
+	cmd, err := GetCommand(p.API)
 	if err != nil {
 		return errors.Wrap(err, "failed to get command")
 	}
@@ -105,6 +136,7 @@ func (p *Plugin) setUpBotUser() error {
 	}
 
 	config.BotUserID = botUserID
+	p.BotUserID = botUserID
 	return nil
 }
 
@@ -116,7 +148,7 @@ func (p *Plugin) ExecuteCommand(context *plugin.Context, commandArgs *model.Comm
 			Text:         argErr.Error(),
 		}, nil
 	}
-	return command.ConfluenceCommandHandler.Handle(commandArgs, args[1:]...), nil
+	return ConfluenceCommandHandler.Handle(p, commandArgs, args[1:]...), nil
 }
 
 func (p *Plugin) ServeHTTP(c *plugin.Context, w http.ResponseWriter, r *http.Request) {
@@ -129,7 +161,15 @@ func (p *Plugin) ServeHTTP(c *plugin.Context, w http.ResponseWriter, r *http.Req
 		return
 	}
 
-	controller.InitAPI().ServeHTTP(w, r)
+	p.Router.ServeHTTP(w, r)
+}
+
+func (p *Plugin) debugf(f string, args ...interface{}) {
+	p.API.LogDebug(fmt.Sprintf(f, args...))
+}
+
+func (p *Plugin) errorf(f string, args ...interface{}) {
+	p.API.LogError(fmt.Sprintf(f, args...))
 }
 
 func main() {

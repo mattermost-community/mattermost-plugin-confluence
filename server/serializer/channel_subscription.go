@@ -16,6 +16,7 @@ const (
 	PageRestoredEvent     = "page_restored"
 	PageRemovedEvent      = "page_removed"
 	SubscriptionTypeSpace = "space_subscription"
+	SpaceUpdatedEvent     = "space_updated"
 	SubscriptionTypePage  = "page_subscription"
 
 	aliasAlreadyExist       = "a subscription with the same name already exists in this channel"
@@ -58,14 +59,26 @@ type StringArrayMap map[string][]string
 
 type Subscriptions struct {
 	ByChannelID   map[string]StringSubscription
-	ByURLPagID    map[string]StringArrayMap
+	ByURLPageID   map[string]StringArrayMap
 	ByURLSpaceKey map[string]StringArrayMap
+}
+
+func (s *Subscriptions) EnsureDefaults() {
+	if s.ByChannelID == nil {
+		s.ByChannelID = make(map[string]StringSubscription)
+	}
+	if s.ByURLPageID == nil {
+		s.ByURLPageID = make(map[string]StringArrayMap)
+	}
+	if s.ByURLSpaceKey == nil {
+		s.ByURLSpaceKey = make(map[string]StringArrayMap)
+	}
 }
 
 func NewSubscriptions() *Subscriptions {
 	return &Subscriptions{
 		ByChannelID:   map[string]StringSubscription{},
-		ByURLPagID:    map[string]StringArrayMap{},
+		ByURLPageID:   map[string]StringArrayMap{},
 		ByURLSpaceKey: map[string]StringArrayMap{},
 	}
 }

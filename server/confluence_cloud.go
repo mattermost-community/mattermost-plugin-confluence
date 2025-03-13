@@ -1,4 +1,4 @@
-package controller
+package main
 
 import (
 	"net/http"
@@ -17,8 +17,8 @@ var confluenceCloudWebhook = &Endpoint{
 	Execute:       handleConfluenceCloudWebhook,
 }
 
-func handleConfluenceCloudWebhook(w http.ResponseWriter, r *http.Request) {
-	config.Mattermost.LogInfo("Received confluence cloud event.")
+func handleConfluenceCloudWebhook(w http.ResponseWriter, r *http.Request, p *Plugin) {
+	p.client.Log.Info("Received Confluence cloud event.")
 
 	if status, err := verifyHTTPSecret(config.GetConfig().Secret, r.FormValue("secret")); err != nil {
 		http.Error(w, err.Error(), status)
