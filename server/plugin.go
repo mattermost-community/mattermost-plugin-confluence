@@ -13,7 +13,6 @@ import (
 	"github.com/mattermost/mattermost/server/public/model"
 	"github.com/mattermost/mattermost/server/public/plugin"
 	"github.com/mattermost/mattermost/server/public/pluginapi"
-	"github.com/mattermost/mattermost/server/public/pluginapi/experimental/telemetry"
 
 	"github.com/mattermost/mattermost-plugin-confluence/server/config"
 	"github.com/mattermost/mattermost-plugin-confluence/server/util"
@@ -41,9 +40,6 @@ type Plugin struct {
 	templates map[string]*template.Template
 
 	serverVersionGreaterthan9 bool
-
-	telemetryClient telemetry.Client
-	tracker         telemetry.Tracker
 }
 
 func (p *Plugin) OnActivate() error {
@@ -56,7 +52,6 @@ func (p *Plugin) OnActivate() error {
 	}
 
 	p.Router = p.InitAPI()
-	p.initializeTelemetry()
 
 	if err := p.OnConfigurationChange(); err != nil {
 		return err
@@ -177,18 +172,6 @@ func (p *Plugin) debugf(f string, args ...interface{}) {
 
 func (p *Plugin) errorf(f string, args ...interface{}) {
 	p.API.LogError(fmt.Sprintf(f, args...))
-}
-
-func (p *Plugin) track(name, userID string) {
-	p.trackWithArgs(name, userID, nil)
-}
-
-func (p *Plugin) trackWithArgs(name, userID string, args map[string]interface{}) {
-	if args == nil {
-		args = map[string]interface{}{}
-	}
-	args["time"] = model.GetMillis()
-	_ = p.tracker.TrackUserEvent(name, userID, args)
 }
 
 func main() {
