@@ -45,20 +45,14 @@ func handleConfluenceServerWebhook(w http.ResponseWriter, r *http.Request, p *Pl
 		pluginConfig := config.GetConfig()
 		instanceID := pluginConfig.ConfluenceURL
 
-		mmUserID, err := store.GetMattermostUserIDFromConfluenceID(instanceID, event.UserKey)
-		if err != nil {
-			http.Error(w, err.Error(), http.StatusInternalServerError)
-			return
-		}
-		connection, err := store.LoadConnection(instanceID, *mmUserID)
-		if err != nil {
-			http.Error(w, err.Error(), http.StatusInternalServerError)
-			return
-		}
+		notification := p.getNotification()
 
-		client, err := p.GetServerClient(instanceID, connection)
+		client, mmUserID, err := p.GetClientFromUserKey(instanceID, event.UserKey)
 		if err != nil {
-			http.Error(w, err.Error(), http.StatusInternalServerError)
+			config.Mattermost.LogError("Error getting client for the user who triggered webhook event. Sending generic notification")
+			notification.SendGenericWHNotification(event, p.BotUserID, pluginConfig.ConfluenceURL)
+			w.Header().Set("Content-Type", "application/json")
+			ReturnStatusOK(w)
 			return
 		}
 
@@ -79,8 +73,6 @@ func handleConfluenceServerWebhook(w http.ResponseWriter, r *http.Request, p *Pl
 		}
 		eventData.BaseURL = pluginConfig.ConfluenceURL
 
-		notification := p.getNotification()
-
 		notification.SendConfluenceNotifications(eventData, event.Event, p.BotUserID, *mmUserID)
 	} else {
 		event := serializer.ConfluenceServerEventFromJSON(r.Body)
@@ -99,4 +91,22 @@ func (p *Plugin) GetEventData(webhookPayload *serializer.ConfluenceServerWebhook
 	}
 
 	return eventData, nil
+}
+
+func (p *Plugin) GetClientFromUserKey(instanceID, eventUserKey string) (Client, *string, error) {
+	mmUserID, err := store.GetMattermostUserIDFromConfluenceID(instanceID, eventUserKey)
+	if err != nil {
+		return nil, nil, err
+	}
+	connection, err := store.LoadConnection(instanceID, *mmUserID)
+	if err != nil {
+		return nil, nil, err
+	}
+
+	client, err := p.GetServerClient(instanceID, connection)
+	if err != nil {
+		return nil, nil, err
+	}
+
+	return client, mmUserID, nil
 }

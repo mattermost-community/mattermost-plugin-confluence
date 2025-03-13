@@ -17,6 +17,8 @@ type PageSubscription struct {
 }
 
 func (ps PageSubscription) Add(s *Subscriptions) {
+	s.EnsureDefaults()
+
 	if _, valid := s.ByChannelID[ps.ChannelID]; !valid {
 		s.ByChannelID[ps.ChannelID] = make(StringSubscription)
 	}
