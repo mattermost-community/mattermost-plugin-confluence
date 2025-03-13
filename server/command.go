@@ -129,7 +129,7 @@ func getAutoCompleteData() *model.AutocompleteData {
 	return confluence
 }
 
-func executeConfluenceDefault(p *Plugin, context *model.CommandArgs, args ...string) *model.CommandResponse {
+func executeConfluenceDefault(_ *Plugin, context *model.CommandArgs, args ...string) *model.CommandResponse {
 	out := invalidCommand + "\n\n"
 	out += getFullHelpText(context, args...)
 
