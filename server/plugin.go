@@ -38,8 +38,6 @@ type Plugin struct {
 
 	// templates are loaded on startup
 	templates map[string]*template.Template
-
-	serverVersionGreaterthan9 bool
 }
 
 func (p *Plugin) OnActivate() error {
