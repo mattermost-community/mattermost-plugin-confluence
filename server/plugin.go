@@ -38,8 +38,6 @@ type Plugin struct {
 
 	// templates are loaded on startup
 	templates map[string]*template.Template
-
-	serverVersionGreaterthan9 bool
 }
 
 func (p *Plugin) OnActivate() error {
@@ -101,6 +99,21 @@ func (p *Plugin) OnConfigurationChange() error {
 	if err := configuration.ProcessConfiguration(); err != nil {
 		config.Mattermost.LogError("Error in ProcessConfiguration.", "Error", err.Error())
 		return err
+	}
+
+	if configuration.AdminAPIToken != "" {
+		encryptionKey := configuration.EncryptionKey
+		if encryptionKey == "" {
+			p.client.Log.Warn("Encryption key is required to encrypt admin API token")
+			return errors.New("failed to encrypt admin token. Encryption key is not generated")
+		}
+
+		encryptedAdminAPIToken, err := encrypt([]byte(configuration.AdminAPIToken), []byte(encryptionKey))
+		if err != nil {
+			p.client.Log.Warn("Error encrypting the admin API token", "error", err.Error())
+			return err
+		}
+		configuration.AdminAPIToken = string(encryptedAdminAPIToken)
 	}
 
 	if err := configuration.IsValid(); err != nil {
