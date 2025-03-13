@@ -18,7 +18,7 @@ var atlassianConnectJSON = &Endpoint{
 	RequiresAdmin: false,
 }
 
-func renderAtlassianConnectJSON(w http.ResponseWriter, r *http.Request) {
+func renderAtlassianConnectJSON(w http.ResponseWriter, r *http.Request, _ *Plugin) {
 	conf := config.GetConfig()
 	if status, err := verifyHTTPSecret(conf.Secret, r.FormValue("secret")); err != nil {
 		http.Error(w, err.Error(), status)

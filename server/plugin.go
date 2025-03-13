@@ -1,9 +1,11 @@
 package main
 
 import (
+	"fmt"
 	"net/http"
 	"os"
 	"path/filepath"
+	"text/template"
 
 	"github.com/gorilla/mux"
 	"github.com/pkg/errors"
@@ -20,6 +22,8 @@ const (
 	botUserName    = "confluence"
 	botDisplayName = "Confluence"
 	botDescription = "Bot for confluence plugin."
+
+	documentationURL = "https://github.com/mattermost-community/mattermost-plugin-confluence#readme"
 )
 
 type Plugin struct {
@@ -31,6 +35,11 @@ type Plugin struct {
 	Router *mux.Router
 
 	flowManager *FlowManager
+
+	// templates are loaded on startup
+	templates map[string]*template.Template
+
+	serverVersionGreaterthan9 bool
 }
 
 func (p *Plugin) OnActivate() error {
@@ -47,6 +56,17 @@ func (p *Plugin) OnActivate() error {
 	if err := p.OnConfigurationChange(); err != nil {
 		return err
 	}
+
+	bundlePath, err := p.API.GetBundlePath()
+	if err != nil {
+		return errors.Wrap(err, "couldn't get bundle path")
+	}
+
+	templates, err := p.loadTemplates(filepath.Join(bundlePath, "assets", "templates"))
+	if err != nil {
+		return err
+	}
+	p.templates = templates
 
 	flowManager, err := p.NewFlowManager()
 	if err != nil {
@@ -144,6 +164,14 @@ func (p *Plugin) ServeHTTP(c *plugin.Context, w http.ResponseWriter, r *http.Req
 	}
 
 	p.Router.ServeHTTP(w, r)
+}
+
+func (p *Plugin) debugf(f string, args ...interface{}) {
+	p.API.LogDebug(fmt.Sprintf(f, args...))
+}
+
+func (p *Plugin) errorf(f string, args ...interface{}) {
+	p.API.LogError(fmt.Sprintf(f, args...))
 }
 
 func main() {

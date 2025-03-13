@@ -27,7 +27,14 @@
             "help_text": "The secret used to authenticate the webhook to Mattermost.",
             "regenerate_help_text": "Regenerates the secret for the webhook URL endpoint. Regenerating the secret invalidates your existing Confluence integrations.",
             "secret": true
-        }
+        },
+        {
+          "key": "EncryptionKey",
+          "display_name": "Encryption Key:",
+          "type": "generated",
+          "help_text": "The encryption key used to encrypt the authorization token.",
+          "regenerate_help_text": "Regenerates the encryption key for encrypting the authorization token. Regenerating the authorization invalidates your existing Confluence connection."
+      }
     ]
   }
 }

@@ -21,7 +21,7 @@ var saveChannelSubscription = &Endpoint{
 	Execute:       handleSaveSubscription,
 }
 
-func handleSaveSubscription(w http.ResponseWriter, r *http.Request) {
+func handleSaveSubscription(w http.ResponseWriter, r *http.Request, _ *Plugin) {
 	params := mux.Vars(r)
 	channelID := params["channelID"]
 	subscriptionType := params["type"]

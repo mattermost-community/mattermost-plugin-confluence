@@ -21,6 +21,7 @@ var (
 
 type Configuration struct {
 	Secret                      string
+	EncryptionKey               string
 	ConfluenceOAuthClientID     string
 	ConfluenceOAuthClientSecret string
 	ConfluenceURL               string
@@ -43,6 +44,10 @@ func (c *Configuration) ProcessConfiguration() error {
 func (c *Configuration) IsValid() error {
 	if c.Secret == "" {
 		return errors.New("please provide the Webhook Secret")
+	}
+
+	if c.EncryptionKey == "" {
+		return errors.New("please provide the Encryption Key")
 	}
 
 	return nil
@@ -72,4 +77,8 @@ func (c *Configuration) ToMap() (map[string]interface{}, error) {
 	}
 
 	return out, nil
+}
+
+func (c *Configuration) GetConfluenceBaseURL() string {
+	return c.ConfluenceURL
 }

@@ -18,21 +18,22 @@ import (
 type Endpoint struct {
 	Path          string
 	Method        string
-	Execute       func(w http.ResponseWriter, r *http.Request)
+	Execute       func(w http.ResponseWriter, r *http.Request, p *Plugin)
 	RequiresAdmin bool
 }
 
 // Endpoints is a map of endpoint key to endpoint object
 // Usage: getEndpointKey(GetMetadata): GetMetadata
 var Endpoints = map[string]*Endpoint{
-	getEndpointKey(atlassianConnectJSON):    atlassianConnectJSON,
-	getEndpointKey(confluenceCloudWebhook):  confluenceCloudWebhook,
-	getEndpointKey(saveChannelSubscription): saveChannelSubscription,
-	getEndpointKey(editChannelSubscription): editChannelSubscription,
-	getEndpointKey(confluenceServerWebhook): confluenceServerWebhook,
-	getEndpointKey(getChannelSubscription):  getChannelSubscription,
-
+	getEndpointKey(atlassianConnectJSON):                atlassianConnectJSON,
+	getEndpointKey(confluenceCloudWebhook):              confluenceCloudWebhook,
+	getEndpointKey(saveChannelSubscription):             saveChannelSubscription,
+	getEndpointKey(editChannelSubscription):             editChannelSubscription,
+	getEndpointKey(confluenceServerWebhook):             confluenceServerWebhook,
+	getEndpointKey(getChannelSubscription):              getChannelSubscription,
 	getEndpointKey(autocompleteGetChannelSubscriptions): autocompleteGetChannelSubscriptions,
+	getEndpointKey(userConnect):                         userConnect,
+	getEndpointKey(userConnectComplete):                 userConnectComplete,
 }
 
 // Uniquely identifies an endpoint using path and method
@@ -51,10 +52,18 @@ func (p *Plugin) InitAPI() *mux.Router {
 		if endpoint.RequiresAdmin {
 			handler = handleAdminRequired(endpoint)
 		}
-		s.HandleFunc(endpoint.Path, handler).Methods(endpoint.Method)
+
+		s.HandleFunc(endpoint.Path, p.wrapHandler(handler)).Methods(endpoint.Method)
 	}
 
 	return r
+}
+
+// wrapHandler ensures the plugin is passed to the handler
+func (p *Plugin) wrapHandler(handler func(http.ResponseWriter, *http.Request, *Plugin)) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		handler(w, r, p)
+	}
 }
 
 // handleStaticFiles handles the static files under the assets directory.
@@ -69,10 +78,10 @@ func handleStaticFiles(r *mux.Router) {
 	r.PathPrefix("/static/").Handler(http.StripPrefix("/static/", http.FileServer(http.Dir(filepath.Join(bundlePath, "assets")))))
 }
 
-func handleAdminRequired(endpoint *Endpoint) func(w http.ResponseWriter, r *http.Request) {
-	return func(w http.ResponseWriter, r *http.Request) {
+func handleAdminRequired(endpoint *Endpoint) func(w http.ResponseWriter, r *http.Request, p *Plugin) {
+	return func(w http.ResponseWriter, r *http.Request, p *Plugin) {
 		if IsAdmin(w, r) {
-			endpoint.Execute(w, r)
+			endpoint.Execute(w, r, p)
 		}
 	}
 }
