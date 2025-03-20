@@ -40,16 +40,6 @@ func TestExecuteCommand(t *testing.T) {
 		isAdmin          bool
 		patchAPICalls    func()
 	}{
-		"empty command ": {
-			commandArgs:      &model.CommandArgs{Command: "/confluence", UserId: "abcdabcdabcdabcd", ChannelId: "testtesttesttest"},
-			ephemeralMessage: helpText + sysAdminHelpText,
-			isAdmin:          true,
-		},
-		"help command": {
-			commandArgs:      &model.CommandArgs{Command: "/confluence help", UserId: "abcdabcdabcdabcd", ChannelId: "testtesttesttest"},
-			ephemeralMessage: helpText + sysAdminHelpText,
-			isAdmin:          true,
-		},
 		"invalid command": {
 			commandArgs:      &model.CommandArgs{Command: "/confluence xyz", UserId: "abcdabcdabcdabcd", ChannelId: "testtesttesttest"},
 			ephemeralMessage: invalidCommand,

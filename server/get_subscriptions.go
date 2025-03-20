@@ -15,17 +15,15 @@ import (
 )
 
 var autocompleteGetChannelSubscriptions = &Endpoint{
-	RequiresAdmin: true,
-	Path:          "/autocomplete/GetChannelSubscriptions",
-	Method:        http.MethodGet,
-	Execute:       handleGetChannelSubscriptions,
+	Path:    "/autocomplete/GetChannelSubscriptions",
+	Method:  http.MethodGet,
+	Execute: handleGetChannelSubscriptions,
 }
 
 func handleGetChannelSubscriptions(w http.ResponseWriter, r *http.Request, _ *Plugin) {
 	mattermostUserID := r.Header.Get("Mattermost-User-Id")
 	if mattermostUserID == "" {
-		_, _ = respondErr(w, http.StatusUnauthorized,
-			errors.New("not authorized"))
+		_, _ = respondErr(w, http.StatusUnauthorized, errors.New("not authorized"))
 		return
 	}
 

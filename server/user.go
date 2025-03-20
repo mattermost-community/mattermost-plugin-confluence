@@ -8,13 +8,13 @@ import (
 	"strings"
 	"time"
 
-	"github.com/mattermost/mattermost/server/public/model"
 	"github.com/pkg/errors"
 	"golang.org/x/oauth2"
 
+	"github.com/mattermost/mattermost/server/public/model"
+
 	"github.com/mattermost/mattermost-plugin-confluence/server/config"
 	"github.com/mattermost/mattermost-plugin-confluence/server/store"
-
 	"github.com/mattermost/mattermost-plugin-confluence/server/util/types"
 )
 
@@ -305,7 +305,7 @@ func (p *Plugin) refreshAndStoreToken(connection *types.Connection, instanceID s
 }
 
 type UserConnectionInfo struct {
-	IsConnected bool `json:"is_connected"`
+	CanRunSubscribeCommand bool `json:"can_run_subscribe_command"`
 }
 
 func httpGetUserInfo(w http.ResponseWriter, r *http.Request, p *Plugin) {
@@ -322,6 +322,16 @@ func httpGetUserInfo(w http.ResponseWriter, r *http.Request, p *Plugin) {
 		return
 	}
 
+	if !config.GetConfig().ServerVersionGreaterthan9 {
+		info := &UserConnectionInfo{
+			CanRunSubscribeCommand: true,
+		}
+		b, _ := json.Marshal(info)
+		w.Header().Set("Content-Type", "application/json")
+		_, _ = w.Write(b)
+		return
+	}
+
 	instanceURL := config.GetConfig().GetConfluenceBaseURL()
 	if instanceURL == "" {
 		http.Error(w, "missing Confluence base url. Please run `/confluence install server`", http.StatusInternalServerError)
@@ -332,7 +342,7 @@ func httpGetUserInfo(w http.ResponseWriter, r *http.Request, p *Plugin) {
 	if err != nil {
 		if strings.Contains(err.Error(), "not found") {
 			info := &UserConnectionInfo{
-				IsConnected: false,
+				CanRunSubscribeCommand: false,
 			}
 			b, _ := json.Marshal(info)
 			w.Header().Set("Content-Type", "application/json")
@@ -346,7 +356,7 @@ func httpGetUserInfo(w http.ResponseWriter, r *http.Request, p *Plugin) {
 	}
 
 	info := &UserConnectionInfo{
-		IsConnected: len(connection.ConfluenceAccountID()) != 0,
+		CanRunSubscribeCommand: len(connection.ConfluenceAccountID()) != 0,
 	}
 
 	b, _ := json.Marshal(info)

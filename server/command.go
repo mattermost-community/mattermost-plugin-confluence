@@ -4,9 +4,10 @@ import (
 	"fmt"
 	"strings"
 
+	"github.com/pkg/errors"
+
 	"github.com/mattermost/mattermost/server/public/model"
 	"github.com/mattermost/mattermost/server/public/pluginapi/experimental/command"
-	"github.com/pkg/errors"
 
 	"github.com/mattermost/mattermost-plugin-confluence/server/config"
 	"github.com/mattermost/mattermost-plugin-confluence/server/serializer"
@@ -43,11 +44,12 @@ const (
 		"* `/confluence install cloud` - Connect Mattermost to a Confluence Cloud instance.\n" +
 		"* `/confluence install server` - Connect Mattermost to a Confluence Server or Data Center instance.\n"
 
-	invalidCommand         = "Invalid command."
-	installOnlySystemAdmin = "`/confluence install` can only be run by a system administrator."
-	disconnectedUser       = "User not connected. Please use `/confluence connect`."
-	errorExecutingCommand  = "Error executing the command, please retry."
-	oauth2ConnectPath      = "%s/oauth2/connect"
+	invalidCommand          = "Invalid command."
+	installOnlySystemAdmin  = "`/confluence install` can only be run by a system administrator."
+	commandsOnlySystemAdmin = "`/confluence` commands can only be run by a system administrator."
+	disconnectedUser        = "User not connected. Please use `/confluence connect`."
+	errorExecutingCommand   = "Error executing the command, please retry."
+	oauth2ConnectPath       = "%s/oauth2/connect"
 )
 
 const (
@@ -254,6 +256,9 @@ func deleteSubscription(_ *Plugin, context *model.CommandArgs, args ...string) *
 			postCommandResponse(context, disconnectedUser)
 			return &model.CommandResponse{}
 		}
+	} else if !util.IsSystemAdmin(context.UserId) {
+		postCommandResponse(context, installOnlySystemAdmin)
+		return &model.CommandResponse{}
 	}
 
 	if len(args) == 0 {
@@ -287,6 +292,9 @@ func listChannelSubscription(_ *Plugin, context *model.CommandArgs, args ...stri
 			postCommandResponse(context, disconnectedUser)
 			return &model.CommandResponse{}
 		}
+	} else if !util.IsSystemAdmin(context.UserId) {
+		postCommandResponse(context, installOnlySystemAdmin)
+		return &model.CommandResponse{}
 	}
 
 	channelSubscriptions, gErr := service.GetSubscriptionsByChannelID(context.ChannelId)
@@ -305,6 +313,12 @@ func listChannelSubscription(_ *Plugin, context *model.CommandArgs, args ...stri
 }
 
 func confluenceHelpCommand(_ *Plugin, context *model.CommandArgs, args ...string) *model.CommandResponse {
+	pluginConfig := config.GetConfig()
+	if !pluginConfig.ServerVersionGreaterthan9 && !util.IsSystemAdmin(context.UserId) {
+		postCommandResponse(context, installOnlySystemAdmin)
+		return &model.CommandResponse{}
+	}
+
 	helpText := getFullHelpText(context, args...)
 
 	postCommandResponse(context, helpText)

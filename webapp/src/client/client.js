@@ -32,7 +32,7 @@ export default class Client {
         return this.doGet(url);
     };
 
-    getConnected = () => {
+    getSubscriptionAccess = () => {
         const url = `${this.pluginApiUrl}/user-connection-info`;
         return this.doGet(url);
     };

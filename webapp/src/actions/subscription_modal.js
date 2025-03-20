@@ -41,13 +41,13 @@ export const editChannelSubscription = (body) => {
     };
 };
 
-export function getConnected() {
+export function getSubscriptionAccess() {
     return async () => {
         let data = null;
         let error = null;
 
         try {
-            data = await Client.getConnected();
+            data = await Client.getSubscriptionAccess();
         } catch (e) {
             error = e;
         }

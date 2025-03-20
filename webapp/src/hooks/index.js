@@ -3,7 +3,7 @@ import {getCurrentUser} from 'mattermost-redux/selectors/entities/users';
 import {openSubscriptionModal, getChannelSubscription} from '../actions';
 
 import {splitArgs} from '../utils';
-import {getConnected, sendEphemeralPost} from '../actions/subscription_modal';
+import {getSubscriptionAccess, sendEphemeralPost} from '../actions/subscription_modal';
 import Constants from '../constants';
 
 export default class Hooks {
@@ -28,14 +28,14 @@ export default class Hooks {
         const user = getCurrentUser(state);
 
         if (commandTrimmed && commandTrimmed === '/confluence subscribe') {
-            const {data: connectionData, error} = await this.store.dispatch(getConnected());
+            const {data: subscriptionAccessData, error} = await this.store.dispatch(getSubscriptionAccess());
 
             if (error) {
                 this.store.dispatch(sendEphemeralPost(Constants.ERROR_EXECUTING_COMMAND, contextArgs.channel_id, user.id));
                 return Promise.resolve({});
             }
 
-            if (!connectionData?.is_connected) {
+            if (!subscriptionAccessData?.can_run_subscribe_command) {
                 this.store.dispatch(sendEphemeralPost(Constants.DISCONNECTED_USER, contextArgs.channel_id, user.id));
                 return Promise.resolve({});
             }
@@ -43,14 +43,14 @@ export default class Hooks {
             this.store.dispatch(openSubscriptionModal());
             return Promise.resolve({});
         } else if (commandTrimmed && commandTrimmed.startsWith('/confluence edit')) {
-            const {data: connectionData, error} = await this.store.dispatch(getConnected());
+            const {data: subscriptionAccessData, error} = await this.store.dispatch(getSubscriptionAccess());
 
             if (error) {
                 this.store.dispatch(sendEphemeralPost(Constants.ERROR_EXECUTING_COMMAND, contextArgs.channel_id, user.id));
                 return Promise.resolve({});
             }
 
-            if (!connectionData?.is_connected) {
+            if (!subscriptionAccessData?.can_run_subscribe_command) {
                 this.store.dispatch(sendEphemeralPost(Constants.DISCONNECTED_USER, contextArgs.channel_id, user.id));
                 return Promise.resolve({});
             }

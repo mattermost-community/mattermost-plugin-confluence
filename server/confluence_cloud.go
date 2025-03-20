@@ -11,10 +11,9 @@ import (
 )
 
 var confluenceCloudWebhook = &Endpoint{
-	RequiresAdmin: false,
-	Path:          "/cloud/{event:[A-Za-z0-9_]+}",
-	Method:        http.MethodPost,
-	Execute:       handleConfluenceCloudWebhook,
+	Path:    "/cloud/{event:[A-Za-z0-9_]+}",
+	Method:  http.MethodPost,
+	Execute: handleConfluenceCloudWebhook,
 }
 
 func handleConfluenceCloudWebhook(w http.ResponseWriter, r *http.Request, p *Plugin) {

@@ -8,18 +8,18 @@ import (
 	"path/filepath"
 
 	"github.com/gorilla/mux"
-	model "github.com/mattermost/mattermost/server/public/model"
 	"github.com/pkg/errors"
+
+	model "github.com/mattermost/mattermost/server/public/model"
 
 	"github.com/mattermost/mattermost-plugin-confluence/server/config"
 	"github.com/mattermost/mattermost-plugin-confluence/server/util"
 )
 
 type Endpoint struct {
-	Path          string
-	Method        string
-	Execute       func(w http.ResponseWriter, r *http.Request, p *Plugin)
-	RequiresAdmin bool
+	Path    string
+	Method  string
+	Execute func(w http.ResponseWriter, r *http.Request, p *Plugin)
 }
 
 // Endpoints is a map of endpoint key to endpoint object
@@ -50,10 +50,6 @@ func (p *Plugin) InitAPI() *mux.Router {
 	s := r.PathPrefix("/api/v1").Subrouter()
 	for _, endpoint := range Endpoints {
 		handler := endpoint.Execute
-		if endpoint.RequiresAdmin {
-			handler = handleAdminRequired(endpoint)
-		}
-
 		s.HandleFunc(endpoint.Path, p.wrapHandler(handler)).Methods(endpoint.Method)
 	}
 
@@ -77,14 +73,6 @@ func handleStaticFiles(r *mux.Router) {
 
 	// This will serve static files from the 'assets' directory under '/static/<filename>'
 	r.PathPrefix("/static/").Handler(http.StripPrefix("/static/", http.FileServer(http.Dir(filepath.Join(bundlePath, "assets")))))
-}
-
-func handleAdminRequired(endpoint *Endpoint) func(w http.ResponseWriter, r *http.Request, p *Plugin) {
-	return func(w http.ResponseWriter, r *http.Request, p *Plugin) {
-		if IsAdmin(w, r) {
-			endpoint.Execute(w, r, p)
-		}
-	}
 }
 
 // IsAdmin verifies if provided request is performed by a logged-in Mattermost user.

@@ -10,10 +10,9 @@ import (
 )
 
 var getChannelSubscription = &Endpoint{
-	RequiresAdmin: true,
-	Path:          "/{channelID:[A-Za-z0-9]+}/subscription",
-	Method:        http.MethodGet,
-	Execute:       handleGetChannelSubscription,
+	Path:    "/{channelID:[A-Za-z0-9]+}/subscription",
+	Method:  http.MethodGet,
+	Execute: handleGetChannelSubscription,
 }
 
 func handleGetChannelSubscription(w http.ResponseWriter, r *http.Request, _ *Plugin) {

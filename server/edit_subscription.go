@@ -4,6 +4,7 @@ import (
 	"net/http"
 
 	"github.com/gorilla/mux"
+
 	"github.com/mattermost/mattermost/server/public/model"
 
 	"github.com/mattermost/mattermost-plugin-confluence/server/config"
@@ -12,10 +13,9 @@ import (
 )
 
 var editChannelSubscription = &Endpoint{
-	RequiresAdmin: true,
-	Path:          "/{channelID:[A-Za-z0-9]+}/subscription/{type:[A-Za-z_]+}",
-	Method:        http.MethodPut,
-	Execute:       handleEditChannelSubscription,
+	Path:    "/{channelID:[A-Za-z0-9]+}/subscription/{type:[A-Za-z_]+}",
+	Method:  http.MethodPut,
+	Execute: handleEditChannelSubscription,
 }
 
 const subscriptionEditSuccess = "Your subscription has been edited successfully."
