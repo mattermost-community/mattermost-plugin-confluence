@@ -13,16 +13,6 @@ import (
 	"github.com/mattermost/mattermost-plugin-confluence/server/config"
 )
 
-const (
-	helpText = "###### Mattermost Confluence Plugin - Slash Command Help\n\n" +
-		"* `/confluence connect` - Connect your Mattermost user to Confluence.\n" +
-		"* `/confluence disconnect` - Disconnect your Mattermost user from Confluence.\n" +
-		"* `/confluence subscribe` - Subscribe the current channel to notifications from Confluence.\n" +
-		"* `/confluence unsubscribe \"<name>\"` - Unsubscribe the current channel from notifications associated with the given subscription name.\n" +
-		"* `/confluence list` - List all subscriptions for the current channel.\n" +
-		"* `/confluence edit \"<name>\"` - Edit the subscription settings associated with the given subscription name.\n"
-)
-
 func baseMock() *plugintest.API {
 	mockAPI := &plugintest.API{}
 	config.Mattermost = mockAPI
