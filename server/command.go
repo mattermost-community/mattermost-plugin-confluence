@@ -1,16 +1,18 @@
-package command
+package main
 
 import (
 	"fmt"
 	"strings"
 
+	"github.com/pkg/errors"
+
 	"github.com/mattermost/mattermost/server/public/model"
 	"github.com/mattermost/mattermost/server/public/pluginapi/experimental/command"
-	"github.com/pkg/errors"
 
 	"github.com/mattermost/mattermost-plugin-confluence/server/config"
 	"github.com/mattermost/mattermost-plugin-confluence/server/serializer"
 	"github.com/mattermost/mattermost-plugin-confluence/server/service"
+	"github.com/mattermost/mattermost-plugin-confluence/server/store"
 	"github.com/mattermost/mattermost-plugin-confluence/server/util"
 )
 
@@ -18,7 +20,7 @@ type PluginAPI interface {
 	GetBundlePath() (string, error)
 }
 
-type HandlerFunc func(context *model.CommandArgs, args ...string) *model.CommandResponse
+type HandlerFunc func(p *Plugin, context *model.CommandArgs, args ...string) *model.CommandResponse
 
 type Handler struct {
 	handlers       map[string]HandlerFunc
@@ -30,6 +32,8 @@ const (
 	subscriptionDeleteSuccess = "Subscription **%s** has been deleted."
 	noChannelSubscription     = "No subscriptions found for this channel."
 	commonHelpText            = "###### Mattermost Confluence Plugin - Slash Command Help\n\n" +
+		"* `/confluence connect` - Connect your Mattermost user to Confluence.\n" +
+		"* `/confluence disconnect` - Disconnect your Mattermost user from Confluence.\n" +
 		"* `/confluence subscribe` - Subscribe the current channel to notifications from Confluence.\n" +
 		"* `/confluence unsubscribe \"<name>\"` - Unsubscribe the current channel from notifications associated with the given subscription name.\n" +
 		"* `/confluence list` - List all subscriptions for the current channel.\n" +
@@ -43,19 +47,12 @@ const (
 	invalidCommand          = "Invalid command."
 	installOnlySystemAdmin  = "`/confluence install` can only be run by a system administrator."
 	commandsOnlySystemAdmin = "`/confluence` commands can only be run by a system administrator."
+	disconnectedUser        = "User not connected. Please use `/confluence connect`."
+	errorExecutingCommand   = "Error executing the command, please retry."
+	oauth2ConnectPath       = "%s/oauth2/connect"
 )
 
 const (
-	installServerHelp = `
-To configure the plugin, create a new app in your Confluence Server following these steps:
-1. Navigate to **Settings > Apps > Manage Apps**. For older versions of Confluence, navigate to **Administration > Applications > Add-ons > Manage add-ons**.
-2. Choose **Settings** at the bottom of the page, enable development mode, and apply the change. Development mode allows you to install apps from outside of the Atlassian Marketplace.
-3. Press **Upload app**.
-4. Choose **From my computer** and upload the Mattermost for Confluence OBR file.
-5. Once the app is installed, press **Configure** to open the configuration page.
-6. In the **Webhook URL** field, enter: %s
-7. Press **Save** to finish the setup.
-`
 	installCloudHelp = `
 To finish the configuration, add a new app in your Confluence Cloud instance following these steps:
 1. Navigate to **Settings > Apps > Manage Apps**.
@@ -72,6 +69,8 @@ var ConfluenceCommandHandler = Handler{
 		"unsubscribe":    deleteSubscription,
 		"install/cloud":  showInstallCloudHelp,
 		"install/server": showInstallServerHelp,
+		"connect":        executeConnect,
+		"disconnect":     executeDisconnect,
 		"help":           confluenceHelpCommand,
 	},
 	defaultHandler: executeConfluenceDefault,
@@ -125,10 +124,17 @@ func getAutoCompleteData() *model.AutocompleteData {
 
 	help := model.NewAutocompleteData("help", "", "Show confluence slash command help")
 	confluence.AddCommand(help)
+
+	connect := model.NewAutocompleteData("connect", "", "Connect your Mattermost account to your Confluence account")
+	confluence.AddCommand(connect)
+
+	disconnect := model.NewAutocompleteData("disconnect", "", "Disconnect your Mattermost account from your Confluence account")
+	confluence.AddCommand(disconnect)
+
 	return confluence
 }
 
-func executeConfluenceDefault(context *model.CommandArgs, args ...string) *model.CommandResponse {
+func executeConfluenceDefault(_ *Plugin, context *model.CommandArgs, args ...string) *model.CommandResponse {
 	out := invalidCommand + "\n\n"
 	out += getFullHelpText(context, args...)
 
@@ -147,25 +153,65 @@ func postCommandResponse(context *model.CommandArgs, text string) {
 	_ = config.Mattermost.SendEphemeralPost(context.UserId, post)
 }
 
-func (ch Handler) Handle(context *model.CommandArgs, args ...string) *model.CommandResponse {
-	if !util.IsSystemAdmin(context.UserId) {
-		postCommandResponse(context, commandsOnlySystemAdmin)
-		return &model.CommandResponse{}
-	}
-
+func (ch Handler) Handle(p *Plugin, context *model.CommandArgs, args ...string) *model.CommandResponse {
 	if len(args) == 0 {
-		return ch.handlers["help"](context, "")
+		return ch.handlers["help"](p, context, "")
 	}
 	for n := len(args); n > 0; n-- {
 		h := ch.handlers[strings.Join(args[:n], "/")]
 		if h != nil {
-			return h(context, args[n:]...)
+			return h(p, context, args[n:]...)
 		}
 	}
-	return ch.defaultHandler(context, args...)
+	return ch.defaultHandler(p, context, args...)
 }
 
-func showInstallCloudHelp(context *model.CommandArgs, args ...string) *model.CommandResponse {
+func (p *Plugin) responsef(commandArgs *model.CommandArgs, format string, args ...interface{}) *model.CommandResponse {
+	postCommandResponse(commandArgs, fmt.Sprintf(format, args...))
+	return &model.CommandResponse{}
+}
+
+func executeConnect(p *Plugin, context *model.CommandArgs, args ...string) *model.CommandResponse {
+	isAdmin := util.IsSystemAdmin(context.UserId)
+
+	pluginConfig := config.GetConfig()
+	if pluginConfig.ConfluenceURL == "" || !pluginConfig.IsOAuthConfigured() {
+		if isAdmin {
+			return p.responsef(context, "OAuth config not set for confluence plugin. Please run `/confluence install server`")
+		}
+		return p.responsef(context, "OAuth config not set for confluence plugin. Please ask the admin to setup OAuth for the plugin")
+	}
+	confluenceURL := pluginConfig.GetConfluenceBaseURL()
+	confluenceURL = strings.TrimSuffix(confluenceURL, "/")
+
+	conn, err := store.LoadConnection(confluenceURL, context.UserId)
+	if err == nil && len(conn.ConfluenceAccountID()) != 0 {
+		return p.responsef(context,
+			"You already have a Confluence account linked to your Mattermost account. Please use `/confluence disconnect` to disconnect.")
+	}
+
+	link := fmt.Sprintf(oauth2ConnectPath, util.GetPluginURL())
+	return p.responsef(context, "[Click here to link your Confluence account](%s)", link)
+}
+
+func executeDisconnect(p *Plugin, commArgs *model.CommandArgs, args ...string) *model.CommandResponse {
+	user, err := store.LoadUser(commArgs.UserId)
+	if err != nil {
+		return p.responsef(commArgs, "Could not complete the **disconnection** request. Error: %v", err)
+	}
+	confluenceURL := user.InstanceURL
+
+	disconnected, err := p.DisconnectUser(confluenceURL, commArgs.UserId)
+	if errors.Cause(err) == store.ErrNotFound {
+		return p.responsef(commArgs, "Your account is not connected to Confluence. Please use `/confluence connect` to connect your account.")
+	}
+	if err != nil {
+		return p.responsef(commArgs, "Could not complete the **disconnection** request. Error: %v", err)
+	}
+	return p.responsef(commArgs, "You have successfully disconnected your Confluence account (**%s**).", disconnected.DisplayName)
+}
+
+func showInstallCloudHelp(_ *Plugin, context *model.CommandArgs, args ...string) *model.CommandResponse {
 	if !util.IsSystemAdmin(context.UserId) {
 		postCommandResponse(context, installOnlySystemAdmin)
 		return &model.CommandResponse{}
@@ -176,18 +222,45 @@ func showInstallCloudHelp(context *model.CommandArgs, args ...string) *model.Com
 	return &model.CommandResponse{}
 }
 
-func showInstallServerHelp(context *model.CommandArgs, args ...string) *model.CommandResponse {
+func showInstallServerHelp(p *Plugin, context *model.CommandArgs, args ...string) *model.CommandResponse {
 	if !util.IsSystemAdmin(context.UserId) {
 		postCommandResponse(context, installOnlySystemAdmin)
 		return &model.CommandResponse{}
 	}
 
-	serverURL := util.GetPluginURL() + util.GetConfluenceServerWebhookURLPath()
-	postCommandResponse(context, fmt.Sprintf(installServerHelp, serverURL))
-	return &model.CommandResponse{}
+	err := p.flowManager.StartSetupWizard(context.UserId, "")
+	if err != nil {
+		return &model.CommandResponse{}
+	}
+
+	return &model.CommandResponse{
+		Text: "Please continue with confluence bot DM for the setup.",
+	}
 }
 
-func deleteSubscription(context *model.CommandArgs, args ...string) *model.CommandResponse {
+func deleteSubscription(_ *Plugin, context *model.CommandArgs, args ...string) *model.CommandResponse {
+	pluginConfig := config.GetConfig()
+	if pluginConfig.ServerVersionGreaterthan9 {
+		conn, err := store.LoadConnection(pluginConfig.ConfluenceURL, context.UserId)
+		if err != nil {
+			if strings.Contains(err.Error(), "not found") {
+				postCommandResponse(context, disconnectedUser)
+				return &model.CommandResponse{}
+			}
+
+			postCommandResponse(context, errorExecutingCommand)
+			return &model.CommandResponse{}
+		}
+
+		if len(conn.ConfluenceAccountID()) == 0 {
+			postCommandResponse(context, disconnectedUser)
+			return &model.CommandResponse{}
+		}
+	} else if !util.IsSystemAdmin(context.UserId) {
+		postCommandResponse(context, commandsOnlySystemAdmin)
+		return &model.CommandResponse{}
+	}
+
 	if len(args) == 0 {
 		postCommandResponse(context, specifyAlias)
 		return &model.CommandResponse{}
@@ -201,7 +274,29 @@ func deleteSubscription(context *model.CommandArgs, args ...string) *model.Comma
 	return &model.CommandResponse{}
 }
 
-func listChannelSubscription(context *model.CommandArgs, args ...string) *model.CommandResponse {
+func listChannelSubscription(_ *Plugin, context *model.CommandArgs, args ...string) *model.CommandResponse {
+	pluginConfig := config.GetConfig()
+	if pluginConfig.ServerVersionGreaterthan9 {
+		conn, err := store.LoadConnection(pluginConfig.ConfluenceURL, context.UserId)
+		if err != nil {
+			if strings.Contains(err.Error(), "not found") {
+				postCommandResponse(context, disconnectedUser)
+				return &model.CommandResponse{}
+			}
+
+			postCommandResponse(context, errorExecutingCommand)
+			return &model.CommandResponse{}
+		}
+
+		if len(conn.ConfluenceAccountID()) == 0 {
+			postCommandResponse(context, disconnectedUser)
+			return &model.CommandResponse{}
+		}
+	} else if !util.IsSystemAdmin(context.UserId) {
+		postCommandResponse(context, commandsOnlySystemAdmin)
+		return &model.CommandResponse{}
+	}
+
 	channelSubscriptions, gErr := service.GetSubscriptionsByChannelID(context.ChannelId)
 	if gErr != nil {
 		postCommandResponse(context, gErr.Error())
@@ -217,14 +312,20 @@ func listChannelSubscription(context *model.CommandArgs, args ...string) *model.
 	return &model.CommandResponse{}
 }
 
-func confluenceHelpCommand(context *model.CommandArgs, args ...string) *model.CommandResponse {
+func confluenceHelpCommand(_ *Plugin, context *model.CommandArgs, args ...string) *model.CommandResponse {
+	pluginConfig := config.GetConfig()
+	if !pluginConfig.ServerVersionGreaterthan9 && !util.IsSystemAdmin(context.UserId) {
+		postCommandResponse(context, commandsOnlySystemAdmin)
+		return &model.CommandResponse{}
+	}
+
 	helpText := getFullHelpText(context, args...)
 
 	postCommandResponse(context, helpText)
 	return &model.CommandResponse{}
 }
 
-func getFullHelpText(context *model.CommandArgs, args ...string) string {
+func getFullHelpText(context *model.CommandArgs, _ ...string) string {
 	helpText := commonHelpText
 	if util.IsSystemAdmin(context.UserId) {
 		helpText += sysAdminHelpText

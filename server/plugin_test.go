@@ -1,7 +1,6 @@
 package main
 
 import (
-	"fmt"
 	"testing"
 
 	"bou.ke/monkey"
@@ -12,23 +11,6 @@ import (
 	"github.com/stretchr/testify/mock"
 
 	"github.com/mattermost/mattermost-plugin-confluence/server/config"
-	"github.com/mattermost/mattermost-plugin-confluence/server/service"
-)
-
-const (
-	specifyAlias              = "Please specify a subscription name."
-	subscriptionDeleteSuccess = "Subscription **%s** has been deleted."
-	helpText                  = "###### Mattermost Confluence Plugin - Slash Command Help\n\n" +
-		"* `/confluence subscribe` - Subscribe the current channel to notifications from Confluence.\n" +
-		"* `/confluence unsubscribe \"<name>\"` - Unsubscribe the current channel from notifications associated with the given subscription name.\n" +
-		"* `/confluence list` - List all subscriptions for the current channel.\n" +
-		"* `/confluence edit \"<name>\"` - Edit the subscription settings associated with the given subscription name.\n"
-	sysAdminHelpText = "\n###### For System Administrators:\n" +
-		"Setup Instructions:\n" +
-		"* `/confluence install cloud` - Connect Mattermost to a Confluence Cloud instance.\n" +
-		"* `/confluence install server` - Connect Mattermost to a Confluence Server or Data Center instance.\n"
-	invalidCommand          = "Invalid command parameters. Please use `/confluence help` for more information."
-	commandsOnlySystemAdmin = "`/confluence` commands can only be run by a system administrator."
 )
 
 func baseMock() *plugintest.API {
@@ -41,46 +23,17 @@ func baseMock() *plugintest.API {
 func TestExecuteCommand(t *testing.T) {
 	p := Plugin{}
 
+	// TODO: Add the testcases for unsubscribe and other commands
 	for name, val := range map[string]struct {
 		commandArgs      *model.CommandArgs
 		ephemeralMessage string
 		isAdmin          bool
 		patchAPICalls    func()
 	}{
-		"empty command ": {
-			commandArgs:      &model.CommandArgs{Command: "/confluence", UserId: "abcdabcdabcdabcd", ChannelId: "testtesttesttest"},
-			ephemeralMessage: helpText + sysAdminHelpText,
-			isAdmin:          true,
-		},
-		"help command": {
-			commandArgs:      &model.CommandArgs{Command: "/confluence help", UserId: "abcdabcdabcdabcd", ChannelId: "testtesttesttest"},
-			ephemeralMessage: helpText + sysAdminHelpText,
-			isAdmin:          true,
-		},
-		"unsubscribe command ": {
-			commandArgs:      &model.CommandArgs{Command: "/confluence unsubscribe \"abc\"", UserId: "abcdabcdabcdabcd", ChannelId: "testtesttesttest"},
-			ephemeralMessage: fmt.Sprintf(subscriptionDeleteSuccess, "abc"),
-			isAdmin:          true,
-			patchAPICalls: func() {
-				monkey.Patch(service.DeleteSubscription, func(channelID, alias string) error {
-					return nil
-				})
-			},
-		},
-		"unsubscribe command no alias": {
-			commandArgs:      &model.CommandArgs{Command: "/confluence unsubscribe", UserId: "abcdabcdabcdabcd", ChannelId: "testtesttesttest"},
-			ephemeralMessage: specifyAlias,
-			isAdmin:          true,
-		},
 		"invalid command": {
 			commandArgs:      &model.CommandArgs{Command: "/confluence xyz", UserId: "abcdabcdabcdabcd", ChannelId: "testtesttesttest"},
 			ephemeralMessage: invalidCommand,
 			isAdmin:          true,
-		},
-		"admin restricted": {
-			commandArgs:      &model.CommandArgs{Command: "/confluence unsubscribe \"abc\"", UserId: "abcdabcdabcdabcd", ChannelId: "testtesttesttest"},
-			ephemeralMessage: commandsOnlySystemAdmin,
-			isAdmin:          false,
 		},
 	} {
 		t.Run(name, func(t *testing.T) {

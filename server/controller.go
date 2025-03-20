@@ -1,4 +1,4 @@
-package controller
+package main
 
 import (
 	"crypto/subtle"
@@ -8,31 +8,33 @@ import (
 	"path/filepath"
 
 	"github.com/gorilla/mux"
-	model "github.com/mattermost/mattermost/server/public/model"
 	"github.com/pkg/errors"
+
+	model "github.com/mattermost/mattermost/server/public/model"
 
 	"github.com/mattermost/mattermost-plugin-confluence/server/config"
 	"github.com/mattermost/mattermost-plugin-confluence/server/util"
 )
 
 type Endpoint struct {
-	Path          string
-	Method        string
-	Execute       func(w http.ResponseWriter, r *http.Request)
-	RequiresAdmin bool
+	Path    string
+	Method  string
+	Execute func(w http.ResponseWriter, r *http.Request, p *Plugin)
 }
 
 // Endpoints is a map of endpoint key to endpoint object
 // Usage: getEndpointKey(GetMetadata): GetMetadata
 var Endpoints = map[string]*Endpoint{
-	getEndpointKey(atlassianConnectJSON):    atlassianConnectJSON,
-	getEndpointKey(confluenceCloudWebhook):  confluenceCloudWebhook,
-	getEndpointKey(saveChannelSubscription): saveChannelSubscription,
-	getEndpointKey(editChannelSubscription): editChannelSubscription,
-	getEndpointKey(confluenceServerWebhook): confluenceServerWebhook,
-	getEndpointKey(getChannelSubscription):  getChannelSubscription,
-
+	getEndpointKey(atlassianConnectJSON):                atlassianConnectJSON,
+	getEndpointKey(confluenceCloudWebhook):              confluenceCloudWebhook,
+	getEndpointKey(saveChannelSubscription):             saveChannelSubscription,
+	getEndpointKey(editChannelSubscription):             editChannelSubscription,
+	getEndpointKey(confluenceServerWebhook):             confluenceServerWebhook,
+	getEndpointKey(getChannelSubscription):              getChannelSubscription,
 	getEndpointKey(autocompleteGetChannelSubscriptions): autocompleteGetChannelSubscriptions,
+	getEndpointKey(userConnect):                         userConnect,
+	getEndpointKey(userConnectComplete):                 userConnectComplete,
+	getEndpointKey(userConnectionInfo):                  userConnectionInfo,
 }
 
 // Uniquely identifies an endpoint using path and method
@@ -41,20 +43,24 @@ func getEndpointKey(endpoint *Endpoint) string {
 }
 
 // InitAPI initializes the REST API
-func InitAPI() *mux.Router {
+func (p *Plugin) InitAPI() *mux.Router {
 	r := mux.NewRouter()
 	handleStaticFiles(r)
 
 	s := r.PathPrefix("/api/v1").Subrouter()
 	for _, endpoint := range Endpoints {
 		handler := endpoint.Execute
-		if endpoint.RequiresAdmin {
-			handler = handleAdminRequired(endpoint)
-		}
-		s.HandleFunc(endpoint.Path, handler).Methods(endpoint.Method)
+		s.HandleFunc(endpoint.Path, p.wrapHandler(handler)).Methods(endpoint.Method)
 	}
 
 	return r
+}
+
+// wrapHandler ensures the plugin is passed to the handler
+func (p *Plugin) wrapHandler(handler func(http.ResponseWriter, *http.Request, *Plugin)) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		handler(w, r, p)
+	}
 }
 
 // handleStaticFiles handles the static files under the assets directory.
@@ -67,14 +73,6 @@ func handleStaticFiles(r *mux.Router) {
 
 	// This will serve static files from the 'assets' directory under '/static/<filename>'
 	r.PathPrefix("/static/").Handler(http.StripPrefix("/static/", http.FileServer(http.Dir(filepath.Join(bundlePath, "assets")))))
-}
-
-func handleAdminRequired(endpoint *Endpoint) func(w http.ResponseWriter, r *http.Request) {
-	return func(w http.ResponseWriter, r *http.Request) {
-		if IsAdmin(w, r) {
-			endpoint.Execute(w, r)
-		}
-	}
 }
 
 // IsAdmin verifies if provided request is performed by a logged-in Mattermost user.

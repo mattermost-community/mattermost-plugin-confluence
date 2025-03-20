@@ -1,6 +1,7 @@
 package config
 
 import (
+	"encoding/json"
 	"strings"
 
 	"github.com/mattermost/mattermost/server/public/plugin"
@@ -19,7 +20,13 @@ var (
 )
 
 type Configuration struct {
-	Secret string `json:"Secret"`
+	Secret                      string `json:"secret"`
+	EncryptionKey               string `json:"encryptionKey"` // The encryption key used to encrypt tokens
+	AdminAPIToken               string `json:"adminAPIToken"` // API token from Confluence Data Center
+	ConfluenceOAuthClientID     string
+	ConfluenceOAuthClientSecret string
+	ConfluenceURL               string
+	ServerVersionGreaterthan9   bool
 }
 
 func GetConfig() *Configuration {
@@ -41,5 +48,39 @@ func (c *Configuration) IsValid() error {
 		return errors.New("please provide the Webhook Secret")
 	}
 
+	if c.EncryptionKey == "" {
+		return errors.New("please provide the Encryption Key")
+	}
+
 	return nil
+}
+
+func (c *Configuration) Sanitize() {
+	// Ensure ConfluenceURL does not have trailing slashes by trimming any '/'
+	c.ConfluenceURL = strings.TrimRight(c.ConfluenceURL, "/")
+
+	c.ConfluenceOAuthClientID = strings.TrimSpace(c.ConfluenceOAuthClientID)
+	c.ConfluenceOAuthClientSecret = strings.TrimSpace(c.ConfluenceOAuthClientSecret)
+}
+
+func (c *Configuration) IsOAuthConfigured() bool {
+	return (c.ConfluenceOAuthClientID != "" && c.ConfluenceOAuthClientSecret != "")
+}
+
+func (c *Configuration) ToMap() (map[string]interface{}, error) {
+	var out map[string]interface{}
+	data, err := json.Marshal(c)
+	if err != nil {
+		return nil, err
+	}
+	err = json.Unmarshal(data, &out)
+	if err != nil {
+		return nil, err
+	}
+
+	return out, nil
+}
+
+func (c *Configuration) GetConfluenceBaseURL() string {
+	return c.ConfluenceURL
 }

@@ -1,4 +1,4 @@
-package controller
+package main
 
 import (
 	"html/template"
@@ -12,13 +12,12 @@ import (
 )
 
 var atlassianConnectJSON = &Endpoint{
-	Path:          "/atlassian-connect.json",
-	Method:        http.MethodGet,
-	Execute:       renderAtlassianConnectJSON,
-	RequiresAdmin: false,
+	Path:    "/atlassian-connect.json",
+	Method:  http.MethodGet,
+	Execute: renderAtlassianConnectJSON,
 }
 
-func renderAtlassianConnectJSON(w http.ResponseWriter, r *http.Request) {
+func renderAtlassianConnectJSON(w http.ResponseWriter, r *http.Request, _ *Plugin) {
 	conf := config.GetConfig()
 	if status, err := verifyHTTPSecret(conf.Secret, r.FormValue("secret")); err != nil {
 		http.Error(w, err.Error(), status)
