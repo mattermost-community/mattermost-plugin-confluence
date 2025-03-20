@@ -31,6 +31,8 @@ const (
 	subscriptionDeleteSuccess = "Subscription **%s** has been deleted."
 	noChannelSubscription     = "No subscriptions found for this channel."
 	commonHelpText            = "###### Mattermost Confluence Plugin - Slash Command Help\n\n" +
+		"* `/confluence connect` - Connect your Mattermost user to Confluence.\n" +
+		"* `/confluence disconnect` - Disconnect your Mattermost user from Confluence.\n" +
 		"* `/confluence subscribe` - Subscribe the current channel to notifications from Confluence.\n" +
 		"* `/confluence unsubscribe \"<name>\"` - Unsubscribe the current channel from notifications associated with the given subscription name.\n" +
 		"* `/confluence list` - List all subscriptions for the current channel.\n" +
@@ -41,10 +43,11 @@ const (
 		"* `/confluence install cloud` - Connect Mattermost to a Confluence Cloud instance.\n" +
 		"* `/confluence install server` - Connect Mattermost to a Confluence Server or Data Center instance.\n"
 
-	invalidCommand          = "Invalid command."
-	installOnlySystemAdmin  = "`/confluence install` can only be run by a system administrator."
-	commandsOnlySystemAdmin = "`/confluence` commands can only be run by a system administrator."
-	oauth2ConnectPath       = "%s/oauth2/connect"
+	invalidCommand         = "Invalid command."
+	installOnlySystemAdmin = "`/confluence install` can only be run by a system administrator."
+	disconnectedUser       = "User not connected. Please use `/confluence connect`."
+	errorExecutingCommand  = "Error executing the command, please retry."
+	oauth2ConnectPath      = "%s/oauth2/connect"
 )
 
 const (
@@ -149,11 +152,6 @@ func postCommandResponse(context *model.CommandArgs, text string) {
 }
 
 func (ch Handler) Handle(p *Plugin, context *model.CommandArgs, args ...string) *model.CommandResponse {
-	if !util.IsSystemAdmin(context.UserId) {
-		postCommandResponse(context, commandsOnlySystemAdmin)
-		return &model.CommandResponse{}
-	}
-
 	if len(args) == 0 {
 		return ch.handlers["help"](p, context, "")
 	}
@@ -239,6 +237,25 @@ func showInstallServerHelp(p *Plugin, context *model.CommandArgs, args ...string
 }
 
 func deleteSubscription(_ *Plugin, context *model.CommandArgs, args ...string) *model.CommandResponse {
+	pluginConfig := config.GetConfig()
+	if pluginConfig.ServerVersionGreaterthan9 {
+		conn, err := store.LoadConnection(pluginConfig.ConfluenceURL, context.UserId)
+		if err != nil {
+			if strings.Contains(err.Error(), "not found") {
+				postCommandResponse(context, disconnectedUser)
+				return &model.CommandResponse{}
+			}
+
+			postCommandResponse(context, errorExecutingCommand)
+			return &model.CommandResponse{}
+		}
+
+		if len(conn.ConfluenceAccountID()) == 0 {
+			postCommandResponse(context, disconnectedUser)
+			return &model.CommandResponse{}
+		}
+	}
+
 	if len(args) == 0 {
 		postCommandResponse(context, specifyAlias)
 		return &model.CommandResponse{}
@@ -253,6 +270,25 @@ func deleteSubscription(_ *Plugin, context *model.CommandArgs, args ...string) *
 }
 
 func listChannelSubscription(_ *Plugin, context *model.CommandArgs, args ...string) *model.CommandResponse {
+	pluginConfig := config.GetConfig()
+	if pluginConfig.ServerVersionGreaterthan9 {
+		conn, err := store.LoadConnection(pluginConfig.ConfluenceURL, context.UserId)
+		if err != nil {
+			if strings.Contains(err.Error(), "not found") {
+				postCommandResponse(context, disconnectedUser)
+				return &model.CommandResponse{}
+			}
+
+			postCommandResponse(context, errorExecutingCommand)
+			return &model.CommandResponse{}
+		}
+
+		if len(conn.ConfluenceAccountID()) == 0 {
+			postCommandResponse(context, disconnectedUser)
+			return &model.CommandResponse{}
+		}
+	}
+
 	channelSubscriptions, gErr := service.GetSubscriptionsByChannelID(context.ChannelId)
 	if gErr != nil {
 		postCommandResponse(context, gErr.Error())

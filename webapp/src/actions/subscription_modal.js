@@ -41,6 +41,21 @@ export const editChannelSubscription = (body) => {
     };
 };
 
+export function getConnected() {
+    return async () => {
+        let data = null;
+        let error = null;
+
+        try {
+            data = await Client.getConnected();
+        } catch (e) {
+            error = e;
+        }
+
+        return {data, error};
+    };
+}
+
 export const openSubscriptionModal = () => (dispatch) => {
     dispatch({
         type: Constants.ACTION_TYPES.OPEN_SUBSCRIPTION_MODAL,

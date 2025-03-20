@@ -34,6 +34,7 @@ var Endpoints = map[string]*Endpoint{
 	getEndpointKey(autocompleteGetChannelSubscriptions): autocompleteGetChannelSubscriptions,
 	getEndpointKey(userConnect):                         userConnect,
 	getEndpointKey(userConnectComplete):                 userConnectComplete,
+	getEndpointKey(userConnectionInfo):                  userConnectionInfo,
 }
 
 // Uniquely identifies an endpoint using path and method

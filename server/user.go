@@ -2,6 +2,7 @@ package main
 
 import (
 	"context"
+	"encoding/json"
 	"fmt"
 	"net/http"
 	"strings"
@@ -301,4 +302,54 @@ func (p *Plugin) refreshAndStoreToken(connection *types.Connection, instanceID s
 	}
 
 	return token, nil
+}
+
+type UserConnectionInfo struct {
+	IsConnected bool `json:"is_connected"`
+}
+
+func httpGetUserInfo(w http.ResponseWriter, r *http.Request, p *Plugin) {
+	if r.Method != http.MethodGet {
+		_, _ = respondErr(w, http.StatusMethodNotAllowed,
+			errors.New("method "+r.Method+" is not allowed, must be GET"))
+		return
+	}
+
+	mattermostUserID := r.Header.Get("Mattermost-User-Id")
+	if mattermostUserID == "" {
+		_, _ = respondErr(w, http.StatusUnauthorized,
+			errors.New("not authorized"))
+		return
+	}
+
+	instanceURL := config.GetConfig().GetConfluenceBaseURL()
+	if instanceURL == "" {
+		http.Error(w, "missing Confluence base url. Please run `/confluence install server`", http.StatusInternalServerError)
+		return
+	}
+
+	connection, err := store.LoadConnection(instanceURL, mattermostUserID)
+	if err != nil {
+		if strings.Contains(err.Error(), "not found") {
+			info := &UserConnectionInfo{
+				IsConnected: false,
+			}
+			b, _ := json.Marshal(info)
+			w.Header().Set("Content-Type", "application/json")
+			_, _ = w.Write(b)
+			return
+		}
+
+		p.client.Log.Error("Error getting client connection", "MattermostUserID", mattermostUserID, "error", err)
+		http.Error(w, "some error occured checking user connection status", http.StatusInternalServerError)
+		return
+	}
+
+	info := &UserConnectionInfo{
+		IsConnected: len(connection.ConfluenceAccountID()) != 0,
+	}
+
+	b, _ := json.Marshal(info)
+	w.Header().Set("Content-Type", "application/json")
+	_, _ = w.Write([]byte(string(b)))
 }

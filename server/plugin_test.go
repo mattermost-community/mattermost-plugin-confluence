@@ -69,11 +69,6 @@ func TestExecuteCommand(t *testing.T) {
 			ephemeralMessage: invalidCommand,
 			isAdmin:          true,
 		},
-		"admin restricted": {
-			commandArgs:      &model.CommandArgs{Command: "/confluence unsubscribe \"abc\"", UserId: "abcdabcdabcdabcd", ChannelId: "testtesttesttest"},
-			ephemeralMessage: commandsOnlySystemAdmin,
-			isAdmin:          false,
-		},
 	} {
 		t.Run(name, func(t *testing.T) {
 			defer monkey.UnpatchAll()

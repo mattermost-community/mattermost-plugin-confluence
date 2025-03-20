@@ -17,19 +17,18 @@ import (
 )
 
 type FlowManager struct {
-	client            *pluginapi.Client
-	plugin            *Plugin
-	pluginID          string
-	botUserID         string
-	router            *mux.Router
-	getConfiguration  func() *config.Configuration
-	MMSiteURL         string
-	GetRedirectURL    func() string
-	webhookURL        string
-	confluenceBaseURL string
-	setupFlow         *flow.Flow
-	completionFlow    *flow.Flow
-	announcementFlow  *flow.Flow
+	client           *pluginapi.Client
+	plugin           *Plugin
+	pluginID         string
+	botUserID        string
+	router           *mux.Router
+	getConfiguration func() *config.Configuration
+	MMSiteURL        string
+	GetRedirectURL   func() string
+	webhookURL       string
+	setupFlow        *flow.Flow
+	completionFlow   *flow.Flow
+	announcementFlow *flow.Flow
 }
 
 func (p *Plugin) NewFlowManager() (*FlowManager, error) {
@@ -62,7 +61,7 @@ func (p *Plugin) NewFlowManager() (*FlowManager, error) {
 		fm.stepAnnouncementQuestion(),
 		fm.stepAnnouncementConfirmation(),
 		fm.stepDone(),
-		fm.stepCancel("setup"),
+		fm.stepCancel("install <instance-type>"),
 	)
 	fm.setupFlow = setupFlow
 
@@ -272,7 +271,7 @@ To configure the plugin, create a new app in your [Confluence Server](%s) follow
 5. Once the app is installed, press **Configure** to open the configuration page.
 6. In the **Webhook URL** field, enter: %s
 7. Press **Save** to finish the setup.
-`, fm.confluenceBaseURL, fm.webhookURL)).
+`, fm.getConfluenceBaseURL(), fm.webhookURL)).
 		WithButton(continueButton(stepDone))
 }
 
@@ -335,8 +334,6 @@ func (fm *FlowManager) submitConfluenceURL(f *flow.Flow, submitted map[string]in
 	if err = fm.client.Configuration.SavePluginConfig(configMap); err != nil {
 		return "", nil, nil, errors.Wrap(err, "failed to save plugin config")
 	}
-
-	fm.confluenceBaseURL = confluenceURL
 
 	return stepServerVersionQuestion, flow.State{
 		keyConfluenceURL: config.GetConfluenceBaseURL(),
@@ -540,5 +537,7 @@ func (fm *FlowManager) stepDone() flow.Step {
 }
 
 func (fm *FlowManager) getConfluenceBaseURL() string {
-	return fm.confluenceBaseURL
+	pluginConfig := config.GetConfig()
+
+	return pluginConfig.ConfluenceURL
 }

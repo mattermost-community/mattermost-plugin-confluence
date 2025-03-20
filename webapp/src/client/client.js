@@ -32,6 +32,11 @@ export default class Client {
         return this.doGet(url);
     };
 
+    getConnected = () => {
+        const url = `${this.pluginApiUrl}/user-connection-info`;
+        return this.doGet(url);
+    };
+
     doGet = async (url, headers = {}) => {
         headers['X-Requested-With'] = 'XMLHttpRequest';
 
