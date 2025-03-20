@@ -306,7 +306,8 @@ func (p *Plugin) refreshAndStoreToken(connection *types.Connection, instanceID s
 }
 
 type UserConnectionInfo struct {
-	CanRunSubscribeCommand bool `json:"can_run_subscribe_command"`
+	CanRunSubscribeCommand    bool `json:"can_run_subscribe_command"`
+	ServerVersionGreaterthan9 bool `json:"server_version_greater_than_9"`
 }
 
 func httpGetUserInfo(w http.ResponseWriter, r *http.Request, p *Plugin) {
@@ -323,9 +324,12 @@ func httpGetUserInfo(w http.ResponseWriter, r *http.Request, p *Plugin) {
 		return
 	}
 
-	if !config.GetConfig().ServerVersionGreaterthan9 {
+	serverVersionGreaterThan9 := config.GetConfig().ServerVersionGreaterthan9
+
+	if !serverVersionGreaterThan9 {
 		info := &UserConnectionInfo{
-			CanRunSubscribeCommand: util.IsSystemAdmin(mattermostUserID),
+			CanRunSubscribeCommand:    util.IsSystemAdmin(mattermostUserID),
+			ServerVersionGreaterthan9: serverVersionGreaterThan9,
 		}
 		b, _ := json.Marshal(info)
 		w.Header().Set("Content-Type", "application/json")
@@ -343,7 +347,8 @@ func httpGetUserInfo(w http.ResponseWriter, r *http.Request, p *Plugin) {
 	if err != nil {
 		if strings.Contains(err.Error(), "not found") {
 			info := &UserConnectionInfo{
-				CanRunSubscribeCommand: false,
+				CanRunSubscribeCommand:    false,
+				ServerVersionGreaterthan9: serverVersionGreaterThan9,
 			}
 			b, _ := json.Marshal(info)
 			w.Header().Set("Content-Type", "application/json")
@@ -357,7 +362,8 @@ func httpGetUserInfo(w http.ResponseWriter, r *http.Request, p *Plugin) {
 	}
 
 	info := &UserConnectionInfo{
-		CanRunSubscribeCommand: len(connection.ConfluenceAccountID()) != 0,
+		CanRunSubscribeCommand:    len(connection.ConfluenceAccountID()) != 0,
+		ServerVersionGreaterthan9: serverVersionGreaterThan9,
 	}
 
 	b, _ := json.Marshal(info)

@@ -36,7 +36,8 @@ export default class Hooks {
             }
 
             if (!subscriptionAccessData?.can_run_subscribe_command) {
-                this.store.dispatch(sendEphemeralPost(Constants.DISCONNECTED_USER, contextArgs.channel_id, user.id));
+                const errorMsg = subscriptionAccessData?.server_version_greater_than_9 ? Constants.DISCONNECTED_USER : Constants.COMMAND_ADMIN_ONLY;
+                this.store.dispatch(sendEphemeralPost(errorMsg, contextArgs.channel_id, user.id));
                 return Promise.resolve({});
             }
 
@@ -51,7 +52,8 @@ export default class Hooks {
             }
 
             if (!subscriptionAccessData?.can_run_subscribe_command) {
-                this.store.dispatch(sendEphemeralPost(Constants.DISCONNECTED_USER, contextArgs.channel_id, user.id));
+                const errorMsg = subscriptionAccessData?.server_version_greater_than_9 ? Constants.DISCONNECTED_USER : Constants.COMMAND_ADMIN_ONLY;
+                this.store.dispatch(sendEphemeralPost(errorMsg, contextArgs.channel_id, user.id));
                 return Promise.resolve({});
             }
 
