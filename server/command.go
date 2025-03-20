@@ -257,7 +257,7 @@ func deleteSubscription(_ *Plugin, context *model.CommandArgs, args ...string) *
 			return &model.CommandResponse{}
 		}
 	} else if !util.IsSystemAdmin(context.UserId) {
-		postCommandResponse(context, installOnlySystemAdmin)
+		postCommandResponse(context, commandsOnlySystemAdmin)
 		return &model.CommandResponse{}
 	}
 
@@ -293,7 +293,7 @@ func listChannelSubscription(_ *Plugin, context *model.CommandArgs, args ...stri
 			return &model.CommandResponse{}
 		}
 	} else if !util.IsSystemAdmin(context.UserId) {
-		postCommandResponse(context, installOnlySystemAdmin)
+		postCommandResponse(context, commandsOnlySystemAdmin)
 		return &model.CommandResponse{}
 	}
 
@@ -315,7 +315,7 @@ func listChannelSubscription(_ *Plugin, context *model.CommandArgs, args ...stri
 func confluenceHelpCommand(_ *Plugin, context *model.CommandArgs, args ...string) *model.CommandResponse {
 	pluginConfig := config.GetConfig()
 	if !pluginConfig.ServerVersionGreaterthan9 && !util.IsSystemAdmin(context.UserId) {
-		postCommandResponse(context, installOnlySystemAdmin)
+		postCommandResponse(context, commandsOnlySystemAdmin)
 		return &model.CommandResponse{}
 	}
 
