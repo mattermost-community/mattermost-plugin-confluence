@@ -55,7 +55,7 @@ const SPECIFY_ALIAS = 'Please specify a name for the subscription.';
 
 const COMMAND_ADMIN_ONLY = '`/confluence` commands can only be run by a system administrator.';
 const SYSTEM_ADMIN_ROLE = 'system_admin';
-const DISCONNECTED_USER = 'You are not connected. Please use `/confluence connect` to link your account.';
+const DISCONNECTED_USER = 'User not connected. Please use `/confluence connect`.';
 const ERROR_EXECUTING_COMMAND = 'An error occurred while executing the command. Please try again later.';
 
 export default {

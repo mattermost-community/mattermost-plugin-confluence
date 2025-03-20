@@ -341,7 +341,7 @@ func httpGetUserInfo(w http.ResponseWriter, r *http.Request, p *Plugin) {
 		}
 
 		p.client.Log.Error("Error getting client connection", "MattermostUserID", mattermostUserID, "error", err)
-		http.Error(w, "some error occured checking user connection status", http.StatusInternalServerError)
+		http.Error(w, "some error occurred checking user connection status", http.StatusInternalServerError)
 		return
 	}
 
