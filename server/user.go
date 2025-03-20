@@ -15,6 +15,7 @@ import (
 
 	"github.com/mattermost/mattermost-plugin-confluence/server/config"
 	"github.com/mattermost/mattermost-plugin-confluence/server/store"
+	"github.com/mattermost/mattermost-plugin-confluence/server/util"
 	"github.com/mattermost/mattermost-plugin-confluence/server/util/types"
 )
 
@@ -324,7 +325,7 @@ func httpGetUserInfo(w http.ResponseWriter, r *http.Request, p *Plugin) {
 
 	if !config.GetConfig().ServerVersionGreaterthan9 {
 		info := &UserConnectionInfo{
-			CanRunSubscribeCommand: true,
+			CanRunSubscribeCommand: util.IsSystemAdmin(mattermostUserID),
 		}
 		b, _ := json.Marshal(info)
 		w.Header().Set("Content-Type", "application/json")
