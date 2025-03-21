@@ -31,7 +31,13 @@ func handleConfluenceServerWebhook(w http.ResponseWriter, r *http.Request, p *Pl
 		return
 	}
 
-	if respondTestConnection(r) {
+	body, err := io.ReadAll(r.Body)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusBadRequest)
+		return
+	}
+
+	if respondTestConnection(body) {
 		w.Header().Set("Content-Type", "application/json")
 		ReturnStatusOK(w)
 		return
@@ -40,14 +46,8 @@ func handleConfluenceServerWebhook(w http.ResponseWriter, r *http.Request, p *Pl
 	pluginConfig := config.GetConfig()
 
 	if pluginConfig.ServerVersionGreaterthan9 {
-		body, err := io.ReadAll(r.Body)
-		if err != nil {
-			http.Error(w, err.Error(), http.StatusBadRequest)
-			return
-		}
-
 		var event *serializer.ConfluenceServerWebhookPayload
-		err = json.Unmarshal(body, &event)
+		err := json.Unmarshal(body, &event)
 		if err != nil {
 			config.Mattermost.LogError("Error occurred while unmarshalling Confluence server webhook payload.", "Error", err.Error())
 			http.Error(w, err.Error(), http.StatusInternalServerError)
@@ -316,14 +316,7 @@ func (p *Plugin) SetAdminAPITokenRequestHeader(req *http.Request) error {
 	return nil
 }
 
-func respondTestConnection(r *http.Request) bool {
-	defer r.Body.Close()
-
-	body, err := io.ReadAll(r.Body)
-	if err != nil {
-		return false
-	}
-
+func respondTestConnection(body []byte) bool {
 	var testConnectionBody struct {
 		Test bool `json:"test"`
 	}
