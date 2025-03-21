@@ -31,6 +31,12 @@ func handleConfluenceServerWebhook(w http.ResponseWriter, r *http.Request, p *Pl
 		return
 	}
 
+	if respondTestConnection(r) {
+		w.Header().Set("Content-Type", "application/json")
+		ReturnStatusOK(w)
+		return
+	}
+
 	pluginConfig := config.GetConfig()
 
 	if pluginConfig.ServerVersionGreaterthan9 {
@@ -308,4 +314,23 @@ func (p *Plugin) SetAdminAPITokenRequestHeader(req *http.Request) error {
 	req.Header.Set("Accept", "application/json")
 
 	return nil
+}
+
+func respondTestConnection(r *http.Request) bool {
+	defer r.Body.Close()
+
+	body, err := io.ReadAll(r.Body)
+	if err != nil {
+		return false
+	}
+
+	var testConnectionBody struct {
+		Test bool `json:"test"`
+	}
+
+	if err := json.Unmarshal(body, &testConnectionBody); err != nil {
+		return false
+	}
+
+	return testConnectionBody.Test
 }
