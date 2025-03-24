@@ -31,6 +31,8 @@ With the Confluence plugin, you can subscribe to a variety of events in Confluen
   - Confluence spaces, including those created, updated, deleted, and restored, and those with added comments.
   - Confluence pages, including those created, updated, deleted, restored, and those with added, deleted, or updated comments.
 
+**Note**: For Confluence server version greater than 9, user need to be connected to mattermost in order to get the notifications or the admin has to setup API token.
+
 ## Configure notifications
 
 - The ``Alias`` (Subscription Name) is intended to be an easy to remember name for the subscription. You will use this name when you need to edit the configuration again. 
@@ -77,6 +79,21 @@ example: `/confluence unsubscribe "Project A Subscription"`.
 ## Development 
 
 This plugin contains both a server and web app portion. Read our documentation about the [Developer Workflow](https://developers.mattermost.com/integrate/plugins/developer-workflow/) and [Developer Setup](https://developers.mattermost.com/integrate/plugins/developer-setup/) for more information about developing and extending plugins.
+
+## Note for Confluence server version greater or equal to 9
+
+- For Confluence server version greater than or equal to 9, run `/confluence install server` and follow the setup instructions.
+- User how triggers the event on confluence need to be connected on Mattermost in order to get the notification
+- Generic notification will be recieved for Page subscriptions if the user who is not connected to Mattermost triggers the event on Confluence
+- Admin can setup Admin API Token in plugin configuration to allow notifications for events even when the user who triggers the event on confluence is not connnected on Mattermost
+
+### / confluence connect
+
+Connect your mattermost account to confluence.
+
+### / confluence disconnect
+
+Disconnect your mattermost account to confluence.
 
 ### Releasing new versions
 
