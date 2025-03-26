@@ -2,7 +2,7 @@ module github.com/mattermost/mattermost-plugin-confluence
 
 go 1.22.0
 
-toolchain go1.23.7
+toolchain go1.22.8
 
 require (
 	bou.ke/monkey v1.0.2
